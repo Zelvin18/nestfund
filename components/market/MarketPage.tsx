@@ -1,53 +1,84 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, MapPinIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
+import { MapPinIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline"
+import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
 import { featuredProperties } from "@/lib/mockData"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import { Button } from "@/components/ui/Button"
+import Sparkline from "@/components/ui/Sparkline"
+
+type Filter = "all" | "high-growth" | "high-yield"
+type Sort = "trending" | "price-low" | "price-high" | "yield"
 
 export default function MarketPage() {
-  const [filter, setFilter] = useState<"all" | "high-growth" | "high-yield">("all")
-  const [sort, setSort] = useState<"trending" | "price-low" | "price-high" | "yield">("trending")
+  const [filter, setFilter] = useState<Filter>("all")
+  const [sort, setSort] = useState<Sort>("trending")
+
+  const filterTabs: { key: Filter; label: string }[] = [
+    { key: "all", label: "All Properties" },
+    { key: "high-growth", label: "🔥 High Growth" },
+    { key: "high-yield", label: "💰 High Yield" },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="mb-2 text-4xl font-bold text-gray-900">Property Market</h1>
-          <p className="text-lg text-gray-600">Discover and invest in verified real estate opportunities</p>
-        </div>
-      </div>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
 
-      {/* Filters */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
-              {(["all", "high-growth", "high-yield"] as const).map((f) => (
+      {/* Page header */}
+      <div style={{ backgroundColor: "#fff", borderBottom: "1.5px solid #f1f5f9" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 0" }}>
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.8px", margin: "0 0 6px 0" }}>
+            Property Market
+          </h1>
+          <p style={{ fontSize: 16, color: "#64748b", margin: "0 0 24px 0" }}>
+            Real-time share pricing across verified investment properties
+          </p>
+
+          {/* Tabs + Sort */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 0 }}>
+            <div style={{ display: "flex", gap: 4 }}>
+              {filterTabs.map(tab => (
                 <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                    filter === f ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  key={tab.key}
+                  onClick={() => setFilter(tab.key)}
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: "10px 10px 0 0",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                    backgroundColor: filter === tab.key ? "#2563eb" : "transparent",
+                    color: filter === tab.key ? "#fff" : "#64748b",
+                    borderBottom: filter === tab.key ? "2px solid #2563eb" : "2px solid transparent",
+                  }}
                 >
-                  {f === "all" ? "All Properties" : f === "high-growth" ? "High Growth" : "High Yield"}
+                  {tab.label}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2">
-              <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-500" />
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              <AdjustmentsHorizontalIcon style={{ width: 16, height: 16, color: "#94a3b8" }} />
               <select
                 value={sort}
-                onChange={(e) => setSort(e.target.value as typeof sort)}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700"
+                onChange={e => setSort(e.target.value as Sort)}
+                style={{
+                  padding: "7px 12px",
+                  borderRadius: 8,
+                  border: "1.5px solid #e2e8f0",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "#374151",
+                  background: "#fff",
+                  outline: "none",
+                  cursor: "pointer",
+                }}
               >
                 <option value="trending">Trending</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
+                <option value="price-low">Price: Low → High</option>
+                <option value="price-high">Price: High → Low</option>
                 <option value="yield">Rental Yield</option>
               </select>
             </div>
@@ -55,13 +86,20 @@ export default function MarketPage() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <p className="mb-6 text-sm text-gray-600">
-          Showing <span className="font-semibold text-gray-900">{featuredProperties.length}</span> properties
+      {/* Property grid */}
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
+        <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 20, fontWeight: 500 }}>
+          Showing <strong style={{ color: "#374151" }}>{featuredProperties.length}</strong> properties
         </p>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {featuredProperties.map((property) => (
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+            gap: 24,
+          }}
+        >
+          {featuredProperties.map(property => (
             <PropertyCard key={property.id} property={property} />
           ))}
         </div>
@@ -72,61 +110,199 @@ export default function MarketPage() {
 
 function PropertyCard({ property }: { property: typeof featuredProperties[0] }) {
   const isPositive = property.priceChangePercent >= 0
+  const sparkData = property.chartData.map(d => d.value)
+
   return (
-    <Link
-      href={`/property/${property.id}`}
-      className="group overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-gray-100 transition hover:shadow-xl"
-    >
-      <div className="relative h-52 overflow-hidden bg-gray-100">
-        <img
-          src={property.image}
-          alt={property.name}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute right-3 top-3">
-          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-            property.futureGrowth === "High" ? "bg-green-500 text-white" :
-            property.futureGrowth === "Medium" ? "bg-yellow-500 text-white" : "bg-gray-500 text-white"
-          }`}>{property.futureGrowth} Growth</span>
-        </div>
-        <div className="absolute bottom-3 left-3 flex items-center space-x-1 text-white">
-          <MapPinIcon className="h-3.5 w-3.5" />
-          <span className="text-sm font-medium">{property.location}</span>
-        </div>
-      </div>
-      <div className="p-5">
-        <h3 className="mb-1 text-lg font-bold text-gray-900 group-hover:text-blue-600">{property.name}</h3>
-        <p className="mb-4 text-sm text-gray-500">
-          {property.availableShares.toLocaleString()} of {property.totalShares.toLocaleString()} shares available
-        </p>
-        <div className="mb-4 flex h-12 items-end justify-between gap-0.5 overflow-hidden rounded-md bg-gray-50 px-2 pb-1">
-          {property.chartData.slice(-20).map((point, i) => {
-            const vals = property.chartData.slice(-20).map(d => d.value)
-            const h = ((point.value - Math.min(...vals)) / (Math.max(...vals) - Math.min(...vals))) * 100
-            return <div key={i} className={`flex-1 rounded-sm ${isPositive ? "bg-green-400" : "bg-red-400"} opacity-70`} style={{ height: `${Math.max(h, 8)}%` }} />
-          })}
-        </div>
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <div className="rounded-lg bg-gray-50 p-2 text-center">
-            <p className="text-xs text-gray-500">Price/Share</p>
-            <p className="text-sm font-bold text-gray-900">UGX {formatCurrency(property.pricePerShare)}</p>
+    <Link href={`/property/${property.id}`} style={{ textDecoration: "none", display: "block" }}>
+      <div
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: 16,
+          border: "1.5px solid #f1f5f9",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+          overflow: "hidden",
+          transition: "all 0.2s",
+          cursor: "pointer",
+        }}
+        onMouseEnter={e => {
+          const el = e.currentTarget as HTMLDivElement
+          el.style.boxShadow = "0 8px 32px rgba(37,99,235,0.13)"
+          el.style.transform = "translateY(-3px)"
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget as HTMLDivElement
+          el.style.boxShadow = "0 2px 12px rgba(0,0,0,0.05)"
+          el.style.transform = "translateY(0)"
+        }}
+      >
+        {/* Image */}
+        <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
+          <img
+            src={property.image}
+            alt={property.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%)",
+            }}
+          />
+          <div style={{ position: "absolute", top: 12, left: 12 }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                backgroundColor: "rgba(255,255,255,0.92)",
+                borderRadius: 99,
+                padding: "4px 9px",
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#16a34a",
+              }}
+            >
+              <CheckBadgeIcon style={{ width: 12, height: 12 }} />
+              Verified
+            </span>
           </div>
-          <div className="rounded-lg bg-gray-50 p-2 text-center">
-            <p className="text-xs text-gray-500">Rental Yield</p>
-            <p className="text-sm font-bold text-green-600">{property.rentalYield}%</p>
+          <div style={{ position: "absolute", top: 12, right: 12 }}>
+            <span
+              style={{
+                padding: "4px 10px",
+                borderRadius: 99,
+                fontSize: 11,
+                fontWeight: 700,
+                backgroundColor: property.futureGrowth === "High" ? "#10b981" : property.futureGrowth === "Medium" ? "#f59e0b" : "#6b7280",
+                color: "#fff",
+              }}
+            >
+              {property.futureGrowth} Growth
+            </span>
           </div>
-          <div className="rounded-lg bg-gray-50 p-2 text-center">
-            <p className="text-xs text-gray-500">Area Score</p>
-            <p className="text-sm font-bold text-gray-900">{property.areaScore}/100</p>
+          <div
+            style={{
+              position: "absolute",
+              bottom: 12,
+              left: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              color: "#fff",
+            }}
+          >
+            <MapPinIcon style={{ width: 13, height: 13 }} />
+            <span style={{ fontSize: 12, fontWeight: 500 }}>{property.location}</span>
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <div className={`flex items-center space-x-1 font-semibold ${isPositive ? "text-green-600" : "text-red-600"}`}>
-            {isPositive ? <ArrowTrendingUpIcon className="h-4 w-4" /> : <ArrowTrendingDownIcon className="h-4 w-4" />}
-            <span className="text-sm">{formatPercentage(property.priceChangePercent)}</span>
+
+        {/* Body */}
+        <div style={{ padding: "16px 18px 18px" }}>
+          {/* Name + price */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+            <div style={{ flex: 1, paddingRight: 12 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>
+                {property.name}
+              </h3>
+              <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>
+                {property.availableShares.toLocaleString()} of {property.totalShares.toLocaleString()} shares left
+              </p>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <p style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.3px" }}>
+                UGX {formatCurrency(property.pricePerShare)}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  gap: 3,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: isPositive ? "#10b981" : "#ef4444",
+                }}
+              >
+                {isPositive
+                  ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} />
+                  : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />
+                }
+                {formatPercentage(property.priceChangePercent)}
+              </div>
+            </div>
           </div>
-          <Button variant="primary" size="sm">Buy Now</Button>
+
+          {/* Stock-style sparkline */}
+          <div
+            style={{
+              backgroundColor: "#f8fafc",
+              borderRadius: 10,
+              padding: "8px 12px",
+              marginBottom: 12,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>
+              <p style={{ fontSize: 10, color: "#94a3b8", margin: "0 0 1px 0", fontWeight: 500 }}>30-day price</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: isPositive ? "#10b981" : "#ef4444", margin: 0 }}>
+                {isPositive ? "↑ Trending up" : "↓ Trending down"}
+              </p>
+            </div>
+            <Sparkline data={sparkData} width={120} height={40} positive={isPositive} strokeWidth={1.8} />
+          </div>
+
+          {/* Stats */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 12 }}>
+            {[
+              { label: "Yield (Annual)", value: `${property.rentalYield}%`, highlight: true },
+              { label: "Occupancy", value: "98%" },
+              { label: "Area Score", value: `${property.areaScore}/100` },
+            ].map(s => (
+              <div
+                key={s.label}
+                style={{
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                  padding: "7px 5px",
+                  textAlign: "center",
+                }}
+              >
+                <p style={{ fontSize: 9, color: "#94a3b8", marginBottom: 2, fontWeight: 500, textTransform: "uppercase" }}>
+                  {s.label}
+                </p>
+                <p
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: s.highlight ? "#10b981" : "#0f172a",
+                    margin: 0,
+                  }}
+                >
+                  {s.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Buy button */}
+          <button
+            style={{
+              width: "100%",
+              padding: "10px 0",
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 700,
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Buy Shares — UGX {formatCurrency(property.pricePerShare)}/share
+          </button>
         </div>
       </div>
     </Link>

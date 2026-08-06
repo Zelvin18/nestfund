@@ -1,90 +1,142 @@
 "use client"
 
-import { 
-  ArrowTrendingUpIcon, 
-  ArrowTrendingDownIcon, 
-  UsersIcon, 
-  ListBulletIcon, 
-  CurrencyDollarIcon 
+import {
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  UsersIcon,
+  Squares2X2Icon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline"
-import { formatPercentage } from "@/lib/utils"
 import { marketStats } from "@/lib/mockData"
+
+const stats = [
+  {
+    label: "Market Volume",
+    value: marketStats.marketVolume,
+    change: marketStats.marketVolumeChange,
+    sub: "Total 24H Trading",
+    icon: ArrowTrendingUpIcon,
+    iconBg: "#eff6ff",
+    iconColor: "#2563eb",
+  },
+  {
+    label: "Total Investors",
+    value: marketStats.totalInvestors.toLocaleString(),
+    change: marketStats.investorsChange,
+    sub: "Active Platform Users",
+    icon: UsersIcon,
+    iconBg: "#f0fdf4",
+    iconColor: "#16a34a",
+  },
+  {
+    label: "Active Listings",
+    value: String(marketStats.activeListings),
+    change: marketStats.listingsChange,
+    sub: "Available Properties",
+    icon: Squares2X2Icon,
+    iconBg: "#fefce8",
+    iconColor: "#ca8a04",
+  },
+  {
+    label: "Avg. Annual Return",
+    value: `${marketStats.avgAnnualReturn}%`,
+    change: marketStats.returnChange,
+    sub: "Historical Performance",
+    icon: CurrencyDollarIcon,
+    iconBg: "#fdf4ff",
+    iconColor: "#9333ea",
+  },
+]
 
 export default function MarketOverview() {
   return (
-    <section className="bg-gray-50 py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-gray-900">Live Market Overview</h2>
-          <p className="text-lg text-gray-600">Real-time market statistics and performance</p>
+    <section style={{ backgroundColor: "#f8fafc", padding: "64px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <h2 style={{ fontSize: 30, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
+            Live Market Overview
+          </h2>
+          <p style={{ fontSize: 16, color: "#64748b", margin: 0 }}>
+            Real-time statistics powering smarter investment decisions
+          </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Market Volume"
-            value={marketStats.marketVolume}
-            change={marketStats.marketVolumeChange}
-            icon={ArrowTrendingUpIcon}
-            description="Total 24H Trading"
-          />
-          <StatCard
-            title="Total Investors"
-            value={marketStats.totalInvestors.toLocaleString()}
-            change={marketStats.investorsChange}
-            icon={UsersIcon}
-            description="Active Platform Users"
-          />
-          <StatCard
-            title="Active Listings"
-            value={marketStats.activeListings}
-            change={marketStats.listingsChange}
-            icon={ListBulletIcon}
-            description="Available Properties"
-          />
-          <StatCard
-            title="Avg. Annual Return"
-            value={`${marketStats.avgAnnualReturn}%`}
-            change={marketStats.returnChange}
-            icon={CurrencyDollarIcon}
-            description="Historical Performance"
-          />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 20,
+          }}
+        >
+          {stats.map((stat) => (
+            <StatCard key={stat.label} {...stat} />
+          ))}
         </div>
       </div>
     </section>
   )
 }
 
-interface StatCardProps {
-  title: string
-  value: string | number
-  change: number
-  icon: React.ElementType
-  description: string
-}
-
-function StatCard({ title, value, change, icon: Icon, description }: StatCardProps) {
-  const isPositive = change >= 0
+function StatCard({
+  label, value, change, sub, icon: Icon, iconBg, iconColor,
+}: {
+  label: string; value: string; change: number; sub: string
+  icon: React.ElementType; iconBg: string; iconColor: string
+}) {
+  const positive = change >= 0
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-          <Icon className="h-5 w-5 text-blue-600" />
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 14,
+        padding: "22px 20px",
+        border: "1.5px solid #f1f5f9",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+        <div
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 11,
+            backgroundColor: iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon style={{ width: 20, height: 20, color: iconColor }} />
         </div>
-        <div className={`flex items-center space-x-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
-          isPositive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-        }`}>
-          {isPositive ? (
-            <ArrowTrendingUpIcon className="h-3 w-3" />
-          ) : (
-            <ArrowTrendingDownIcon className="h-3 w-3" />
-          )}
-          <span>{formatPercentage(change)}</span>
+
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 3,
+            padding: "3px 9px",
+            borderRadius: 99,
+            backgroundColor: positive ? "#f0fdf4" : "#fef2f2",
+            fontSize: 11,
+            fontWeight: 700,
+            color: positive ? "#16a34a" : "#dc2626",
+          }}
+        >
+          {positive
+            ? <ArrowTrendingUpIcon style={{ width: 11, height: 11 }} />
+            : <ArrowTrendingDownIcon style={{ width: 11, height: 11 }} />
+          }
+          {positive ? "+" : ""}{change.toFixed(2)}%
         </div>
       </div>
-      <h3 className="mb-1 text-sm font-medium text-gray-600">{title}</h3>
-      <p className="mb-2 text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500">{description}</p>
+
+      <p style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, margin: "0 0 4px 0" }}>{label}</p>
+      <p style={{ fontSize: 26, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 4px 0" }}>
+        {value}
+      </p>
+      <p style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 500, margin: 0 }}>{sub}</p>
     </div>
   )
 }

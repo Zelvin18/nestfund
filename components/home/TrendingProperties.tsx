@@ -1,37 +1,58 @@
 "use client"
 
-import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, MapPinIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
+import { MapPinIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
+import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
 import { featuredProperties } from "@/lib/mockData"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
+import Sparkline from "@/components/ui/Sparkline"
 
 export default function TrendingProperties() {
   return (
-    <section className="bg-white py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex items-end justify-between">
+    <section style={{ backgroundColor: "#fff", padding: "72px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 40 }}>
           <div>
-            <h2 className="mb-3 text-3xl font-bold text-gray-900">Trending Properties</h2>
-            <p className="text-lg text-gray-600">Hot investment opportunities right now</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+              🔥 Live Market
+            </p>
+            <h2 style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: 0 }}>
+              Trending Properties
+            </h2>
+            <p style={{ fontSize: 16, color: "#64748b", marginTop: 8 }}>
+              Hot investment opportunities with real-time share pricing
+            </p>
           </div>
           <Link
             href="/market"
-            className="hidden text-sm font-medium text-blue-600 hover:text-blue-700 sm:block"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#2563eb",
+              textDecoration: "none",
+            }}
           >
-            View All Properties →
+            View All
+            <ChevronRightIcon style={{ width: 16, height: 16 }} />
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Cards grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+            gap: 24,
+          }}
+        >
           {featuredProperties.slice(0, 3).map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}
-        </div>
-
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/market" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-            View All Properties →
-          </Link>
         </div>
       </div>
     </section>
@@ -40,98 +61,230 @@ export default function TrendingProperties() {
 
 function PropertyCard({ property }: { property: typeof featuredProperties[0] }) {
   const isPositive = property.priceChangePercent >= 0
+  const sparkData = property.chartData.map(d => d.value)
 
   return (
     <Link
       href={`/property/${property.id}`}
-      className="group overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-gray-100 transition hover:shadow-xl"
+      style={{ textDecoration: "none", display: "block" }}
     >
-      {/* Image */}
-      <div className="relative h-52 overflow-hidden bg-gray-100">
-        <img
-          src={property.image}
-          alt={property.name}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute right-3 top-3">
-          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-            property.futureGrowth === "High"
-              ? "bg-green-500 text-white"
-              : property.futureGrowth === "Medium"
-              ? "bg-yellow-500 text-white"
-              : "bg-gray-500 text-white"
-          }`}>
-            {property.futureGrowth} Growth
-          </span>
-        </div>
-        <div className="absolute bottom-3 left-3 flex items-center space-x-1 text-white">
-          <MapPinIcon className="h-3.5 w-3.5" />
-          <span className="text-sm font-medium">{property.location}</span>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-5">
-        <div className="mb-4 flex items-start justify-between">
-          <div>
-            <h3 className="mb-1 text-lg font-bold text-gray-900 group-hover:text-blue-600">
-              {property.name}
-            </h3>
-            <p className="text-sm text-gray-500">
-              {property.availableShares.toLocaleString()} of {property.totalShares.toLocaleString()} shares available
-            </p>
+      <div
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: 16,
+          border: "1.5px solid #f1f5f9",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+          overflow: "hidden",
+          transition: "box-shadow 0.2s, transform 0.2s",
+          cursor: "pointer",
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(37,99,235,0.12)"
+          ;(e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)"
+          ;(e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"
+        }}
+      >
+        {/* Property Image */}
+        <div style={{ position: "relative", height: 200, overflow: "hidden", backgroundColor: "#f1f5f9" }}>
+          <img
+            src={property.image}
+            alt={property.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+          {/* Gradient overlay */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%)",
+            }}
+          />
+          {/* Growth badge */}
+          <div style={{ position: "absolute", top: 12, right: 12 }}>
+            <span
+              style={{
+                display: "inline-block",
+                padding: "4px 10px",
+                borderRadius: 99,
+                fontSize: 11,
+                fontWeight: 700,
+                backgroundColor: property.futureGrowth === "High" ? "#10b981" : property.futureGrowth === "Medium" ? "#f59e0b" : "#6b7280",
+                color: "#fff",
+              }}
+            >
+              {property.futureGrowth} Growth
+            </span>
+          </div>
+          {/* Verified badge */}
+          <div style={{ position: "absolute", top: 12, left: 12 }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "4px 8px",
+                borderRadius: 99,
+                fontSize: 11,
+                fontWeight: 600,
+                backgroundColor: "rgba(255,255,255,0.92)",
+                color: "#16a34a",
+                backdropFilter: "blur(4px)",
+              }}
+            >
+              <CheckBadgeIcon style={{ width: 12, height: 12 }} />
+              Verified
+            </span>
+          </div>
+          {/* Location bottom */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 12,
+              left: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              color: "#fff",
+            }}
+          >
+            <MapPinIcon style={{ width: 14, height: 14 }} />
+            <span style={{ fontSize: 13, fontWeight: 500 }}>{property.location}</span>
           </div>
         </div>
 
-        {/* Mini chart */}
-        <div className="mb-4 flex h-12 items-end justify-between gap-0.5 overflow-hidden rounded-md bg-gray-50 px-2 pb-1">
-          {property.chartData.slice(-20).map((point, i) => {
-            const minVal = Math.min(...property.chartData.slice(-20).map(d => d.value))
-            const maxVal = Math.max(...property.chartData.slice(-20).map(d => d.value))
-            const height = ((point.value - minVal) / (maxVal - minVal)) * 100
-            return (
+        {/* Card Body */}
+        <div style={{ padding: "16px 18px 18px" }}>
+          {/* Name + Price row */}
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ flex: 1, minWidth: 0, paddingRight: 12 }}>
+              <h3
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "#0f172a",
+                  margin: "0 0 3px 0",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {property.name}
+              </h3>
+              <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                {property.availableShares.toLocaleString()} / {property.totalShares.toLocaleString()} shares left
+              </p>
+            </div>
+
+            {/* Price + chart right side */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.3px" }}>
+                UGX {formatCurrency(property.pricePerShare)}
+              </span>
               <div
-                key={i}
-                className={`flex-1 rounded-sm ${isPositive ? "bg-green-400" : "bg-red-400"} opacity-70`}
-                style={{ height: `${Math.max(height, 8)}%` }}
-              />
-            )
-          })}
-        </div>
-
-        {/* Stats */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <div className="rounded-lg bg-gray-50 p-2 text-center">
-            <p className="text-xs text-gray-500">Price/Share</p>
-            <p className="text-sm font-bold text-gray-900">UGX {formatCurrency(property.pricePerShare)}</p>
-          </div>
-          <div className="rounded-lg bg-gray-50 p-2 text-center">
-            <p className="text-xs text-gray-500">Rental Yield</p>
-            <p className="text-sm font-bold text-green-600">{property.rentalYield}%</p>
-          </div>
-          <div className="rounded-lg bg-gray-50 p-2 text-center">
-            <p className="text-xs text-gray-500">Area Score</p>
-            <p className="text-sm font-bold text-gray-900">{property.areaScore}/100</p>
-          </div>
-        </div>
-
-        {/* Price change */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">24h Change:</span>
-            <div className={`flex items-center space-x-1 font-semibold ${
-              isPositive ? "text-green-600" : "text-red-600"
-            }`}>
-              {isPositive
-                ? <ArrowTrendingUpIcon className="h-4 w-4" />
-                : <ArrowTrendingDownIcon className="h-4 w-4" />
-              }
-              <span className="text-sm">{formatPercentage(property.priceChangePercent)}</span>
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: isPositive ? "#10b981" : "#ef4444",
+                }}
+              >
+                {isPositive
+                  ? <ArrowTrendingUpIcon style={{ width: 14, height: 14 }} />
+                  : <ArrowTrendingDownIcon style={{ width: 14, height: 14 }} />
+                }
+                {formatPercentage(property.priceChangePercent)} today
+              </div>
             </div>
           </div>
-          <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
-            Buy Now
+
+          {/* Sparkline chart — the stock market zigzag line */}
+          <div
+            style={{
+              backgroundColor: "#f8fafc",
+              borderRadius: 10,
+              padding: "10px 12px 8px",
+              marginBottom: 14,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>
+              <p style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500, marginBottom: 2 }}>30-day price</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                /share
+              </p>
+            </div>
+            <Sparkline
+              data={sparkData}
+              width={130}
+              height={44}
+              positive={isPositive}
+              strokeWidth={2}
+            />
+          </div>
+
+          {/* Stats row */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: 8,
+              marginBottom: 14,
+            }}
+          >
+            {[
+              { label: "Yield (Annual)", value: `${property.rentalYield}%`, highlight: true },
+              { label: "Occupancy", value: "98%" },
+              { label: "Area Score", value: `${property.areaScore}/100` },
+            ].map(stat => (
+              <div
+                key={stat.label}
+                style={{
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                  padding: "8px 6px",
+                  textAlign: "center",
+                }}
+              >
+                <p style={{ fontSize: 10, color: "#94a3b8", marginBottom: 3, fontWeight: 500 }}>
+                  {stat.label}
+                </p>
+                <p
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: stat.highlight ? "#10b981" : "#0f172a",
+                    margin: 0,
+                  }}
+                >
+                  {stat.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Buy button */}
+          <button
+            style={{
+              width: "100%",
+              padding: "11px 0",
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 700,
+              border: "none",
+              cursor: "pointer",
+              letterSpacing: "0.01em",
+            }}
+          >
+            Buy Shares — UGX {formatCurrency(property.pricePerShare)}/share
           </button>
         </div>
       </div>
