@@ -7,11 +7,11 @@ import {
   ExclamationTriangleIcon,
   ArrowPathIcon,
   FunnelIcon,
+  MapPinIcon,
 } from "@heroicons/react/24/outline"
 import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
-  CpuChipIcon,
 } from "@heroicons/react/24/solid"
 
 const allItems = [
@@ -30,10 +30,10 @@ export default function IntelligencePage() {
 
   const filters: { key: FilterType; label: string; count: number }[] = [
     { key: "all", label: "All Updates", count: allItems.length },
-    { key: "positive", label: "📈 Positive", count: allItems.filter(i => i.change > 0).length },
-    { key: "negative", label: "📉 Negative", count: allItems.filter(i => i.change < 0).length },
-    { key: "approval", label: "✅ Government", count: allItems.filter(i => i.type === "approval").length },
-    { key: "development", label: "🏗️ Development", count: allItems.filter(i => i.type === "development").length },
+    { key: "positive", label: "Positive", count: allItems.filter(i => i.change > 0).length },
+    { key: "negative", label: "Negative", count: allItems.filter(i => i.change < 0).length },
+    { key: "approval", label: "Government", count: allItems.filter(i => i.type === "approval").length },
+    { key: "development", label: "Development", count: allItems.filter(i => i.type === "development").length },
   ]
 
   const filtered = activeFilter === "all" ? allItems
@@ -49,10 +49,6 @@ export default function IntelligencePage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 0" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
             <div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, backgroundColor: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 99, padding: "5px 12px", fontSize: 12, fontWeight: 600, color: "#7c3aed", marginBottom: 12 }}>
-                <CpuChipIcon style={{ width: 13, height: 13 }} />
-                AI-Powered Market Intelligence
-              </div>
               <h1 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 6px 0" }}>
                 Market Intelligence
               </h1>
@@ -98,7 +94,7 @@ export default function IntelligencePage() {
 
       {/* Content */}
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="intel-grid">
           {filtered.map(item => (
             <IntelCard key={item.id} item={item} />
           ))}
@@ -145,7 +141,7 @@ function IntelCard({ item }: { item: typeof allItems[0] }) {
 
           <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "6px 0 4px 0" }}>{item.title}</h3>
           <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 4 }}>
-            <span>📍</span> {item.location}
+            <MapPinIcon style={{ width: 13, height: 13, color: "#94a3b8" }} /> {item.location}
             <span style={{ marginLeft: 8, fontSize: 11, color: "#94a3b8" }}>• {item.affectedProps} properties affected</span>
           </p>
           <p style={{ fontSize: 13, color: "#475569", margin: "0 0 12px 0", lineHeight: 1.6 }}>{item.impact}</p>

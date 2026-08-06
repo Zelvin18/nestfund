@@ -10,6 +10,7 @@ import {
   BuildingOffice2Icon,
   ExclamationTriangleIcon,
   ChevronRightIcon,
+  MapPinIcon,
 } from "@heroicons/react/24/outline"
 import { marketIntelligence } from "@/lib/mockData"
 
@@ -21,8 +22,8 @@ export default function MarketIntelligenceSection() {
         {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 40 }}>
           <div>
-            <p style={{ fontSize: 12, fontWeight: 600, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
-              🤖 AI-Powered
+            <p style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>
+              Market Intelligence
             </p>
             <h2 style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
               Market Intelligence
@@ -117,7 +118,7 @@ function IntelCard({ item }: { item: typeof marketIntelligence[0] }) {
         </div>
 
         <p style={{ fontSize: 13, color: "#475569", margin: "0 0 10px 0", display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ fontSize: 12 }}>📍</span> {item.location}
+          <MapPinIcon style={{ width: 13, height: 13, color: "#94a3b8" }} /> {item.location}
         </p>
         <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 12px 0", lineHeight: 1.6 }}>{item.impact}</p>
 

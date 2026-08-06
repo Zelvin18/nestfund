@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand: #2563eb;
-  --font-sans: "Inter", system-ui, sans-serif;
-}
-
 :root {
   --background: #ffffff;
   --foreground: #111827;
@@ -30,8 +25,105 @@ body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
+img { max-width: 100%; display: block; }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #f8fafc; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── TICKER ANIMATION ── */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── MOBILE RESPONSIVE ── */
+
+/* Navbar mobile */
+@media (max-width: 768px) {
+  .nav-links    { display: none !important; }
+  .nav-search   { display: none !important; }
+  .nav-wallet   { display: none !important; }
+  .nav-bell     { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+  .nav-sign-in  { display: none !important; }
+  .nav-inner    { gap: 0 !important; }
+}
+
+/* Hero */
+@media (max-width: 900px) {
+  .hero-grid    { grid-template-columns: 1fr !important; gap: 0 !important; padding-bottom: 48px !important; }
+  .hero-right   { display: none !important; }
+}
+@media (max-width: 600px) {
+  .hero-headline { font-size: 36px !important; letter-spacing: -0.5px !important; }
+  .hero-section  { padding: 52px 0 40px !important; }
+  .hero-ctas    { flex-direction: column !important; }
+  .hero-ctas a  { width: 100% !important; justify-content: center !important; }
+  .hero-trust   { gap: 12px !important; }
+}
+
+/* Stats */
+@media (max-width: 900px) { .stats-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr !important; } }
+
+/* Properties */
+@media (max-width: 900px) { .property-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 600px) { .property-grid { grid-template-columns: 1fr !important; } }
+
+/* Features / Why */
+@media (max-width: 900px) { .features-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 540px) { .features-grid { grid-template-columns: 1fr !important; } }
+
+/* How it works steps */
+@media (max-width: 900px) {
+  .steps-grid { grid-template-columns: 1fr 1fr !important; }
+  .steps-connector { display: none !important; }
+}
+@media (max-width: 480px) { .steps-grid { grid-template-columns: 1fr !important; } }
+
+/* Portfolio */
+@media (max-width: 1024px) { .portfolio-chart-grid { grid-template-columns: 1fr !important; } }
+@media (max-width: 800px)  { .summary-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 480px)  { .summary-grid { grid-template-columns: 1fr !important; } }
+
+/* Property detail */
+@media (max-width: 1024px) {
+  .property-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Intelligence */
+@media (max-width: 900px) { .intel-grid { grid-template-columns: 1fr !important; } }
+
+/* Market intel cards */
+@media (max-width: 900px) { .intel-cards { flex-direction: column !important; } }
+
+/* Footer */
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 540px) { .footer-grid { grid-template-columns: 1fr !important; } }
+
+/* Section padding on mobile */
+@media (max-width: 768px) {
+  .section-pad { padding-top: 48px !important; padding-bottom: 48px !important; }
+  .container   { padding-left: 16px !important; padding-right: 16px !important; }
+  .page-header { padding: 24px 16px 20px !important; }
+}
+
+/* Tables — horizontal scroll on mobile */
+@media (max-width: 768px) {
+  .responsive-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+/* Market page filter tabs — scroll on mobile */
+@media (max-width: 640px) {
+  .filter-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+}

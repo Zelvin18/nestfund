@@ -50,8 +50,8 @@ const stats = [
 
 export default function MarketOverview() {
   return (
-    <section style={{ backgroundColor: "#f8fafc", padding: "64px 0" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+    <section style={{ backgroundColor: "#f8fafc", padding: "64px 0" }} className="section-pad">
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }} className="container">
 
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
@@ -68,6 +68,7 @@ export default function MarketOverview() {
             gridTemplateColumns: "repeat(4, 1fr)",
             gap: 20,
           }}
+          className="stats-grid"
         >
           {stats.map((stat) => (
             <StatCard key={stat.label} {...stat} />

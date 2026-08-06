@@ -17,8 +17,8 @@ export default function MarketPage() {
 
   const filterTabs: { key: Filter; label: string }[] = [
     { key: "all", label: "All Properties" },
-    { key: "high-growth", label: "🔥 High Growth" },
-    { key: "high-yield", label: "💰 High Yield" },
+    { key: "high-growth", label: "High Growth" },
+    { key: "high-yield", label: "High Yield" },
   ]
 
   return (
@@ -36,7 +36,7 @@ export default function MarketPage() {
 
           {/* Tabs + Sort */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 0 }}>
-            <div style={{ display: "flex", gap: 4 }}>
+          <div className="filter-tabs" style={{ display: "flex", gap: 4 }}>
               {filterTabs.map(tab => (
                 <button
                   key={tab.key}
@@ -98,6 +98,7 @@ export default function MarketPage() {
             gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
             gap: 24,
           }}
+          className="property-grid"
         >
           {featuredProperties.map(property => (
             <PropertyCard key={property.id} property={property} />

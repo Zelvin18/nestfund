@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRightIcon, ShieldCheckIcon, BoltIcon } from "@heroicons/react/24/outline"
+import { ArrowRightIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
 import Sparkline from "@/components/ui/Sparkline"
 
@@ -10,6 +10,7 @@ const heroSparkData = [1140, 1120, 1155, 1148, 1170, 1162, 1180, 1195, 1185, 121
 export default function HeroSection() {
   return (
     <section
+      className="hero-section"
       style={{
         position: "relative",
         overflow: "hidden",
@@ -52,28 +53,22 @@ export default function HeroSection() {
           gap: 64,
           alignItems: "center",
         }}
+        className="hero-grid"
       >
         {/* Left — copy */}
         <div>
-          {/* Badge */}
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              backgroundColor: "#eff6ff",
-              border: "1px solid #bfdbfe",
-              borderRadius: 99,
-              padding: "6px 14px",
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#2563eb",
-              marginBottom: 24,
-            }}
-          >
-            <BoltIcon style={{ width: 13, height: 13 }} />
-            The Real Estate Investment Market
-          </div>
+          {/* Clean label - no badge/icon */}
+          <p style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#2563eb",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            marginBottom: 18,
+            margin: "0 0 18px 0",
+          }}>
+            Real Estate Investment Platform
+          </p>
 
           {/* Headline */}
           <h1
@@ -114,7 +109,7 @@ export default function HeroSection() {
           </p>
 
           {/* CTA buttons */}
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 40 }}>
+          <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 40 }}>
             <Link
               href="/market"
               style={{
@@ -154,7 +149,7 @@ export default function HeroSection() {
           </div>
 
           {/* Trust row */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+          <div className="hero-trust" style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
             {[
               { icon: <ShieldCheckIcon style={{ width: 16, height: 16, color: "#16a34a" }} />, text: "Secure & Regulated" },
               { icon: <ArrowTrendingUpIcon style={{ width: 16, height: 16, color: "#2563eb" }} />, text: "Avg. 8.6% Annual Return" },
@@ -169,7 +164,7 @@ export default function HeroSection() {
         </div>
 
         {/* Right — live property card */}
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative" }} className="hero-right">
           {/* Floating portfolio value chip */}
           <div
             style={{

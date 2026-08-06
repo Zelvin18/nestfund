@@ -53,7 +53,7 @@ export default function HowItWorks() {
 
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
-            Simple Process
+            Process
           </p>
           <h2 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 12px 0" }}>
             How NestFund Works
@@ -63,7 +63,7 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 28, position: "relative" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 28, position: "relative" }} className="steps-grid">
           {/* Connector line */}
           <div
             style={{
@@ -75,6 +75,7 @@ export default function HowItWorks() {
               background: "linear-gradient(90deg, #bfdbfe 0%, #c4b5fd 50%, #bbf7d0 100%)",
               zIndex: 0,
             }}
+            className="steps-connector"
           />
 
           {steps.map((step, i) => (

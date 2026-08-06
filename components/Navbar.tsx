@@ -78,7 +78,7 @@ export default function Navbar() {
         </Link>
 
         {/* Nav links */}
-        <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <nav style={{ display: "flex", alignItems: "center", gap: 4 }} className="nav-links">
           {navLinks.map(({ href, label }) => {
             const active = pathname === href || pathname.startsWith(href + "/")
             return (
@@ -104,7 +104,7 @@ export default function Navbar() {
         </nav>
 
         {/* Search */}
-        <div style={{ flex: 1, maxWidth: 400 }}>
+        <div style={{ flex: 1, maxWidth: 400 }} className="nav-search">
           <div style={{ position: "relative" }}>
             <MagnifyingGlassIcon
               style={{
@@ -139,6 +139,7 @@ export default function Navbar() {
         {/* Right actions */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto", flexShrink: 0 }}>
           <button
+            className="nav-bell"
             style={{
               width: 36,
               height: 36,
@@ -155,6 +156,7 @@ export default function Navbar() {
           </button>
 
           <div
+            className="nav-wallet"
             style={{
               display: "flex",
               alignItems: "center",
@@ -170,7 +172,30 @@ export default function Navbar() {
             <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>UGX 0</span>
           </div>
 
+          {/* Hamburger - mobile only, shown via CSS media query */}
+          <button
+            className="nav-hamburger"
+            style={{
+              display: "none", // hidden on desktop, shown via CSS media query
+              width: 36, height: 36,
+              borderRadius: 8,
+              border: "1.5px solid #e5e7eb",
+              background: "#fff",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexDirection: "column",
+              gap: 4,
+              padding: 8,
+            }}
+          >
+            <span style={{ display: "block", width: 18, height: 2, backgroundColor: "#374151", borderRadius: 2 }} />
+            <span style={{ display: "block", width: 18, height: 2, backgroundColor: "#374151", borderRadius: 2 }} />
+            <span style={{ display: "block", width: 14, height: 2, backgroundColor: "#374151", borderRadius: 2 }} />
+          </button>
+
           <Link
+            className="nav-sign-in"
             href="/auth/register"
             style={{
               padding: "7px 18px",

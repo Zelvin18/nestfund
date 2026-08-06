@@ -73,7 +73,7 @@ export default function PortfolioPage() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
 
         {/* Summary cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginBottom: 24 }} className="summary-grid">
           {[
             { label: "Portfolio Value", value: `UGX ${formatCurrency(totalValue)}`, change: totalGainPct, icon: ChartPieIcon, iconColor: "#2563eb", iconBg: "#eff6ff" },
             { label: "Total Invested", value: `UGX ${formatCurrency(totalInvested)}`, neutral: true, icon: WalletIcon, iconColor: "#7c3aed", iconBg: "#f5f3ff" },
@@ -85,7 +85,7 @@ export default function PortfolioPage() {
         </div>
 
         {/* Charts row */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, marginBottom: 24 }} className="portfolio-chart-grid">
 
           {/* Performance chart */}
           <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "22px 20px", border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
@@ -157,7 +157,7 @@ export default function PortfolioPage() {
             <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>{mockPortfolio.length} positions</span>
           </div>
 
-          <div style={{ overflowX: "auto" }}>
+          <div className="responsive-table" style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ backgroundColor: "#f8fafc" }}>

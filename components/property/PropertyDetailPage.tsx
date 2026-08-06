@@ -82,7 +82,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
       </div>
 
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 28, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 28, alignItems: "start" }} className="property-detail-grid">
 
           {/* ── LEFT COLUMN ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>

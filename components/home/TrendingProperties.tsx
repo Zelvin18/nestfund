@@ -9,14 +9,14 @@ import Sparkline from "@/components/ui/Sparkline"
 
 export default function TrendingProperties() {
   return (
-    <section style={{ backgroundColor: "#fff", padding: "72px 0" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+    <section style={{ backgroundColor: "#fff", padding: "72px 0" }} className="section-pad">
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }} className="container">
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 40 }}>
           <div>
             <p style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
-              🔥 Live Market
+              Live Market
             </p>
             <h2 style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: 0 }}>
               Trending Properties
@@ -49,6 +49,7 @@ export default function TrendingProperties() {
             gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
             gap: 24,
           }}
+          className="property-grid"
         >
           {featuredProperties.slice(0, 3).map((property) => (
             <PropertyCard key={property.id} property={property} />
