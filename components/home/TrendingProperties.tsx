@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp, TrendingDown, MapPin } from "lucide-react"
+import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, MapPinIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
 import { featuredProperties } from "@/lib/mockData"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
@@ -54,8 +54,6 @@ function PropertyCard({ property }: { property: typeof featuredProperties[0] }) 
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-        {/* Growth badge */}
         <div className="absolute right-3 top-3">
           <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
             property.futureGrowth === "High"
@@ -67,10 +65,8 @@ function PropertyCard({ property }: { property: typeof featuredProperties[0] }) 
             {property.futureGrowth} Growth
           </span>
         </div>
-
-        {/* Location */}
         <div className="absolute bottom-3 left-3 flex items-center space-x-1 text-white">
-          <MapPin className="h-3.5 w-3.5" />
+          <MapPinIcon className="h-3.5 w-3.5" />
           <span className="text-sm font-medium">{property.location}</span>
         </div>
       </div>
@@ -88,7 +84,7 @@ function PropertyCard({ property }: { property: typeof featuredProperties[0] }) 
           </div>
         </div>
 
-        {/* Price chart mini */}
+        {/* Mini chart */}
         <div className="mb-4 flex h-12 items-end justify-between gap-0.5 overflow-hidden rounded-md bg-gray-50 px-2 pb-1">
           {property.chartData.slice(-20).map((point, i) => {
             const minVal = Math.min(...property.chartData.slice(-20).map(d => d.value))
@@ -98,7 +94,7 @@ function PropertyCard({ property }: { property: typeof featuredProperties[0] }) 
               <div
                 key={i}
                 className={`flex-1 rounded-sm ${isPositive ? "bg-green-400" : "bg-red-400"} opacity-70`}
-                style={{ height: `${height}%` }}
+                style={{ height: `${Math.max(height, 8)}%` }}
               />
             )
           })}
@@ -127,11 +123,10 @@ function PropertyCard({ property }: { property: typeof featuredProperties[0] }) 
             <div className={`flex items-center space-x-1 font-semibold ${
               isPositive ? "text-green-600" : "text-red-600"
             }`}>
-              {isPositive ? (
-                <TrendingUp className="h-4 w-4" />
-              ) : (
-                <TrendingDown className="h-4 w-4" />
-              )}
+              {isPositive
+                ? <ArrowTrendingUpIcon className="h-4 w-4" />
+                : <ArrowTrendingDownIcon className="h-4 w-4" />
+              }
               <span className="text-sm">{formatPercentage(property.priceChangePercent)}</span>
             </div>
           </div>

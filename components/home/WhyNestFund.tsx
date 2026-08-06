@@ -1,38 +1,45 @@
 "use client"
 
-import { Shield, Brain, BarChart3, Zap, Users, Lock } from "lucide-react"
+import { 
+  CpuChipIcon,
+  ChartBarSquareIcon, 
+  ShieldCheckIcon, 
+  BoltIcon, 
+  UserGroupIcon, 
+  LockClosedIcon 
+} from "@heroicons/react/24/outline"
 
 export default function WhyNestFund() {
   const features = [
     {
-      icon: Brain,
+      icon: CpuChipIcon,
       title: "AI-Powered Intelligence",
       description: "Advanced algorithms analyze market trends, predict property values, and recommend optimal investment opportunities.",
     },
     {
-      icon: BarChart3,
+      icon: ChartBarSquareIcon,
       title: "Real-Time Market Data",
       description: "Track property performance with live pricing, historical trends, and comprehensive analytics like a stock market.",
     },
     {
-      icon: Shield,
+      icon: ShieldCheckIcon,
       title: "Secure & Regulated",
-      description: "All properties are verified, legally compliant, and backed by transparent documentation and blockchain records.",
+      description: "All properties are verified, legally compliant, and backed by transparent documentation and records.",
     },
     {
-      icon: Zap,
+      icon: BoltIcon,
       title: "Instant Liquidity",
       description: "Buy and sell property shares instantly on our marketplace. No waiting months to exit your investment.",
     },
     {
-      icon: Users,
+      icon: UserGroupIcon,
       title: "Fractional Ownership",
       description: "Start investing with small amounts. Own premium real estate that was previously accessible only to the wealthy.",
     },
     {
-      icon: Lock,
+      icon: LockClosedIcon,
       title: "Transparent Transactions",
-      description: "Every transaction is recorded, traceable, and secure. Full visibility into rental income and property expenses.",
+      description: "Every transaction is recorded and traceable. Full visibility into rental income and property expenses.",
     },
   ]
 

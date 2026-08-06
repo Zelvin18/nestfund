@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, TrendingUp, Shield, Zap } from "lucide-react"
+import { ArrowRightIcon, ShieldCheckIcon, BoltIcon } from "@heroicons/react/24/outline"
+import { ArrowTrendingUpIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
 import { Button } from "@/components/ui/Button"
 
 export default function HeroSection() {
@@ -18,7 +19,7 @@ export default function HeroSection() {
           {/* Left copy */}
           <div>
             <div className="mb-4 inline-flex items-center space-x-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 ring-1 ring-blue-200">
-              <Zap className="h-4 w-4" />
+              <BoltIcon className="h-4 w-4" />
               <span>The Real Estate Investment Market</span>
             </div>
 
@@ -39,7 +40,7 @@ export default function HeroSection() {
               <Link href="/market">
                 <Button variant="primary" size="lg" className="w-full sm:w-auto">
                   Start Investing
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link href="/market">
@@ -52,11 +53,11 @@ export default function HeroSection() {
             {/* Trust badges */}
             <div className="mt-10 flex flex-wrap items-center gap-6">
               <div className="flex items-center space-x-2">
-                <Shield className="h-4 w-4 text-green-600" />
+                <ShieldCheckIcon className="h-5 w-5 text-green-600" />
                 <span className="text-sm text-gray-500">Secure & Regulated</span>
               </div>
               <div className="flex items-center space-x-2">
-                <TrendingUp className="h-4 w-4 text-blue-600" />
+                <ArrowTrendingUpIcon className="h-5 w-5 text-blue-600" />
                 <span className="text-sm text-gray-500">Avg. 8.6% Annual Return</span>
               </div>
               <div className="flex items-center space-x-2">
@@ -84,7 +85,7 @@ function LivePropertyCard() {
         <p className="text-xs text-gray-500">Portfolio Value</p>
         <p className="text-lg font-bold text-gray-900">UGX 14.8M</p>
         <p className="flex items-center text-xs font-medium text-green-600">
-          <TrendingUp className="mr-1 h-3 w-3" />
+          <ArrowTrendingUpIcon className="mr-1 h-3 w-3" />
           +4.62% Today
         </p>
       </div>
@@ -105,8 +106,9 @@ function LivePropertyCard() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-4 left-4">
-            <span className="rounded-full bg-green-500 px-2.5 py-1 text-xs font-semibold text-white">
-              ✓ Verified Property
+            <span className="inline-flex items-center gap-1 rounded-full bg-green-500 px-2.5 py-1 text-xs font-semibold text-white">
+              <CheckBadgeIcon className="h-3.5 w-3.5" />
+              Verified Property
             </span>
           </div>
         </div>
@@ -119,12 +121,15 @@ function LivePropertyCard() {
             </div>
             <div className="text-right">
               <p className="text-xl font-bold text-gray-900">UGX 1,250</p>
-              <p className="text-sm font-medium text-green-600">+8.43% Today</p>
+              <p className="flex items-center justify-end gap-1 text-sm font-medium text-green-600">
+                <ArrowTrendingUpIcon className="h-4 w-4" />
+                +8.43% Today
+              </p>
             </div>
           </div>
 
-          {/* Sparkline placeholder */}
-          <div className="my-4 h-16 w-full overflow-hidden rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 flex items-end justify-between px-2 pb-2 gap-1">
+          {/* Sparkline */}
+          <div className="my-4 flex h-16 items-end justify-between gap-0.5 overflow-hidden rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 px-2 pb-2">
             {[30, 45, 38, 52, 48, 60, 55, 70, 65, 80, 75, 88, 85, 92, 96].map((h, i) => (
               <div
                 key={i}

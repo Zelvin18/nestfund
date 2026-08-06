@@ -1,8 +1,14 @@
 "use client"
 
-import { TrendingUp, TrendingDown, Wallet, PieChart, BarChart2 } from "lucide-react"
+import { 
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon, 
+  WalletIcon, 
+  ChartPieIcon, 
+  ChartBarIcon 
+} from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell } from "recharts"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { featuredProperties } from "@/lib/mockData"
 import Link from "next/link"
 
@@ -14,10 +20,10 @@ const mockPortfolio = [
 
 const performanceData = Array.from({ length: 12 }, (_, i) => ({
   month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-  value: 12000000 + i * 400000 + Math.random() * 200000,
+  value: 12000000 + i * 420000 + Math.random() * 180000,
 }))
 
-const COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b"]
+const COLORS = ["#3b82f6", "#10b981", "#8b5cf6"]
 
 export default function PortfolioPage() {
   const totalValue = mockPortfolio.reduce((s, p) => s + p.currentValue, 0)
@@ -27,7 +33,6 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="mb-2 text-4xl font-bold text-gray-900">My Portfolio</h1>
@@ -38,22 +43,25 @@ export default function PortfolioPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Summary Cards */}
         <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <SummaryCard title="Portfolio Value" value={`UGX ${formatCurrency(totalValue)}`} change={totalGainPct} icon={PieChart} />
-          <SummaryCard title="Total Invested" value={`UGX ${formatCurrency(totalInvested)}`} neutral icon={Wallet} />
-          <SummaryCard title="Total Gain" value={`UGX ${formatCurrency(totalGain)}`} change={totalGainPct} icon={TrendingUp} />
-          <SummaryCard title="Monthly Income" value="UGX 185,000" change={2.4} icon={BarChart2} />
+          <SummaryCard title="Portfolio Value" value={`UGX ${formatCurrency(totalValue)}`} change={totalGainPct} icon={ChartPieIcon} />
+          <SummaryCard title="Total Invested" value={`UGX ${formatCurrency(totalInvested)}`} neutral icon={WalletIcon} />
+          <SummaryCard title="Total Gain" value={`UGX ${formatCurrency(totalGain)}`} change={totalGainPct} icon={ArrowTrendingUpIcon} />
+          <SummaryCard title="Monthly Income" value="UGX 185,000" change={2.4} icon={ChartBarIcon} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Performance Chart */}
-          <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+          <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 lg:col-span-2">
             <h2 className="mb-4 text-xl font-bold text-gray-900">Portfolio Performance</h2>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={performanceData}>
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
-                <Tooltip formatter={(v: number) => [`UGX ${formatCurrency(v)}`, "Value"]} />
-                <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2.5} dot={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Value"]}
+                />
+                <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -61,17 +69,19 @@ export default function PortfolioPage() {
           {/* Allocation */}
           <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
             <h2 className="mb-4 text-xl font-bold text-gray-900">Allocation</h2>
-            <RePieChart width={200} height={200} className="mx-auto">
-              <Pie data={mockPortfolio.map((p, i) => ({ name: p.propertyId, value: p.currentValue }))} cx="50%" cy="50%" outerRadius={80} dataKey="value">
-                {mockPortfolio.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
-              </Pie>
-            </RePieChart>
-            <div className="mt-4 space-y-2">
+            <div className="flex justify-center">
+              <PieChart width={180} height={180}>
+                <Pie data={mockPortfolio.map((p) => ({ name: p.propertyId, value: p.currentValue }))} cx="50%" cy="50%" outerRadius={75} innerRadius={35} dataKey="value" paddingAngle={3}>
+                  {mockPortfolio.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+                </Pie>
+              </PieChart>
+            </div>
+            <div className="mt-4 space-y-3">
               {mockPortfolio.map((p, i) => {
                 const prop = featuredProperties.find(f => f.id === p.propertyId)
                 return (
                   <div key={p.propertyId} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <div className="h-3 w-3 rounded-full" style={{ background: COLORS[i] }} />
                       <span className="text-sm text-gray-700">{prop?.name}</span>
                     </div>
@@ -85,21 +95,18 @@ export default function PortfolioPage() {
           </div>
         </div>
 
-        {/* Holdings Table */}
-        <div className="mt-6 rounded-xl bg-white shadow-sm ring-1 ring-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
+        {/* Holdings */}
+        <div className="mt-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100">
+          <div className="border-b border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900">My Holdings</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Property</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Shares</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Invested</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Current Value</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Gain/Loss</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
+                  {["Property", "Shares", "Invested", "Current Value", "Gain/Loss", "Action"].map((h) => (
+                    <th key={h} className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 ${h === "Property" ? "text-left" : "text-right"}`}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -109,9 +116,9 @@ export default function PortfolioPage() {
                   const gain = holding.currentValue - holding.invested
                   const gainPct = (gain / holding.invested) * 100
                   return (
-                    <tr key={holding.propertyId} className="hover:bg-gray-50 transition">
+                    <tr key={holding.propertyId} className="transition hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                           <img src={prop.image} alt={prop.name} className="h-12 w-12 rounded-lg object-cover" />
                           <div>
                             <p className="font-semibold text-gray-900">{prop.name}</p>
@@ -123,13 +130,13 @@ export default function PortfolioPage() {
                       <td className="px-6 py-4 text-right text-gray-700">UGX {formatCurrency(holding.invested)}</td>
                       <td className="px-6 py-4 text-right font-semibold text-gray-900">UGX {formatCurrency(holding.currentValue)}</td>
                       <td className="px-6 py-4 text-right">
-                        <div className={`flex items-center justify-end space-x-1 font-semibold ${gain >= 0 ? "text-green-600" : "text-red-600"}`}>
-                          {gain >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                        <div className={`flex items-center justify-end gap-1 font-semibold ${gain >= 0 ? "text-green-600" : "text-red-600"}`}>
+                          {gain >= 0 ? <ArrowTrendingUpIcon className="h-4 w-4" /> : <ArrowTrendingDownIcon className="h-4 w-4" />}
                           <span>{formatPercentage(gainPct)}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link href={`/property/${prop.id}`} className="rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-100">
+                        <Link href={`/property/${prop.id}`} className="rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-100 transition">
                           Manage
                         </Link>
                       </td>
@@ -157,8 +164,8 @@ function SummaryCard({ title, value, change, icon: Icon, neutral }: {
       <p className="mb-1 text-sm text-gray-500">{title}</p>
       <p className="mb-1 text-2xl font-bold text-gray-900">{value}</p>
       {!neutral && change !== undefined && (
-        <div className={`flex items-center text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
-          {isPositive ? <TrendingUp className="mr-1 h-3.5 w-3.5" /> : <TrendingDown className="mr-1 h-3.5 w-3.5" />}
+        <div className={`flex items-center gap-1 text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
+          {isPositive ? <ArrowTrendingUpIcon className="h-3.5 w-3.5" /> : <ArrowTrendingDownIcon className="h-3.5 w-3.5" />}
           {formatPercentage(change)} all time
         </div>
       )}

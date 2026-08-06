@@ -1,13 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRightIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/Button"
 
 export default function CTASection() {
   return (
     <section className="relative overflow-hidden bg-blue-600 py-20">
-      {/* Background decorations */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-blue-500 opacity-40 blur-3xl" />
         <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-indigo-500 opacity-40 blur-3xl" />
@@ -28,7 +27,7 @@ export default function CTASection() {
           <Link href="/auth/register">
             <Button size="lg" className="w-full bg-white text-blue-600 hover:bg-blue-50 sm:w-auto">
               Create Free Account
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Button>
           </Link>
           <Link href="/market">

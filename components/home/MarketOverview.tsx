@@ -1,7 +1,13 @@
 "use client"
 
-import { TrendingUp, TrendingDown, Users, ListChecks, Target } from "lucide-react"
-import { formatCurrency, formatPercentage } from "@/lib/utils"
+import { 
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon, 
+  UsersIcon, 
+  ListBulletIcon, 
+  CurrencyDollarIcon 
+} from "@heroicons/react/24/outline"
+import { formatPercentage } from "@/lib/utils"
 import { marketStats } from "@/lib/mockData"
 
 export default function MarketOverview() {
@@ -18,28 +24,28 @@ export default function MarketOverview() {
             title="Market Volume"
             value={marketStats.marketVolume}
             change={marketStats.marketVolumeChange}
-            icon={TrendingUp}
+            icon={ArrowTrendingUpIcon}
             description="Total 24H Trading"
           />
           <StatCard
             title="Total Investors"
             value={marketStats.totalInvestors.toLocaleString()}
             change={marketStats.investorsChange}
-            icon={Users}
+            icon={UsersIcon}
             description="Active Platform Users"
           />
           <StatCard
             title="Active Listings"
             value={marketStats.activeListings}
             change={marketStats.listingsChange}
-            icon={ListChecks}
+            icon={ListBulletIcon}
             description="Available Properties"
           />
           <StatCard
             title="Avg. Annual Return"
             value={`${marketStats.avgAnnualReturn}%`}
             change={marketStats.returnChange}
-            icon={Target}
+            icon={CurrencyDollarIcon}
             description="Historical Performance"
           />
         </div>
@@ -69,9 +75,9 @@ function StatCard({ title, value, change, icon: Icon, description }: StatCardPro
           isPositive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
         }`}>
           {isPositive ? (
-            <TrendingUp className="h-3 w-3" />
+            <ArrowTrendingUpIcon className="h-3 w-3" />
           ) : (
-            <TrendingDown className="h-3 w-3" />
+            <ArrowTrendingDownIcon className="h-3 w-3" />
           )}
           <span>{formatPercentage(change)}</span>
         </div>

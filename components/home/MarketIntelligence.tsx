@@ -1,6 +1,12 @@
 "use client"
 
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Building2 } from "lucide-react"
+import { 
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon, 
+  ExclamationTriangleIcon, 
+  CheckCircleIcon, 
+  BuildingOffice2Icon 
+} from "@heroicons/react/24/outline"
 import Link from "next/link"
 import { marketIntelligence } from "@/lib/mockData"
 
@@ -26,12 +32,6 @@ export default function MarketIntelligenceSection() {
             <IntelligenceCard key={item.id} item={item} />
           ))}
         </div>
-
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/intelligence" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-            View All Updates →
-          </Link>
-        </div>
       </div>
     </section>
   )
@@ -40,29 +40,20 @@ export default function MarketIntelligenceSection() {
 function IntelligenceCard({ item }: { item: typeof marketIntelligence[0] }) {
   const isPositive = item.change >= 0
 
-  const iconMap = {
-    approval: CheckCircle,
-    development: Building2,
-    decline: AlertCircle,
+  const config = {
+    approval: { icon: CheckCircleIcon, colorClass: "bg-green-50 text-green-600 ring-green-200" },
+    development: { icon: BuildingOffice2Icon, colorClass: "bg-blue-50 text-blue-600 ring-blue-200" },
+    decline: { icon: ExclamationTriangleIcon, colorClass: "bg-red-50 text-red-600 ring-red-200" },
   }
 
-  const Icon = iconMap[item.type]
-
-  const colorMap = {
-    approval: "bg-green-50 text-green-600 ring-green-200",
-    development: "bg-blue-50 text-blue-600 ring-blue-200",
-    decline: "bg-red-50 text-red-600 ring-red-200",
-  }
+  const { icon: Icon, colorClass } = config[item.type]
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
-        {/* Icon */}
-        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ring-2 ${colorMap[item.type]}`}>
+        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ring-2 ${colorClass}`}>
           <Icon className="h-5 w-5" />
         </div>
-
-        {/* Content */}
         <div className="flex-1">
           <div className="mb-2 flex items-start justify-between">
             <div>
@@ -71,19 +62,16 @@ function IntelligenceCard({ item }: { item: typeof marketIntelligence[0] }) {
             </div>
             <span className="text-xs text-gray-500">{item.timeAgo}</span>
           </div>
-
           <p className="mb-3 text-sm text-gray-600">{item.impact}</p>
-
           <div className={`inline-flex items-center space-x-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
             isPositive
               ? "bg-green-50 text-green-700 ring-1 ring-green-200"
               : "bg-red-50 text-red-700 ring-1 ring-red-200"
           }`}>
-            {isPositive ? (
-              <TrendingUp className="h-3.5 w-3.5" />
-            ) : (
-              <TrendingDown className="h-3.5 w-3.5" />
-            )}
+            {isPositive
+              ? <ArrowTrendingUpIcon className="h-3.5 w-3.5" />
+              : <ArrowTrendingDownIcon className="h-3.5 w-3.5" />
+            }
             <span>Expected Impact: {isPositive ? "+" : ""}{item.change}%</span>
           </div>
         </div>
