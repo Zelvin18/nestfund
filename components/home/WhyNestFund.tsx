@@ -1,69 +1,148 @@
 "use client"
 
-import { 
+import {
   CpuChipIcon,
-  ChartBarSquareIcon, 
-  ShieldCheckIcon, 
-  BoltIcon, 
-  UserGroupIcon, 
-  LockClosedIcon 
+  ChartBarSquareIcon,
+  ShieldCheckIcon,
+  BoltIcon,
+  UserGroupIcon,
+  LockClosedIcon,
 } from "@heroicons/react/24/outline"
 
-export default function WhyNestFund() {
-  const features = [
-    {
-      icon: CpuChipIcon,
-      title: "AI-Powered Intelligence",
-      description: "Advanced algorithms analyze market trends, predict property values, and recommend optimal investment opportunities.",
-    },
-    {
-      icon: ChartBarSquareIcon,
-      title: "Real-Time Market Data",
-      description: "Track property performance with live pricing, historical trends, and comprehensive analytics like a stock market.",
-    },
-    {
-      icon: ShieldCheckIcon,
-      title: "Secure & Regulated",
-      description: "All properties are verified, legally compliant, and backed by transparent documentation and records.",
-    },
-    {
-      icon: BoltIcon,
-      title: "Instant Liquidity",
-      description: "Buy and sell property shares instantly on our marketplace. No waiting months to exit your investment.",
-    },
-    {
-      icon: UserGroupIcon,
-      title: "Fractional Ownership",
-      description: "Start investing with small amounts. Own premium real estate that was previously accessible only to the wealthy.",
-    },
-    {
-      icon: LockClosedIcon,
-      title: "Transparent Transactions",
-      description: "Every transaction is recorded and traceable. Full visibility into rental income and property expenses.",
-    },
-  ]
+const features = [
+  {
+    icon: CpuChipIcon,
+    title: "AI-Powered Intelligence",
+    description: "Advanced algorithms predict property values, identify high-growth zones, and surface opportunities before they become mainstream.",
+    color: "#2563eb",
+    bg: "#eff6ff",
+    tag: "Smart",
+  },
+  {
+    icon: ChartBarSquareIcon,
+    title: "Real-Time Market Data",
+    description: "Live share pricing, 30-day price charts, rental yield tracking, and area performance scores — just like a stock exchange.",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    tag: "Live",
+  },
+  {
+    icon: ShieldCheckIcon,
+    title: "Secure & Regulated",
+    description: "Every property is legally verified, title-checked, and insured. Your investment is protected by bank-grade security.",
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    tag: "Safe",
+  },
+  {
+    icon: BoltIcon,
+    title: "Instant Liquidity",
+    description: "Unlike traditional real estate, you can buy or sell shares in seconds on our secondary marketplace — no agents, no delays.",
+    color: "#ea580c",
+    bg: "#fff7ed",
+    tag: "Fast",
+  },
+  {
+    icon: UserGroupIcon,
+    title: "Fractional Ownership",
+    description: "Invest from UGX 50,000. Own a piece of premium properties across Kampala, Wakiso, and beyond.",
+    color: "#0891b2",
+    bg: "#ecfeff",
+    tag: "Accessible",
+  },
+  {
+    icon: LockClosedIcon,
+    title: "Transparent Transactions",
+    description: "Full audit trail for every transaction. Real-time breakdown of rental income, expenses, and property performance.",
+    color: "#d97706",
+    bg: "#fffbeb",
+    tag: "Clear",
+  },
+]
 
+export default function WhyNestFund() {
   return (
-    <section className="bg-gradient-to-br from-gray-50 to-blue-50 py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-gray-900">Why Choose NestFund?</h2>
-          <p className="text-lg text-gray-600">
-            The most advanced real estate investment platform in East Africa
+    <section style={{ backgroundColor: "#f8fafc", padding: "80px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
+            Platform Advantages
+          </p>
+          <h2 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 12px 0" }}>
+            Why NestFund Stands Apart
+          </h2>
+          <p style={{ fontSize: 17, color: "#64748b", maxWidth: 520, margin: "0 auto" }}>
+            Built like a financial exchange — not a property listing site
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 24,
+          }}
+        >
+          {features.map((f, i) => (
             <div
-              key={index}
-              className="group rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-lg"
+              key={i}
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: 16,
+                padding: "28px 24px",
+                border: "1.5px solid #f1f5f9",
+                boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLDivElement
+                el.style.boxShadow = `0 8px 28px ${f.color}18`
+                el.style.borderColor = `${f.color}30`
+                el.style.transform = "translateY(-2px)"
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLDivElement
+                el.style.boxShadow = "0 1px 6px rgba(0,0,0,0.04)"
+                el.style.borderColor = "#f1f5f9"
+                el.style.transform = "translateY(0)"
+              }}
             >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
-                <feature.icon className="h-6 w-6" />
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 13,
+                    backgroundColor: f.bg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <f.icon style={{ width: 24, height: 24, color: f.color }} />
+                </div>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: f.color,
+                    backgroundColor: f.bg,
+                    padding: "3px 9px",
+                    borderRadius: 99,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {f.tag}
+                </span>
               </div>
-              <h3 className="mb-2 text-lg font-bold text-gray-900">{feature.title}</h3>
-              <p className="text-sm leading-relaxed text-gray-600">{feature.description}</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 10px 0" }}>
+                {f.title}
+              </h3>
+              <p style={{ fontSize: 13, lineHeight: 1.65, color: "#64748b", margin: 0 }}>
+                {f.description}
+              </p>
             </div>
           ))}
         </div>

@@ -1,61 +1,140 @@
 "use client"
 
-import { 
-  MagnifyingGlassCircleIcon, 
-  ChartPieIcon, 
-  ArrowTrendingUpIcon, 
-  WalletIcon 
+import {
+  MagnifyingGlassCircleIcon,
+  ChartPieIcon,
+  BanknotesIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline"
 
-export default function HowItWorks() {
-  const steps = [
-    {
-      icon: MagnifyingGlassCircleIcon,
-      title: "Discover Properties",
-      description: "Browse AI-curated investment opportunities with complete market intelligence and growth projections.",
-    },
-    {
-      icon: ChartPieIcon,
-      title: "Buy Shares",
-      description: "Invest from as low as UGX 50,000. Own a fraction of high-value real estate assets.",
-    },
-    {
-      icon: ArrowTrendingUpIcon,
-      title: "Earn Returns",
-      description: "Receive monthly rental income and benefit from property value appreciation over time.",
-    },
-    {
-      icon: WalletIcon,
-      title: "Trade & Manage",
-      description: "Buy, sell, or hold your shares. Track performance in your portfolio like stocks.",
-    },
-  ]
+const steps = [
+  {
+    icon: MagnifyingGlassCircleIcon,
+    color: "#2563eb",
+    bg: "#eff6ff",
+    step: "01",
+    title: "Discover Properties",
+    description:
+      "Browse AI-curated opportunities with full market intelligence — area scores, growth projections, and rental yield data.",
+  },
+  {
+    icon: ChartPieIcon,
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    step: "02",
+    title: "Buy Shares",
+    description:
+      "Invest from as little as UGX 50,000. Own a fractional share of premium real estate instantly.",
+  },
+  {
+    icon: BanknotesIcon,
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    step: "03",
+    title: "Earn Monthly Income",
+    description:
+      "Receive your share of rental income every month, automatically deposited to your NestFund wallet.",
+  },
+  {
+    icon: ArrowsRightLeftIcon,
+    color: "#ea580c",
+    bg: "#fff7ed",
+    step: "04",
+    title: "Trade & Grow",
+    description:
+      "Sell shares on our live marketplace at any time. Benefit as property values appreciate over time.",
+  },
+]
 
+export default function HowItWorks() {
   return (
-    <section className="bg-white py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-gray-900">How NestFund Works</h2>
-          <p className="text-lg text-gray-600">Real estate investing made simple in 4 steps</p>
+    <section style={{ backgroundColor: "#fff", padding: "80px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
+            Simple Process
+          </p>
+          <h2 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 12px 0" }}>
+            How NestFund Works
+          </h2>
+          <p style={{ fontSize: 17, color: "#64748b", maxWidth: 500, margin: "0 auto" }}>
+            Start earning from real estate in 4 simple steps
+          </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step, index) => (
-            <div key={index} className="relative">
-              {/* Connector line */}
-              {index < steps.length - 1 && (
-                <div className="absolute left-1/2 top-10 hidden h-0.5 w-full bg-gradient-to-r from-blue-200 to-blue-100 lg:block" />
-              )}
-              <div className="relative text-center">
-                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
-                  <step.icon className="h-9 w-9 text-white" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 28, position: "relative" }}>
+          {/* Connector line */}
+          <div
+            style={{
+              position: "absolute",
+              top: 52,
+              left: "12.5%",
+              right: "12.5%",
+              height: 2,
+              background: "linear-gradient(90deg, #bfdbfe 0%, #c4b5fd 50%, #bbf7d0 100%)",
+              zIndex: 0,
+            }}
+          />
+
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              style={{
+                position: "relative",
+                zIndex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              {/* Step number ring */}
+              <div style={{ position: "relative", marginBottom: 24 }}>
+                <div
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 20,
+                    backgroundColor: step.bg,
+                    border: `2px solid ${step.color}20`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: `0 4px 16px ${step.color}20`,
+                  }}
+                >
+                  <step.icon style={{ width: 36, height: 36, color: step.color }} />
                 </div>
-                <div className="absolute -top-2 right-1/2 flex h-7 w-7 translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-md">
-                  {index + 1}
+                {/* Step badge */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -8,
+                    right: -8,
+                    width: 26,
+                    height: 26,
+                    borderRadius: "50%",
+                    backgroundColor: step.color,
+                    color: "#fff",
+                    fontSize: 11,
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "2px solid #fff",
+                  }}
+                >
+                  {i + 1}
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-gray-900">{step.title}</h3>
-                <p className="text-sm text-gray-600">{step.description}</p>
               </div>
+
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", margin: "0 0 10px 0" }}>
+                {step.title}
+              </h3>
+              <p style={{ fontSize: 13, lineHeight: 1.65, color: "#64748b", margin: 0 }}>
+                {step.description}
+              </p>
             </div>
           ))}
         </div>

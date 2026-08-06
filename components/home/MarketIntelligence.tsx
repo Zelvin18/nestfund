@@ -1,35 +1,48 @@
 "use client"
 
-import { 
-  ArrowTrendingUpIcon, 
-  ArrowTrendingDownIcon, 
-  ExclamationTriangleIcon, 
-  CheckCircleIcon, 
-  BuildingOffice2Icon 
-} from "@heroicons/react/24/outline"
 import Link from "next/link"
+import {
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+} from "@heroicons/react/24/solid"
+import {
+  CheckCircleIcon,
+  BuildingOffice2Icon,
+  ExclamationTriangleIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline"
 import { marketIntelligence } from "@/lib/mockData"
 
 export default function MarketIntelligenceSection() {
   return (
-    <section className="bg-gray-50 py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex items-end justify-between">
+    <section style={{ backgroundColor: "#f8fafc", padding: "72px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 40 }}>
           <div>
-            <h2 className="mb-3 text-3xl font-bold text-gray-900">AI Market Intelligence</h2>
-            <p className="text-lg text-gray-600">Real-time updates affecting property values</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+              🤖 AI-Powered
+            </p>
+            <h2 style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
+              Market Intelligence
+            </h2>
+            <p style={{ fontSize: 16, color: "#64748b", margin: 0 }}>
+              Real-time events affecting property values across the region
+            </p>
           </div>
           <Link
             href="/intelligence"
-            className="hidden text-sm font-medium text-blue-600 hover:text-blue-700 sm:block"
+            style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 14, fontWeight: 600, color: "#2563eb", textDecoration: "none" }}
           >
-            View All Updates →
+            View All Updates
+            <ChevronRightIcon style={{ width: 16, height: 16 }} />
           </Link>
         </div>
 
-        <div className="space-y-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {marketIntelligence.map((item) => (
-            <IntelligenceCard key={item.id} item={item} />
+            <IntelCard key={item.id} item={item} />
           ))}
         </div>
       </div>
@@ -37,43 +50,96 @@ export default function MarketIntelligenceSection() {
   )
 }
 
-function IntelligenceCard({ item }: { item: typeof marketIntelligence[0] }) {
-  const isPositive = item.change >= 0
+function IntelCard({ item }: { item: typeof marketIntelligence[0] }) {
+  const positive = item.change >= 0
 
   const config = {
-    approval: { icon: CheckCircleIcon, colorClass: "bg-green-50 text-green-600 ring-green-200" },
-    development: { icon: BuildingOffice2Icon, colorClass: "bg-blue-50 text-blue-600 ring-blue-200" },
-    decline: { icon: ExclamationTriangleIcon, colorClass: "bg-red-50 text-red-600 ring-red-200" },
+    approval: { Icon: CheckCircleIcon, bg: "#f0fdf4", color: "#16a34a", ring: "#bbf7d0", label: "Government Approval" },
+    development: { Icon: BuildingOffice2Icon, bg: "#eff6ff", color: "#2563eb", ring: "#bfdbfe", label: "Development" },
+    decline: { Icon: ExclamationTriangleIcon, bg: "#fef2f2", color: "#dc2626", ring: "#fecaca", label: "Risk Alert" },
   }
-
-  const { icon: Icon, colorClass } = config[item.type]
+  const { Icon, bg, color, ring, label } = config[item.type]
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md">
-      <div className="flex items-start justify-between gap-4">
-        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ring-2 ${colorClass}`}>
-          <Icon className="h-5 w-5" />
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 14,
+        padding: "20px 22px",
+        border: "1.5px solid #f1f5f9",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 16,
+        transition: "box-shadow 0.2s",
+      }}
+    >
+      {/* Icon */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          backgroundColor: bg,
+          border: `1.5px solid ${ring}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Icon style={{ width: 22, height: 22, color }} />
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 6 }}>
+          <div>
+            <span
+              style={{
+                display: "inline-block",
+                fontSize: 10,
+                fontWeight: 700,
+                color,
+                backgroundColor: bg,
+                padding: "2px 8px",
+                borderRadius: 99,
+                marginBottom: 5,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {label}
+            </span>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>{item.title}</h3>
+          </div>
+          <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, flexShrink: 0 }}>{item.timeAgo}</span>
         </div>
-        <div className="flex-1">
-          <div className="mb-2 flex items-start justify-between">
-            <div>
-              <h3 className="mb-1 text-lg font-semibold text-gray-900">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.location}</p>
-            </div>
-            <span className="text-xs text-gray-500">{item.timeAgo}</span>
-          </div>
-          <p className="mb-3 text-sm text-gray-600">{item.impact}</p>
-          <div className={`inline-flex items-center space-x-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-            isPositive
-              ? "bg-green-50 text-green-700 ring-1 ring-green-200"
-              : "bg-red-50 text-red-700 ring-1 ring-red-200"
-          }`}>
-            {isPositive
-              ? <ArrowTrendingUpIcon className="h-3.5 w-3.5" />
-              : <ArrowTrendingDownIcon className="h-3.5 w-3.5" />
-            }
-            <span>Expected Impact: {isPositive ? "+" : ""}{item.change}%</span>
-          </div>
+
+        <p style={{ fontSize: 13, color: "#475569", margin: "0 0 10px 0", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 12 }}>📍</span> {item.location}
+        </p>
+        <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 12px 0", lineHeight: 1.6 }}>{item.impact}</p>
+
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            padding: "5px 12px",
+            borderRadius: 99,
+            fontSize: 12,
+            fontWeight: 700,
+            backgroundColor: positive ? "#f0fdf4" : "#fef2f2",
+            color: positive ? "#16a34a" : "#dc2626",
+            border: `1px solid ${positive ? "#bbf7d0" : "#fecaca"}`,
+          }}
+        >
+          {positive
+            ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} />
+            : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />
+          }
+          Expected impact: {positive ? "+" : ""}{item.change}% on nearby properties
         </div>
       </div>
     </div>

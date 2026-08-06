@@ -1,110 +1,106 @@
 "use client"
 
-import { 
-  ArrowTrendingUpIcon, 
-  ArrowTrendingDownIcon, 
-  ExclamationTriangleIcon, 
-  CheckCircleIcon, 
-  BuildingOffice2Icon, 
-  CpuChipIcon, 
-  ArrowPathIcon 
+import { useState } from "react"
+import {
+  CheckCircleIcon,
+  BuildingOffice2Icon,
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
+  FunnelIcon,
 } from "@heroicons/react/24/outline"
+import {
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  CpuChipIcon,
+} from "@heroicons/react/24/solid"
 
-const intelligenceItems = [
-  {
-    id: "1",
-    title: "Gov't Approves New Expressway",
-    type: "approval" as const,
-    location: "Entebbe – Kampala",
-    impact: "Properties near the corridor expected to surge in value",
-    change: 11,
-    timeAgo: "2h ago",
-  },
-  {
-    id: "2",
-    title: "New Shopping Mall Approved",
-    type: "development" as const,
-    location: "Kira Town, Wakiso",
-    impact: "Commercial activity boost expected in 6 months",
-    change: 7,
-    timeAgo: "5h ago",
-  },
-  {
-    id: "3",
-    title: "Flooding Reported in Bwaise",
-    type: "decline" as const,
-    location: "Bwaise, Kampala",
-    impact: "Properties in flood zone facing value risk",
-    change: -8,
-    timeAgo: "7h ago",
-  },
-  {
-    id: "4",
-    title: "New University Campus Planned",
-    type: "development" as const,
-    location: "Nansana, Wakiso",
-    impact: "Student housing demand expected to increase significantly",
-    change: 15,
-    timeAgo: "12h ago",
-  },
-  {
-    id: "5",
-    title: "Property Tax Increase in Kololo",
-    type: "decline" as const,
-    location: "Kololo, Kampala",
-    impact: "Investor yields in the area may decrease by 0.5–1.2%",
-    change: -4,
-    timeAgo: "1d ago",
-  },
-  {
-    id: "6",
-    title: "New Industrial Park Approved",
-    type: "approval" as const,
-    location: "Namanve, Mukono",
-    impact: "Surrounding residential areas expected to see worker housing demand rise",
-    change: 9,
-    timeAgo: "2d ago",
-  },
+const allItems = [
+  { id: "1", title: "Gov't Approves New Expressway", type: "approval" as const, location: "Entebbe – Kampala", impact: "Properties along the 51km corridor expected to see significant value appreciation. New access roads open 3 untapped residential zones.", change: 11, timeAgo: "2h ago", affectedProps: 312 },
+  { id: "2", title: "New Shopping Mall Approved", type: "development" as const, location: "Kira Town, Wakiso", impact: "Commercial activity boost expected within 6 months. Nearby residential properties historically increase 7–12% after mall construction.", change: 7, timeAgo: "5h ago", affectedProps: 89 },
+  { id: "3", title: "Flooding Reported in Bwaise", type: "decline" as const, location: "Bwaise, Kampala", impact: "High-risk flood zone alert. Properties in low-lying areas facing devaluation risk. Insurance premiums expected to rise.", change: -8, timeAgo: "7h ago", affectedProps: 47 },
+  { id: "4", title: "New University Campus Planned", type: "development" as const, location: "Nansana, Wakiso", impact: "Student housing demand expected to surge. Purpose-built student accommodation currently under-supplied in this corridor.", change: 15, timeAgo: "12h ago", affectedProps: 134 },
+  { id: "5", title: "Property Tax Increase in Kololo", type: "decline" as const, location: "Kololo, Kampala", impact: "Local council approved 12% property tax increase. Net rental yields in the area may decrease by 0.5–1.2% for investors.", change: -4, timeAgo: "1d ago", affectedProps: 28 },
+  { id: "6", title: "New Industrial Park Approved", type: "approval" as const, location: "Namanve, Mukono", impact: "20,000+ workers expected to relocate to the area. Worker housing demand rising. Strong buy signal for budget residential.", change: 9, timeAgo: "2d ago", affectedProps: 201 },
 ]
 
+type FilterType = "all" | "positive" | "negative" | "approval" | "development"
+
 export default function IntelligencePage() {
+  const [activeFilter, setActiveFilter] = useState<FilterType>("all")
+
+  const filters: { key: FilterType; label: string; count: number }[] = [
+    { key: "all", label: "All Updates", count: allItems.length },
+    { key: "positive", label: "📈 Positive", count: allItems.filter(i => i.change > 0).length },
+    { key: "negative", label: "📉 Negative", count: allItems.filter(i => i.change < 0).length },
+    { key: "approval", label: "✅ Government", count: allItems.filter(i => i.type === "approval").length },
+    { key: "development", label: "🏗️ Development", count: allItems.filter(i => i.type === "development").length },
+  ]
+
+  const filtered = activeFilter === "all" ? allItems
+    : activeFilter === "positive" ? allItems.filter(i => i.change > 0)
+    : activeFilter === "negative" ? allItems.filter(i => i.change < 0)
+    : allItems.filter(i => i.type === activeFilter)
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+
+      {/* Header */}
+      <div style={{ backgroundColor: "#fff", borderBottom: "1.5px solid #f1f5f9" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 0" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700">
-                <CpuChipIcon className="h-4 w-4" />
-                AI-Powered Intelligence
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, backgroundColor: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 99, padding: "5px 12px", fontSize: 12, fontWeight: 600, color: "#7c3aed", marginBottom: 12 }}>
+                <CpuChipIcon style={{ width: 13, height: 13 }} />
+                AI-Powered Market Intelligence
               </div>
-              <h1 className="mb-2 text-4xl font-bold text-gray-900">Market Intelligence</h1>
-              <p className="text-lg text-gray-600">Real-time updates that impact property values in your area</p>
+              <h1 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 6px 0" }}>
+                Market Intelligence
+              </h1>
+              <p style={{ fontSize: 15, color: "#64748b", margin: 0 }}>
+                Real-time events, policy changes, and developments affecting property values
+              </p>
             </div>
-            <button className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
-              <ArrowPathIcon className="h-4 w-4" />
+            <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 9, border: "1.5px solid #e2e8f0", backgroundColor: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#374151" }}>
+              <ArrowPathIcon style={{ width: 15, height: 15 }} />
               Refresh
             </button>
           </div>
-        </div>
-      </div>
 
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1 py-2">
-            {["All", "Positive", "Negative", "Government", "Development"].map((tab, i) => (
-              <button key={tab} className={`rounded-lg px-4 py-2 text-sm font-medium transition ${i === 0 ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
-                {tab}
+          {/* Filter tabs */}
+          <div style={{ display: "flex", gap: 4 }}>
+            {filters.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setActiveFilter(f.key)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "9px 16px",
+                  borderRadius: "9px 9px 0 0",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  backgroundColor: activeFilter === f.key ? "#fff" : "transparent",
+                  color: activeFilter === f.key ? "#0f172a" : "#64748b",
+                  borderBottom: activeFilter === f.key ? "2px solid #2563eb" : "2px solid transparent",
+                  transition: "all 0.15s",
+                }}
+              >
+                {f.label}
+                <span style={{ fontSize: 11, padding: "1px 6px", borderRadius: 99, backgroundColor: activeFilter === f.key ? "#eff6ff" : "#f1f5f9", color: activeFilter === f.key ? "#2563eb" : "#94a3b8", fontWeight: 700 }}>
+                  {f.count}
+                </span>
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-4 lg:grid-cols-2">
-          {intelligenceItems.map((item) => (
-            <IntelligenceCard key={item.id} item={item} />
+      {/* Content */}
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {filtered.map(item => (
+            <IntelCard key={item.id} item={item} />
           ))}
         </div>
       </div>
@@ -112,38 +108,56 @@ export default function IntelligencePage() {
   )
 }
 
-function IntelligenceCard({ item }: { item: typeof intelligenceItems[0] }) {
-  const isPositive = item.change >= 0
+function IntelCard({ item }: { item: typeof allItems[0] }) {
+  const positive = item.change >= 0
 
   const config = {
-    approval: { icon: CheckCircleIcon, bg: "bg-green-50", color: "text-green-600", ring: "ring-green-200", label: "Approval" },
-    development: { icon: BuildingOffice2Icon, bg: "bg-blue-50", color: "text-blue-600", ring: "ring-blue-200", label: "Development" },
-    decline: { icon: ExclamationTriangleIcon, bg: "bg-red-50", color: "text-red-600", ring: "ring-red-200", label: "Alert" },
+    approval: { Icon: CheckCircleIcon, bg: "#f0fdf4", color: "#16a34a", ring: "#bbf7d0", label: "Govt. Approval" },
+    development: { Icon: BuildingOffice2Icon, bg: "#eff6ff", color: "#2563eb", ring: "#bfdbfe", label: "Development" },
+    decline: { Icon: ExclamationTriangleIcon, bg: "#fef2f2", color: "#dc2626", ring: "#fecaca", label: "Risk Alert" },
   }
-
-  const { icon: Icon, bg, color, ring, label } = config[item.type]
+  const { Icon, bg, color, ring, label } = config[item.type]
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md">
-      <div className="flex items-start gap-4">
-        <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ring-2 ${bg} ${color} ${ring}`}>
-          <Icon className="h-6 w-6" />
+    <div
+      style={{
+        backgroundColor: "#fff", borderRadius: 14, padding: "20px 22px",
+        border: "1.5px solid #f1f5f9", boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        transition: "box-shadow 0.2s",
+      }}
+      onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"}
+      onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(0,0,0,0.04)"}
+    >
+      <div style={{ display: "flex", gap: 14 }}>
+        {/* Icon */}
+        <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: bg, border: `1.5px solid ${ring}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Icon style={{ width: 22, height: 22, color }} />
         </div>
-        <div className="flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${bg} ${color}`}>{label}</span>
-            <span className="text-xs text-gray-400">{item.timeAgo}</span>
+
+        <div style={{ flex: 1 }}>
+          {/* Top row */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color, backgroundColor: bg, padding: "2px 8px", borderRadius: 99, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              {label}
+            </span>
+            <span style={{ fontSize: 11, color: "#94a3b8" }}>{item.timeAgo}</span>
           </div>
-          <h3 className="mb-1 text-lg font-bold text-gray-900">{item.title}</h3>
-          <p className="mb-2 flex items-center gap-1 text-sm font-medium text-gray-600">
+
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "6px 0 4px 0" }}>{item.title}</h3>
+          <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 4 }}>
             <span>📍</span> {item.location}
+            <span style={{ marginLeft: 8, fontSize: 11, color: "#94a3b8" }}>• {item.affectedProps} properties affected</span>
           </p>
-          <p className="mb-3 text-sm leading-relaxed text-gray-600">{item.impact}</p>
-          <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ring-1 ${
-            isPositive ? "bg-green-50 text-green-700 ring-green-200" : "bg-red-50 text-red-700 ring-red-200"
-          }`}>
-            {isPositive ? <ArrowTrendingUpIcon className="h-3.5 w-3.5" /> : <ArrowTrendingDownIcon className="h-3.5 w-3.5" />}
-            Expected property value impact: {isPositive ? "+" : ""}{item.change}%
+          <p style={{ fontSize: 13, color: "#475569", margin: "0 0 12px 0", lineHeight: 1.6 }}>{item.impact}</p>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 99, fontSize: 12, fontWeight: 700, backgroundColor: positive ? "#f0fdf4" : "#fef2f2", color: positive ? "#16a34a" : "#dc2626", border: `1px solid ${positive ? "#bbf7d0" : "#fecaca"}` }}>
+              {positive ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
+              {positive ? "+" : ""}{item.change}% expected impact
+            </div>
+            <button style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", background: "none", border: "none", cursor: "pointer" }}>
+              View affected properties →
+            </button>
           </div>
         </div>
       </div>
