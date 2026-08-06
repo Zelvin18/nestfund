@@ -87,7 +87,7 @@ export default function MarketPage() {
       </div>
 
       {/* Property grid */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
+      <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
         <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 20, fontWeight: 500 }}>
           Showing <strong style={{ color: "#374151" }}>{featuredProperties.length}</strong> properties
         </p>

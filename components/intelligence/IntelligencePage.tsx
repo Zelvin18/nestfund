@@ -46,7 +46,7 @@ export default function IntelligencePage() {
 
       {/* Header */}
       <div style={{ backgroundColor: "#fff", borderBottom: "1.5px solid #f1f5f9" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 0" }}>
+        <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 0" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
             <div>
               <h1 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 6px 0" }}>
@@ -93,7 +93,7 @@ export default function IntelligencePage() {
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
+      <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="intel-grid">
           {filtered.map(item => (
             <IntelCard key={item.id} item={item} />

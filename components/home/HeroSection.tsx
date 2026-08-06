@@ -16,6 +16,7 @@ export default function HeroSection() {
         overflow: "hidden",
         backgroundColor: "#fff",
         padding: "80px 0 72px",
+        maxWidth: "100vw",
       }}
     >
       {/* Background blobs */}
@@ -53,7 +54,7 @@ export default function HeroSection() {
           gap: 64,
           alignItems: "center",
         }}
-        className="hero-grid"
+        className="hero-grid container"
       >
         {/* Left — copy */}
         <div>
@@ -96,6 +97,7 @@ export default function HeroSection() {
 
           {/* Description */}
           <p
+            className="hero-desc"
             style={{
               fontSize: 18,
               lineHeight: 1.7,
