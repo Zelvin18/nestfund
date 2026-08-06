@@ -9,8 +9,8 @@ import { WalletIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
 const navLinks = [
   { href: "/market",       label: "Market",       sub: "Browse properties" },
   { href: "/portfolio",    label: "Portfolio",    sub: "Track investments" },
+  { href: "/wallet",       label: "Wallet",       sub: "Manage funds" },
   { href: "/intelligence", label: "Intelligence", sub: "Market updates" },
-  { href: "/about",        label: "About",        sub: "Our mission" },
 ]
 
 export default function Navbar() {
@@ -113,17 +113,19 @@ export default function Navbar() {
               <BellIcon style={{ width: 18, height: 18, color: "#4b5563" }} />
             </button>
 
-            <div
+            <Link
+              href="/wallet"
               className="nav-wallet"
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "6px 12px", border: "1.5px solid #e5e7eb",
                 borderRadius: 9, background: "#fff", cursor: "pointer",
+                textDecoration: "none",
               }}
             >
               <WalletIcon style={{ width: 15, height: 15, color: "#2563eb" }} />
               <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>UGX 0</span>
-            </div>
+            </Link>
 
             <Link
               className="nav-sign-in"
@@ -257,8 +259,7 @@ export default function Navbar() {
                   background: "linear-gradient(135deg, #2563eb, #4f46e5)",
                   color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none",
                 }}
-              >Get Started</Link>
-            </div>
+              >Get Started</Link>            </div>
           </div>
         </div>
       )}

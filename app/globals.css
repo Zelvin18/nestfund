@@ -182,7 +182,17 @@ main {
   .filter-tabs::-webkit-scrollbar { display: none; }
 }
 
-/* ── Ticker ── */
+/* ── Wallet ── */
+@media (max-width: 1024px) {
+  .wallet-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Auth ── */
+@media (max-width: 768px) {
+  .auth-grid { grid-template-columns: 1fr !important; }
+  .auth-left { display: none !important; }
+}
+
 @media (max-width: 480px) {
   .ticker-item-name {
     display: none !important;   /* show only price + change on tiny screens */
