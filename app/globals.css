@@ -123,6 +123,13 @@ main {
 /* ── Portfolio ── */
 @media (max-width: 1024px) {
   .portfolio-chart-grid { grid-template-columns: 1fr !important; }
+  .portfolio-top-grid   { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 900px) {
+  .portfolio-top-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 640px) {
+  .portfolio-top-grid { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 800px) {
   .summary-grid { grid-template-columns: 1fr 1fr !important; }
@@ -193,8 +200,38 @@ main {
   .auth-left { display: none !important; }
 }
 
+/* ── Exchange ── */
+@media (max-width: 1024px) {
+  .exchange-layout  { grid-template-columns: 1fr !important; }
+  .exchange-sidebar { display: none !important; }
+}
+@media (max-width: 640px) {
+  .exchange-layout  { grid-template-columns: 1fr !important; }
+}
+
 @media (max-width: 480px) {
   .ticker-item-name {
     display: none !important;   /* show only price + change on tiny screens */
+  }
+}
+
+/* ── Exchange layout ── */
+@media (max-width: 1024px) {
+  .exchange-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .exchange-sidebar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .exchange-layout { grid-template-columns: 1fr !important; }
+  .exchange-sidebar { position: static !important; }
+}
+
+@media (max-width: 640px) {
+  .exchange-layout .property-grid {
+    grid-template-columns: 1fr !important;
   }
 }

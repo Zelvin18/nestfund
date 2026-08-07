@@ -1,22 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import {
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-} from "@heroicons/react/24/solid"
-import {
-  WalletIcon,
-  ChartPieIcon,
-  BanknotesIcon,
-  ArrowsRightLeftIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline"
+import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/solid"
+import { PlusIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
-} from "recharts"
 import { featuredProperties } from "@/lib/mockData"
 import Sparkline from "@/components/ui/Sparkline"
 
@@ -26,42 +13,44 @@ const mockPortfolio = [
   { propertyId: "green-heights", shares: 630, invested: 504000, currentValue: 474500 },
 ]
 
-const performanceData = Array.from({ length: 12 }, (_, i) => ({
-  month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-  value: 12000000 + i * 420000 + (Math.random() * 200000 - 50000),
-}))
+type AssetTab = "All Assets" | "Rental" | "Construction"
 
-const COLORS = ["#2563eb", "#10b981", "#7c3aed"]
+const assetFilterTabs: AssetTab[] = ["All Assets", "Rental", "Construction"]
 
 export default function PortfolioPage() {
   const totalValue = mockPortfolio.reduce((s, p) => s + p.currentValue, 0)
   const totalInvested = mockPortfolio.reduce((s, p) => s + p.invested, 0)
   const totalGain = totalValue - totalInvested
   const totalGainPct = (totalGain / totalInvested) * 100
+  const rentalValue = mockPortfolio
+    .filter(p => p.propertyId === "sunrise-apartments" || p.propertyId === "acacia-office-park")
+    .reduce((s, p) => s + p.currentValue, 0)
+  const constructionValue = totalValue - rentalValue
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f5f6f8" }}>
 
       {/* Page header */}
-      <div style={{ backgroundColor: "#fff", borderBottom: "1.5px solid #f1f5f9" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 28px" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div style={{ backgroundColor: "#fff", borderBottom: "1px solid #e8ecf0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 28px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <h1 style={{ fontSize: 34, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 6px 0" }}>
+              {/* Breadcrumb */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Dashboard</span>
+                <span style={{ fontSize: 13, color: "#c4cad4" }}>/</span>
+                <span style={{ fontSize: 13, color: "#2563eb", fontWeight: 600 }}>Portfolio</span>
+              </div>
+              <h1 style={{ fontSize: 30, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 5px 0" }}>
                 My Portfolio
               </h1>
-              <p style={{ fontSize: 15, color: "#64748b", margin: 0 }}>
+              <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>
                 Track your property investments and monthly income
               </p>
             </div>
             <Link
               href="/market"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "10px 20px", borderRadius: 10,
-                background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-                color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none",
-              }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, backgroundColor: "#2563eb", color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none" }}
             >
               <PlusIcon style={{ width: 16, height: 16 }} />
               Add Investment
@@ -70,109 +59,146 @@ export default function PortfolioPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 56px" }}>
 
-        {/* Summary cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginBottom: 24 }} className="summary-grid">
-          {[
-            { label: "Portfolio Value", value: `UGX ${formatCurrency(totalValue)}`, change: totalGainPct, icon: ChartPieIcon, iconColor: "#2563eb", iconBg: "#eff6ff" },
-            { label: "Total Invested", value: `UGX ${formatCurrency(totalInvested)}`, neutral: true, icon: WalletIcon, iconColor: "#7c3aed", iconBg: "#f5f3ff" },
-            { label: "Total Gain", value: `UGX ${formatCurrency(totalGain)}`, change: totalGainPct, icon: ArrowTrendingUpIcon, iconColor: "#16a34a", iconBg: "#f0fdf4" },
-            { label: "Monthly Income", value: "UGX 185,000", change: 2.4, icon: BanknotesIcon, iconColor: "#ea580c", iconBg: "#fff7ed" },
-          ].map((card) => (
-            <SummaryCard key={card.label} {...card} />
-          ))}
-        </div>
+        {/* Top 3-column cards */}
+        <div className="portfolio-top-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 28 }}>
 
-        {/* Charts row */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, marginBottom: 24 }} className="portfolio-chart-grid">
+          {/* Card 1: Assets Net Value */}
+          <div style={{ backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14, padding: "22px 22px 20px" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 14px 0" }}>
+              Assets Net Value
+            </p>
+            <p style={{ fontSize: 30, fontWeight: 800, color: "#0f172a", margin: "0 0 4px 0", letterSpacing: "-0.8px", lineHeight: 1.1 }}>
+              UGX {formatCurrency(totalValue)}
+            </p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "#f0fdf4", borderRadius: 99, padding: "3px 10px", marginBottom: 18 }}>
+              <ArrowTrendingUpIcon style={{ width: 12, height: 12, color: "#10b981" }} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#10b981" }}>+{formatPercentage(totalGainPct)} all time</span>
+            </div>
 
-          {/* Performance chart */}
-          <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "22px 20px", border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+            <div style={{ height: 1, backgroundColor: "#f1f4f8", marginBottom: 14 }} />
+
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Available balance</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>UGX 0</span>
+            </div>
+
+            <div style={{ backgroundColor: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 9, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div>
-                <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>Portfolio Performance</h2>
-                <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>12-month value growth</p>
+                <p style={{ fontSize: 11, color: "#0d9488", fontWeight: 600, margin: "0 0 2px 0" }}>Claimable rental income</p>
+                <p style={{ fontSize: 16, fontWeight: 800, color: "#0d9488", margin: 0 }}>UGX 185,000</p>
               </div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: "#10b981", backgroundColor: "#f0fdf4", padding: "4px 10px", borderRadius: 99 }}>
-                <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} />
-                +{formatPercentage(totalGainPct)} all time
-              </div>
+              <button style={{ padding: "7px 16px", borderRadius: 8, backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer" }}>
+                Claim
+              </button>
             </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={performanceData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} tickFormatter={v => `${(v / 1000000).toFixed(0)}M`} width={40} />
-                <Tooltip
-                  contentStyle={{ borderRadius: 10, border: "1px solid #f1f5f9", fontSize: 13 }}
-                  formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Portfolio Value"]}
-                />
-                <Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: "#2563eb", stroke: "#fff", strokeWidth: 2 }} />
-              </LineChart>
-            </ResponsiveContainer>
+            <button style={{ background: "none", border: "none", fontSize: 12, color: "#2563eb", fontWeight: 600, cursor: "pointer", padding: 0 }}>
+              View claim history
+            </button>
           </div>
 
-          {/* Allocation */}
-          <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "22px 20px", border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 16px 0" }}>Allocation</h2>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-              <PieChart width={160} height={160}>
-                <Pie
-                  data={mockPortfolio.map(p => ({ name: p.propertyId, value: p.currentValue }))}
-                  cx="50%" cy="50%"
-                  outerRadius={70} innerRadius={34}
-                  dataKey="value" paddingAngle={4}
-                >
-                  {mockPortfolio.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
-                </Pie>
-              </PieChart>
+          {/* Card 2: Analytics */}
+          <div style={{ backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14, padding: "22px 22px 20px" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 14px 0" }}>
+              Analytics
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+              <div style={{ backgroundColor: "#f8f9fb", borderRadius: 10, padding: "12px 14px" }}>
+                <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, margin: "0 0 4px 0" }}>Portfolio Yield</p>
+                <p style={{ fontSize: 22, fontWeight: 800, color: "#0d9488", margin: 0, letterSpacing: "-0.5px" }}>10.4%</p>
+              </div>
+              <div style={{ backgroundColor: "#f8f9fb", borderRadius: 10, padding: "12px 14px" }}>
+                <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, margin: "0 0 4px 0" }}>Avg Total Gain</p>
+                <p style={{ fontSize: 22, fontWeight: 800, color: totalGainPct >= 0 ? "#0d9488" : "#ef4444", margin: 0, letterSpacing: "-0.5px" }}>
+                  {totalGainPct >= 0 ? "+" : ""}{formatPercentage(totalGainPct)}
+                </p>
+              </div>
             </div>
+            <div style={{ height: 1, backgroundColor: "#f1f4f8", marginBottom: 14 }} />
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#64748b", margin: "0 0 10px 0" }}>Breakdown</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {mockPortfolio.map((p, i) => {
-                const prop = featuredProperties.find(f => f.id === p.propertyId)
-                const pct = ((p.currentValue / totalValue) * 100).toFixed(1)
-                return (
-                  <div key={p.propertyId} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: COLORS[i], flexShrink: 0 }} />
-                      <span style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}>{prop?.name}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 60, height: 4, borderRadius: 99, backgroundColor: "#f1f5f9", overflow: "hidden" }}>
-                        <div style={{ width: `${pct}%`, height: "100%", backgroundColor: COLORS[i], borderRadius: 99 }} />
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", minWidth: 36, textAlign: "right" }}>{pct}%</span>
-                    </div>
-                  </div>
-                )
-              })}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: "#0d9488" }} />
+                  <span style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}>Rental</span>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>UGX {formatCurrency(rentalValue)}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: "#f59e0b" }} />
+                  <span style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}>Construction</span>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>UGX {formatCurrency(constructionValue)}</span>
+              </div>
             </div>
+          </div>
+
+          {/* Card 3: Additional Materials */}
+          <div style={{ backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14, padding: "22px 22px 20px" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 14px 0" }}>
+              Additional Materials
+            </p>
+            {/* Tab row */}
+            <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #f1f4f8", marginBottom: 20 }}>
+              {["Documents", "Community", "Referral"].map((tab, i) => (
+                <button
+                  key={tab}
+                  style={{
+                    padding: "7px 14px", fontSize: 12, fontWeight: 600, border: "none",
+                    background: "transparent", cursor: "pointer",
+                    color: i === 0 ? "#2563eb" : "#94a3b8",
+                    borderBottom: i === 0 ? "2px solid #2563eb" : "2px solid transparent",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            {/* Documents content */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, backgroundColor: "#f8f9fb", borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width={20} height={20} fill="none" viewBox="0 0 24 24" stroke="#2563eb" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                </svg>
+              </div>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>Documents &amp; Taxes</p>
+                <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>Annual reports, tax certificates</p>
+              </div>
+            </div>
+            <button style={{ width: "100%", padding: "9px 0", borderRadius: 9, backgroundColor: "transparent", color: "#2563eb", fontSize: 13, fontWeight: 700, border: "1.5px solid #2563eb", cursor: "pointer" }}>
+              View Documents
+            </button>
           </div>
         </div>
 
-        {/* Holdings table */}
-        <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", overflow: "hidden" }}>
-          <div style={{ padding: "20px 24px", borderBottom: "1px solid #f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0 }}>My Holdings</h2>
-            <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>{mockPortfolio.length} positions</span>
+        {/* Owned Assets section */}
+        <div style={{ backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14, overflow: "hidden" }}>
+          {/* Header + tabs */}
+          <div style={{ padding: "20px 24px 0", borderBottom: "1px solid #f1f4f8" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0 }}>Owned Assets</h2>
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>{mockPortfolio.length} positions</span>
+            </div>
+            <AssetFilterTabs />
           </div>
 
+          {/* Table */}
           <div className="responsive-table" style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ backgroundColor: "#f8fafc" }}>
-                  {["Property", "Shares Owned", "Avg. Price", "Current Value", "Gain / Loss", "30d Chart", "Action"].map(h => (
+                <tr style={{ backgroundColor: "#f8f9fb" }}>
+                  {["Asset Name", "Balance", "APR", "Asset Value", "Share Price", "Shares Owned", "Portfolio Share"].map(h => (
                     <th
                       key={h}
                       style={{
                         padding: "11px 18px",
-                        textAlign: h === "Property" ? "left" : "right",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "#94a3b8",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        whiteSpace: "nowrap",
+                        textAlign: h === "Asset Name" ? "left" : "right",
+                        fontSize: 11, fontWeight: 700, color: "#94a3b8",
+                        textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap",
                       }}
                     >
                       {h}
@@ -187,71 +213,66 @@ export default function PortfolioPage() {
                   const gain = holding.currentValue - holding.invested
                   const gainPct = (gain / holding.invested) * 100
                   const positive = gain >= 0
-                  const sparkData = prop.chartData.slice(-20).map(d => d.value)
+                  const portfolioShare = ((holding.currentValue / totalValue) * 100).toFixed(1)
+                  const sparkData = prop.chartData.slice(-20).map((d: { value: number }) => d.value)
+                  const avgPrice = holding.invested / holding.shares
 
                   return (
                     <tr
                       key={holding.propertyId}
-                      style={{ borderTop: idx === 0 ? "none" : "1px solid #f8fafc", transition: "background 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.backgroundColor = "#f8fafc"}
+                      style={{ borderTop: idx === 0 ? "none" : "1px solid #f8f9fb", transition: "background 0.15s" }}
+                      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.backgroundColor = "#f8f9fb"}
                       onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.backgroundColor = ""}
                     >
-                      {/* Property */}
+                      {/* Asset Name */}
                       <td style={{ padding: "14px 18px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <img
-                            src={prop.image}
-                            alt={prop.name}
-                            style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", flexShrink: 0 }}
-                          />
+                          <img src={prop.image} alt={prop.name} style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
                           <div>
                             <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>{prop.name}</p>
                             <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{prop.location}</p>
                           </div>
                         </div>
                       </td>
-                      {/* Shares */}
-                      <td style={{ padding: "14px 18px", textAlign: "right", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
-                        {holding.shares.toLocaleString()}
+                      {/* Balance (30d chart) */}
+                      <td style={{ padding: "14px 18px", textAlign: "right" }}>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <Sparkline data={sparkData} width={80} height={30} positive={positive} strokeWidth={1.8} />
+                        </div>
                       </td>
-                      {/* Avg price */}
-                      <td style={{ padding: "14px 18px", textAlign: "right", fontSize: 13, color: "#64748b" }}>
-                        UGX {formatCurrency(holding.invested / holding.shares)}
+                      {/* APR */}
+                      <td style={{ padding: "14px 18px", textAlign: "right" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#0d9488" }}>
+                          {positive ? "+" : ""}{formatPercentage(gainPct)}
+                        </span>
                       </td>
-                      {/* Current value */}
+                      {/* Asset Value */}
                       <td style={{ padding: "14px 18px", textAlign: "right", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
                         UGX {formatCurrency(holding.currentValue)}
                       </td>
-                      {/* Gain/Loss */}
+                      {/* Share Price */}
+                      <td style={{ padding: "14px 18px", textAlign: "right", fontSize: 13, color: "#64748b" }}>
+                        UGX {formatCurrency(avgPrice)}
+                      </td>
+                      {/* Shares Owned */}
+                      <td style={{ padding: "14px 18px", textAlign: "right", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
+                        {holding.shares.toLocaleString()}
+                      </td>
+                      {/* Portfolio Share */}
                       <td style={{ padding: "14px 18px", textAlign: "right" }}>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: positive ? "#10b981" : "#ef4444" }}>
-                            {positive ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
-                            {formatPercentage(gainPct)}
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{portfolioShare}%</span>
+                          <div style={{ width: 60, height: 4, borderRadius: 99, backgroundColor: "#f1f5f9", overflow: "hidden" }}>
+                            <div style={{ width: `${portfolioShare}%`, height: "100%", backgroundColor: "#2563eb", borderRadius: 99 }} />
                           </div>
-                          <span style={{ fontSize: 11, color: positive ? "#10b981" : "#ef4444" }}>
-                            {positive ? "+" : ""}UGX {formatCurrency(gain)}
-                          </span>
-                        </div>
-                      </td>
-                      {/* Sparkline */}
-                      <td style={{ padding: "14px 18px", textAlign: "right" }}>
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                          <Sparkline data={sparkData} width={90} height={36} positive={positive} strokeWidth={1.8} />
-                        </div>
-                      </td>
-                      {/* Action */}
-                      <td style={{ padding: "14px 18px", textAlign: "right" }}>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                          <Link
-                            href={`/property/${prop.id}`}
-                            style={{ padding: "6px 12px", borderRadius: 8, backgroundColor: "#eff6ff", color: "#2563eb", fontSize: 12, fontWeight: 600, textDecoration: "none" }}
-                          >
-                            Buy More
-                          </Link>
-                          <button style={{ padding: "6px 12px", borderRadius: 8, backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                            Sell
-                          </button>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <Link href={`/property/${prop.id}`} style={{ padding: "5px 10px", borderRadius: 7, backgroundColor: "#eff6ff", color: "#2563eb", fontSize: 11, fontWeight: 600, textDecoration: "none" }}>
+                              Buy More
+                            </Link>
+                            <button style={{ padding: "5px 10px", borderRadius: 7, backgroundColor: "#f8f9fb", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                              Sell
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -266,26 +287,23 @@ export default function PortfolioPage() {
   )
 }
 
-function SummaryCard({ label, value, change, icon: Icon, iconColor, iconBg, neutral }: {
-  label: string; value: string; change?: number; icon: React.ElementType
-  iconColor: string; iconBg: string; neutral?: boolean
-}) {
-  const positive = (change ?? 0) >= 0
+function AssetFilterTabs() {
   return (
-    <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "20px", border: "1.5px solid #f1f5f9", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Icon style={{ width: 20, height: 20, color: iconColor }} />
-        </div>
-        {!neutral && change !== undefined && (
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 99, backgroundColor: positive ? "#f0fdf4" : "#fef2f2", fontSize: 11, fontWeight: 700, color: positive ? "#16a34a" : "#dc2626" }}>
-            {positive ? <ArrowTrendingUpIcon style={{ width: 11, height: 11 }} /> : <ArrowTrendingDownIcon style={{ width: 11, height: 11 }} />}
-            {positive ? "+" : ""}{change?.toFixed(1)}%
-          </div>
-        )}
-      </div>
-      <p style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, margin: "0 0 5px 0" }}>{label}</p>
-      <p style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.4px" }}>{value}</p>
+    <div className="filter-tabs" style={{ display: "flex", gap: 0 }}>
+      {(["All Assets", "Rental", "Construction"] as AssetTab[]).map((tab, i) => (
+        <button
+          key={tab}
+          style={{
+            padding: "7px 18px", fontSize: 13, fontWeight: 600, border: "none",
+            background: "transparent", cursor: "pointer",
+            color: i === 0 ? "#2563eb" : "#64748b",
+            borderBottom: i === 0 ? "2px solid #2563eb" : "2px solid transparent",
+            transition: "all 0.15s", whiteSpace: "nowrap",
+          }}
+        >
+          {tab}
+        </button>
+      ))}
     </div>
   )
 }

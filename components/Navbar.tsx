@@ -7,10 +7,11 @@ import { MagnifyingGlassIcon, BellIcon, XMarkIcon, Bars3Icon } from "@heroicons/
 import { WalletIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
 
 const navLinks = [
-  { href: "/market",       label: "Market",       sub: "Browse properties" },
-  { href: "/portfolio",    label: "Portfolio",    sub: "Track investments" },
-  { href: "/wallet",       label: "Wallet",       sub: "Manage funds" },
-  { href: "/intelligence", label: "Intelligence", sub: "Market updates" },
+  { href: "/market",              label: "Rental Market",  sub: "Income-producing properties" },
+  { href: "/construction-market", label: "Construction",   sub: "Fund new buildings" },
+  { href: "/exchange",            label: "Exchange",       sub: "Trade shares P2P" },
+  { href: "/portfolio",           label: "Portfolio",      sub: "Track investments" },
+  { href: "/wallet",              label: "Wallet",         sub: "Manage funds" },
 ]
 
 export default function Navbar() {
