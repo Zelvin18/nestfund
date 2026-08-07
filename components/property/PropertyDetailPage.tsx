@@ -4,50 +4,116 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
-  DocumentTextIcon, BuildingOfficeIcon, CalendarIcon,
-  UserGroupIcon, ShieldCheckIcon, ChartBarIcon,
+  ShieldCheckIcon, ArrowTopRightOnSquareIcon, ClipboardDocumentIcon,
+  UserGroupIcon, CalendarIcon, BuildingOfficeIcon,
 } from "@heroicons/react/24/outline"
 import {
   ArrowTrendingUpIcon, ArrowTrendingDownIcon,
-  CheckBadgeIcon, StarIcon, FireIcon,
+  CheckBadgeIcon, StarIcon,
 } from "@heroicons/react/24/solid"
 import { featuredProperties } from "@/lib/mockData"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, Area, AreaChart,
-} from "recharts"
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 
 const timeRanges = ["1W", "1M", "3M", "6M", "1Y", "ALL"]
 
-const updates = [
-  { date: "Jan 2026", event: "Rent increased 8% following lease renewal", type: "positive" },
-  { date: "Nov 2025", event: "New access road completed nearby", type: "positive" },
-  { date: "Sep 2025", event: "Property fully occupied — 0% vacancy", type: "positive" },
-  { date: "Jun 2025", event: "Annual valuation completed — value up 12%", type: "positive" },
-]
-
-const docs = [
-  { name: "Title Deed", status: "Verified" },
-  { name: "Valuation Report", status: "Verified" },
-  { name: "Investment Prospectus", status: "Available" },
-  { name: "Lease Agreements", status: "Available" },
-]
+const propertyExtras: Record<string, {
+  beds: number; baths: number; sqm: number; parking: number; floors: number; yearBuilt: number
+  images: string[]
+  activityFeed: Array<{icon: string; title: string; desc: string; date: string; photos?: string[]; extra?: string; attachment?: string}>
+  tradeHistory: Array<{hash: string; date: string; time: string; shares: number; price: number; volume: number; status: string}>
+}> = {
+  "sunrise-apartments": {
+    beds: 2, baths: 2, sqm: 85, parking: 1, floors: 6, yearBuilt: 2021,
+    images: [
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=70",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=70",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=70",
+    ],
+    activityFeed: [
+      { icon: "payment", title: "Rental Income Distributed — Jan 2026", desc: "Monthly rental income of UGX 18M distributed to all shareholders proportionally. Yield maintained at 11.2%.", date: "Jan 30", photos: [] },
+      { icon: "update", title: "100% Occupancy Maintained", desc: "All 24 units remain occupied. Tenant renewal rate 94%. New 2-year lease signed for units 301 and 412.", date: "Jan 15", photos: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=120&q=70","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=120&q=70"], extra: "+2 more" },
+      { icon: "payment", title: "Rental Income Distributed — Dec 2025", desc: "Monthly rental income of UGX 17.5M distributed. Annual yield 11.2%.", date: "Dec 31", photos: [] },
+      { icon: "update", title: "Property Valuation Completed", desc: "Independent valuation confirms 12% value increase year-over-year. Current estimated value: UGX 274M.", date: "Dec 10", photos: [], attachment: "Download Valuation Report" },
+    ],
+    tradeHistory: [
+      { hash: "0xe84...46ef6", date: "07.08.2026", time: "00:07", shares: 4,  price: 1250, volume: 5000,  status: "Sold" },
+      { hash: "0x97a...1c2ee", date: "05.08.2026", time: "14:11", shares: 1,  price: 1250, volume: 1250,  status: "Sold" },
+      { hash: "0x7dd...4eb71", date: "05.08.2026", time: "11:57", shares: 10, price: 1240, volume: 12400, status: "Sold" },
+      { hash: "0x3c7...56b5b", date: "04.08.2026", time: "09:55", shares: 5,  price: 1250, volume: 6250,  status: "Sold" },
+    ],
+  },
+  "green-heights": {
+    beds: 3, baths: 2, sqm: 110, parking: 1, floors: 8, yearBuilt: 2019,
+    images: [
+      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=70",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=70",
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=70",
+    ],
+    activityFeed: [
+      { icon: "payment", title: "Rental Income Distributed — Jan 2026", desc: "Monthly income of UGX 12.8M distributed. Yield at 9.6% p.a.", date: "Jan 31" },
+      { icon: "update", title: "96% Occupancy — Strong Demand", desc: "One unit temporarily vacant during renovation. Expected re-let by Feb 2026.", date: "Jan 5" },
+    ],
+    tradeHistory: [
+      { hash: "0xab1...33ef2", date: "06.08.2026", time: "13:20", shares: 2, price: 840, volume: 1680, status: "Sold" },
+      { hash: "0xcc4...71ab9", date: "04.08.2026", time: "10:05", shares: 5, price: 840, volume: 4200, status: "Sold" },
+    ],
+  },
+  "acacia-office-park": {
+    beds: 0, baths: 4, sqm: 3200, parking: 80, floors: 12, yearBuilt: 2020,
+    images: [
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&q=70",
+      "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=400&q=70",
+      "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=70",
+      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70",
+    ],
+    activityFeed: [
+      { icon: "payment", title: "Commercial Rent Distributed — Jan 2026", desc: "Commercial tenants' monthly rent of UGX 35M distributed. Offices 98% leased.", date: "Jan 28" },
+      { icon: "update", title: "New Anchor Tenant Signed", desc: "MTN Uganda signed a 5-year lease for floors 9–11. Expected to boost yield by 0.4%.", date: "Dec 15", attachment: "Lease Agreement Summary" },
+    ],
+    tradeHistory: [
+      { hash: "0xf12...88ac3", date: "07.08.2026", time: "11:30", shares: 8,  price: 2100, volume: 16800, status: "Sold" },
+      { hash: "0xd44...22bc1", date: "05.08.2026", time: "16:45", shares: 3,  price: 2100, volume: 6300,  status: "Sold" },
+    ],
+  },
+  "lake-view-residences": {
+    beds: 2, baths: 2, sqm: 95, parking: 1, floors: 5, yearBuilt: 2022,
+    images: [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=80",
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=70",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=70",
+    ],
+    activityFeed: [
+      { icon: "payment", title: "Rental Income Distributed — Jan 2026", desc: "UGX 10.2M distributed this month. Lake view premium driving strong rental demand.", date: "Jan 29" },
+    ],
+    tradeHistory: [
+      { hash: "0xa91...55de4", date: "06.08.2026", time: "09:10", shares: 6, price: 1680, volume: 10080, status: "Sold" },
+    ],
+  },
+}
 
 export default function PropertyDetailPage({ id }: { id: string }) {
-  const property = featuredProperties.find((p) => p.id === id)
+  const property = featuredProperties.find(p => p.id === id)
+  const extra = propertyExtras[id] || propertyExtras["sunrise-apartments"]
   const [shares, setShares] = useState(100)
   const [range, setRange] = useState("1M")
   const [saved, setSaved] = useState(false)
-  const [tab, setTab] = useState<"overview" | "financials" | "documents" | "updates">("overview")
+  const [tab, setTab] = useState<"overview"|"documents"|"calculator"|"activities"|"trades">("overview")
+  const [docTab, setDocTab] = useState<"ownership"|"property"|"audit">("ownership")
+  const [investment, setInvestment] = useState(500000)
 
-  if (!property) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-        <p style={{ color: "#64748b" }}>Property not found</p>
-      </div>
-    )
-  }
+  if (!property) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+      <p style={{ color: "#64748b" }}>Property not found</p>
+    </div>
+  )
 
   const isPositive = property.priceChangePercent >= 0
   const totalCost = shares * property.pricePerShare
@@ -56,263 +122,314 @@ export default function PropertyDetailPage({ id }: { id: string }) {
   const sharesPct = Math.round((property.availableShares / property.totalShares) * 100)
   const soldPct = 100 - sharesPct
   const chartColor = isPositive ? "#10b981" : "#ef4444"
+  const calcShares = Math.floor(investment / property.pricePerShare)
+  const calcMonthly = (investment * (property.rentalYield / 100)) / 12
+  const calcAnnual = investment * (property.rentalYield / 100)
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-      {/* ── BACK BAR ── */}
-      <div style={{ backgroundColor: "#fff", borderBottom: "1.5px solid #f1f5f9", position: "sticky", top: 64, zIndex: 40 }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 20px", height: 50, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/market" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 500, color: "#64748b", textDecoration: "none" }}>
-            <ArrowLeftIcon style={{ width: 15, height: 15 }} />
-            Market
-          </Link>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f5f6f8" }}>
+
+      {/* Breadcrumb */}
+      <div style={{ backgroundColor: "#fff", borderBottom: "1px solid #e8ecf0" }}>
+        <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 48, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <Link href="/market" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <ArrowLeftIcon style={{ width: 14, height: 14 }} />Rental Market
+            </Link>
+            <span style={{ fontSize: 13, color: "#c4cad4" }}>/</span>
+            <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 600 }}>{property.name}</span>
+          </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={() => setSaved(!saved)}
-              style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: `1.5px solid ${saved ? "#fecaca" : "#e2e8f0"}`, background: saved ? "#fef2f2" : "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: saved ? "#dc2626" : "#64748b" }}
-            >
-              <HeartIcon style={{ width: 14, height: 14, color: saved ? "#dc2626" : "#9ca3af" }} />
-              {saved ? "Saved" : "Save"}
+            <button onClick={() => setSaved(!saved)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: `1.5px solid ${saved ? "#fecaca" : "#e2e8f0"}`, background: saved ? "#fef2f2" : "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: saved ? "#dc2626" : "#64748b" }}>
+              <HeartIcon style={{ width: 14, height: 14 }} />{saved ? "Saved" : "Save"}
             </button>
             <button style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#64748b" }}>
-              <ShareIcon style={{ width: 14, height: 14, color: "#9ca3af" }} />
-              Share
+              <ShareIcon style={{ width: 14, height: 14 }} />Share
             </button>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 20px" }}>
-        <div className="property-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
+      <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 48px" }}>
+        <div className="property-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
 
-          {/* ══ LEFT COLUMN ══ */}
+          {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-            {/* Hero image */}
-            <div style={{ borderRadius: 20, overflow: "hidden", position: "relative", height: 380, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-              <img src={property.image} alt={property.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.7) 100%)" }} />
-              {/* Badges top */}
-              <div style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 99, padding: "5px 11px", fontSize: 12, fontWeight: 700, color: "#16a34a" }}>
-                  <CheckBadgeIcon style={{ width: 14, height: 14 }} />
-                  Verified Property
-                </span>
-                {property.futureGrowth === "High" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "rgba(16,185,129,0.9)", borderRadius: 99, padding: "5px 11px", fontSize: 12, fontWeight: 700, color: "#fff" }}>
-                    <FireIcon style={{ width: 12, height: 12 }} />
-                    High Growth Zone
-                  </span>
-                )}
-              </div>
-              {/* Bottom info */}
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px 20px 20px" }}>
-                <h1 style={{ fontSize: 28, fontWeight: 800, color: "#fff", margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>{property.name}</h1>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.85)" }}>
-                  <MapPinIcon style={{ width: 14, height: 14 }} />
-                  <span style={{ fontSize: 14, fontWeight: 500 }}>{property.location}</span>
-                  <span style={{ color: "rgba(255,255,255,0.4)" }}>•</span>
-                  <span style={{ fontSize: 14, color: "rgba(255,255,255,0.7)" }}>
-                    {property.id.includes("office") ? "Commercial" : "Residential"}
+            {/* Image gallery */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 180px", gap: 8, borderRadius: 16, overflow: "hidden" }}>
+              <div style={{ position: "relative", height: 340 }}>
+                <img src={extra.images[0]} alt={property.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5) 100%)" }} />
+                <div style={{ position: "absolute", top: 12, left: 12 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 99, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: "#16a34a" }}>
+                    <CheckBadgeIcon style={{ width: 13, height: 13 }} />Verified
                   </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Price strip */}
-            <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "20px 22px", border: "1.5px solid #f1f5f9", boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
-                <div>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: "0.07em" }}>Share Price</p>
-                  <p style={{ fontSize: 34, fontWeight: 900, color: "#0f172a", margin: "0 0 6px 0", letterSpacing: "-1px" }}>
-                    UGX {formatCurrency(property.pricePerShare)}
-                  </p>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 99, backgroundColor: isPositive ? "#f0fdf4" : "#fef2f2", border: `1px solid ${isPositive ? "#bbf7d0" : "#fecaca"}` }}>
-                    {isPositive ? <ArrowTrendingUpIcon style={{ width: 14, height: 14, color: "#10b981" }} /> : <ArrowTrendingDownIcon style={{ width: 14, height: 14, color: "#ef4444" }} />}
-                    <span style={{ fontSize: 13, fontWeight: 700, color: isPositive ? "#10b981" : "#ef4444" }}>
-                      {formatPercentage(property.priceChangePercent)} today
-                    </span>
-                  </div>
-                </div>
-                {/* Rating */}
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: "0.07em" }}>Trust Score</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
-                    <span style={{ fontSize: 28, fontWeight: 900, color: "#0f172a" }}>98</span>
-                    <span style={{ fontSize: 16, color: "#94a3b8", fontWeight: 400 }}>/100</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 2, justifyContent: "flex-end", marginTop: 4 }}>
-                    {[1,2,3,4,5].map(s => <StarIcon key={s} style={{ width: 14, height: 14, color: "#f59e0b" }} />)}
-                  </div>
+                <div style={{ position: "absolute", top: 12, right: 12 }}>
+                  <span style={{ backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 6 }}>{property.rentalYield}% APR</span>
                 </div>
               </div>
-
-              {/* 4 key metrics */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
-                {[
-                  { label: "Annual Yield", value: `${property.rentalYield}%`, color: "#10b981", bg: "#f0fdf4" },
-                  { label: "Area Score",   value: `${property.areaScore}/100`, color: "#2563eb", bg: "#eff6ff" },
-                  { label: "Growth",       value: property.futureGrowth, color: property.futureGrowth === "High" ? "#10b981" : "#f59e0b", bg: "#f0fdf4" },
-                  { label: "Occupancy",    value: "98%", color: "#7c3aed", bg: "#f5f3ff" },
-                ].map(m => (
-                  <div key={m.label} style={{ backgroundColor: m.bg, borderRadius: 12, padding: "12px 10px", textAlign: "center" }}>
-                    <p style={{ fontSize: 10, color: "#64748b", fontWeight: 600, margin: "0 0 5px 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>{m.label}</p>
-                    <p style={{ fontSize: 18, fontWeight: 800, color: m.color, margin: 0 }}>{m.value}</p>
+              <div style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: 8 }}>
+                {extra.images.slice(1, 5).map((img, i) => (
+                  <div key={i} style={{ position: "relative", borderRadius: 8, overflow: "hidden" }}>
+                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    {i === 3 && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>+3</span>
+                    </div>}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Chart */}
-            <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "20px 20px 12px", border: "1.5px solid #f1f5f9", boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
-                <div>
-                  <h2 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>Share Price History</h2>
-                  <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>UGX per share</p>
-                </div>
-                <div style={{ display: "flex", gap: 2, backgroundColor: "#f8fafc", borderRadius: 10, padding: 3 }}>
-                  {timeRanges.map(r => (
-                    <button key={r} onClick={() => setRange(r)} style={{ padding: "4px 10px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 600, backgroundColor: range === r ? "#fff" : "transparent", color: range === r ? "#0f172a" : "#94a3b8", boxShadow: range === r ? "0 1px 4px rgba(0,0,0,0.1)" : "none", transition: "all 0.15s" }}>{r}</button>
-                  ))}
+            {/* Title */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+              <div>
+                <h1 style={{ fontSize: 26, fontWeight: 800, color: "#0f172a", margin: "0 0 5px 0", letterSpacing: "-0.5px" }}>{property.name}</h1>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#64748b" }}>
+                  <MapPinIcon style={{ width: 14, height: 14 }} />
+                  <span style={{ fontSize: 13 }}>{property.location}</span>
+                  <span style={{ color: "#e2e8f0" }}>·</span>
+                  <span style={{ fontSize: 13 }}>{property.id.includes("office") ? "Commercial" : "Residential"}</span>
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={240}>
+              <div style={{ display: "flex", gap: 3 }}>
+                {[1,2,3,4,5].map(s => <StarIcon key={s} style={{ width: 14, height: 14, color: "#f59e0b" }} />)}
+                <span style={{ fontSize: 12, color: "#64748b", marginLeft: 4 }}>98/100</span>
+              </div>
+            </div>
+
+            {/* Property detail icons */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {[
+                ...(extra.beds > 0 ? [{ icon: "🛏", label: `${extra.beds} Bed` }] : []),
+                ...(extra.baths > 0 ? [{ icon: "🛁", label: `${extra.baths} Bath` }] : []),
+                { icon: "📐", label: `${extra.sqm} m²` },
+                { icon: "🚗", label: `${extra.parking} Parking` },
+                { icon: "🏢", label: `${extra.floors} Floors` },
+                { icon: "📅", label: `Built ${extra.yearBuilt}` },
+                { icon: "✅", label: "Occupied" },
+              ].map(d => (
+                <div key={d.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, backgroundColor: "#f0f9ff", borderRadius: 12, padding: "10px 14px", minWidth: 72, border: "1px solid #e0f2fe" }}>
+                  <span style={{ fontSize: 18 }}>{d.icon}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#0369a1" }}>{d.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Chart */}
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "18px 20px 12px", border: "1px solid #e8ecf0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+                <div>
+                  <p style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}<span style={{ fontSize: 13, fontWeight: 500, color: "#64748b" }}>/share</span></p>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: isPositive ? "#10b981" : "#ef4444" }}>
+                    {isPositive ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
+                    {formatPercentage(property.priceChangePercent)} (24h)
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 2, backgroundColor: "#f8f9fb", borderRadius: 9, padding: 3 }}>
+                  {timeRanges.map(r => <button key={r} onClick={() => setRange(r)} style={{ padding: "4px 9px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 600, backgroundColor: range === r ? "#fff" : "transparent", color: range === r ? "#0f172a" : "#94a3b8", boxShadow: range === r ? "0 1px 4px rgba(0,0,0,0.1)" : "none" }}>{r}</button>)}
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={property.chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
                   <defs>
-                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={chartColor} stopOpacity={0.15} />
+                    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={chartColor} stopOpacity={0.12} />
                       <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={4} />
                   <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 10, border: "1px solid #f1f5f9", fontSize: 12, fontWeight: 600 }}
-                    formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]}
-                    labelStyle={{ color: "#64748b", fontSize: 10 }}
-                  />
-                  <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#areaGrad)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
+                  <Tooltip contentStyle={{ borderRadius: 9, border: "1px solid #f1f5f9", fontSize: 12 }} formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]} />
+                  <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#ag)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
 
             {/* Tabs */}
-            <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1.5px solid #f1f5f9", boxShadow: "0 1px 6px rgba(0,0,0,0.04)", overflow: "hidden" }}>
-              {/* Tab bar */}
-              <div style={{ display: "flex", borderBottom: "1.5px solid #f1f5f9", overflowX: "auto" }}>
-                {(["overview","financials","documents","updates"] as const).map(t => (
-                  <button key={t} onClick={() => setTab(t)} style={{ padding: "14px 20px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: tab === t ? "#2563eb" : "#64748b", borderBottom: `2px solid ${tab === t ? "#2563eb" : "transparent"}`, whiteSpace: "nowrap", transition: "all 0.15s", textTransform: "capitalize" }}>{t}</button>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, border: "1px solid #e8ecf0", overflow: "hidden" }}>
+              <div style={{ display: "flex", borderBottom: "1px solid #f1f4f8", overflowX: "auto" }}>
+                {(["overview","documents","calculator","activities","trades"] as const).map(t => (
+                  <button key={t} onClick={() => setTab(t)} style={{ padding: "13px 18px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: tab === t ? "#2563eb" : "#64748b", borderBottom: `2px solid ${tab === t ? "#2563eb" : "transparent"}`, whiteSpace: "nowrap", textTransform: "capitalize", transition: "all 0.15s" }}>
+                    {t === "activities" ? "Activities" : t === "trades" ? "Trade History" : t.charAt(0).toUpperCase() + t.slice(1)}
+                  </button>
                 ))}
               </div>
 
-              <div style={{ padding: "20px" }}>
-                {/* OVERVIEW TAB */}
+              <div style={{ padding: "22px 24px" }}>
+
+                {/* OVERVIEW */}
                 {tab === "overview" && (
-                  <div>
-                    <p style={{ fontSize: 14, lineHeight: 1.75, color: "#475569", margin: "0 0 16px 0" }}>
-                      <strong style={{ color: "#0f172a" }}>{property.name}</strong> is a premium {property.id.includes("office") ? "commercial complex" : "residential development"} in {property.location}, one of the fastest-growing real estate corridors in the region. The property delivers consistent rental income with strong capital appreciation potential.
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <p style={{ fontSize: 14, lineHeight: 1.75, color: "#475569", margin: 0 }}>
+                      <strong style={{ color: "#0f172a" }}>{property.name}</strong> is a premium {property.id.includes("office") ? "commercial complex" : "residential property"} in {property.location}. Fully verified, tenant-occupied, and generating consistent monthly rental income. Investors receive proportional distributions every month.
                     </p>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
                       {[
-                        { icon: BuildingOfficeIcon, label: "Property Type", value: property.id.includes("office") ? "Commercial" : "Residential" },
-                        { icon: UserGroupIcon,       label: "Total Investors", value: "1,248" },
-                        { icon: CalendarIcon,        label: "Listed",          value: "March 2024" },
-                        { icon: ChartBarIcon,        label: "Total Value",     value: `UGX ${formatCurrency(property.currentPrice)}` },
-                      ].map(item => (
-                        <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 12, backgroundColor: "#f8fafc", borderRadius: 10, padding: "12px 14px" }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <item.icon style={{ width: 18, height: 18, color: "#2563eb" }} />
-                          </div>
-                          <div>
-                            <p style={{ fontSize: 10, color: "#94a3b8", margin: "0 0 2px 0", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.label}</p>
-                            <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0 }}>{item.value}</p>
-                          </div>
+                        { label: "Rental Yield",      value: `${property.rentalYield}%`, teal: true },
+                        { label: "Area Score",        value: `${property.areaScore}/100` },
+                        { label: "Growth Outlook",    value: property.futureGrowth, teal: true },
+                        { label: "Occupancy",         value: "98%" },
+                        { label: "Total Shares",      value: property.totalShares.toLocaleString() },
+                        { label: "Total Value",       value: `UGX ${formatCurrency(property.currentPrice)}` },
+                      ].map(r => (
+                        <div key={r.label} style={{ backgroundColor: "#f8f9fb", borderRadius: 10, padding: "10px 14px", border: "1px solid #f1f4f8" }}>
+                          <p style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.4px", margin: "0 0 3px 0" }}>{r.label}</p>
+                          <p style={{ fontSize: 15, fontWeight: 700, color: (r as {teal?: boolean}).teal ? "#0d9488" : "#0f172a", margin: 0 }}>{r.value}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* FINANCIALS TAB */}
-                {tab === "financials" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {[
-                      { label: "Gross Rental Income (Annual)", value: `UGX ${formatCurrency(property.currentPrice * 0.13)}`, positive: true },
-                      { label: "Property Expenses", value: `UGX ${formatCurrency(property.currentPrice * 0.02)}`, positive: false },
-                      { label: "Net Rental Income (Annual)", value: `UGX ${formatCurrency(property.currentPrice * 0.112)}`, positive: true, bold: true },
-                      { label: "Property Management Fee (5%)", value: `UGX ${formatCurrency(property.currentPrice * 0.0056)}`, positive: false },
-                      { label: "Net Investor Income", value: `UGX ${formatCurrency(property.currentPrice * 0.1064)}`, positive: true, bold: true },
-                      { label: "Per Share Annual Yield", value: `${property.rentalYield}%`, positive: true, highlight: true },
-                    ].map(row => (
-                      <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", borderRadius: 10, backgroundColor: row.highlight ? "#f0fdf4" : "#f8fafc", border: row.highlight ? "1px solid #bbf7d0" : "1px solid transparent" }}>
-                        <span style={{ fontSize: 13, color: "#475569", fontWeight: row.bold ? 600 : 400 }}>{row.label}</span>
-                        <span style={{ fontSize: 14, fontWeight: row.bold ? 700 : 600, color: row.highlight ? "#16a34a" : row.positive ? "#0f172a" : "#dc2626" }}>{row.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* DOCUMENTS TAB */}
+                {/* DOCUMENTS */}
                 {tab === "documents" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {docs.map(doc => (
-                      <div key={doc.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 10, backgroundColor: "#f8fafc", border: "1px solid #f1f5f9" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <DocumentTextIcon style={{ width: 18, height: 18, color: "#2563eb" }} />
+                  <div>
+                    <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 18px 0", lineHeight: 1.6 }}>Compilation of documents related to this property, including registrations, agreements, and comprehensive reports.</p>
+                    <div style={{ display: "flex", backgroundColor: "#f1f4f8", borderRadius: 10, padding: 3, gap: 2, marginBottom: 18 }}>
+                      {(["ownership","property","audit"] as const).map(dt => (
+                        <button key={dt} onClick={() => setDocTab(dt)} style={{ flex: 1, padding: "8px 0", border: "none", cursor: "pointer", borderRadius: 8, fontSize: 13, fontWeight: 600, backgroundColor: docTab === dt ? "#fff" : "transparent", color: docTab === dt ? "#0f172a" : "#94a3b8", boxShadow: docTab === dt ? "0 1px 4px rgba(0,0,0,0.1)" : "none", textTransform: "capitalize" }}>{dt}</button>
+                      ))}
+                    </div>
+                    {[
+                      { icon: "📄", name: "Title Deed — " + property.name + ".pdf", type: "pdf", source: "Uganda Land Registry" },
+                      { icon: "📊", name: "Independent Valuation Report.pdf", type: "pdf", source: "Knight Frank Uganda" },
+                      { icon: "🔗", name: "Smart Contract — Share Registry", type: "link", source: "verified.nestfund.io" },
+                      { icon: "📋", name: "Investment Prospectus.pdf", type: "pdf", source: "NestFund Legal" },
+                    ].map((doc, i) => (
+                      <div key={i} style={{ border: "1.5px solid #f1f4f8", borderRadius: 11, padding: "13px 16px", marginBottom: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: doc.type === "link" ? 12 : 0 }}>
+                          <div style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{doc.icon}</div>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>{doc.name}</p>
+                            <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{doc.source}</p>
                           </div>
-                          <div>
-                            <p style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", margin: 0 }}>{doc.name}</p>
-                            <p style={{ fontSize: 11, color: "#94a3b8", margin: "2px 0 0 0" }}>PDF Document</p>
+                          {doc.type === "pdf" && <button style={{ padding: "5px 14px", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151", display: "flex", alignItems: "center", gap: 4 }}><ArrowTopRightOnSquareIcon style={{ width: 13, height: 13 }} />Open</button>}
+                        </div>
+                        {doc.type === "link" && (
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <button style={{ flex: 1, padding: "8px 0", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}><ArrowTopRightOnSquareIcon style={{ width: 13, height: 13 }} />Open</button>
+                            <button style={{ flex: 1, padding: "8px 0", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}><ClipboardDocumentIcon style={{ width: 13, height: 13 }} />Copy</button>
                           </div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: doc.status === "Verified" ? "#16a34a" : "#2563eb", backgroundColor: doc.status === "Verified" ? "#f0fdf4" : "#eff6ff", padding: "3px 9px", borderRadius: 99 }}>{doc.status}</span>
-                          <button style={{ fontSize: 12, fontWeight: 600, color: "#2563eb", border: "1.5px solid #bfdbfe", borderRadius: 7, padding: "4px 10px", backgroundColor: "#fff", cursor: "pointer" }}>View</button>
-                        </div>
+                        )}
                       </div>
                     ))}
-                    <div style={{ padding: "12px 14px", borderRadius: 10, backgroundColor: "#fffbeb", border: "1px solid #fde68a", marginTop: 4 }}>
+                    <div style={{ padding: "11px 14px", borderRadius: 10, backgroundColor: "#fffbeb", border: "1px solid #fde68a" }}>
                       <p style={{ fontSize: 12, color: "#92400e", margin: 0 }}>
-                        <ShieldCheckIcon style={{ width: 14, height: 14, display: "inline", marginRight: 5, verticalAlign: "middle" }} />
-                        All documents are independently verified by our legal team and Capital Markets Authority.
+                        <ShieldCheckIcon style={{ width: 13, height: 13, display: "inline", marginRight: 5, verticalAlign: "middle" }} />
+                        All documents independently verified by our legal team and Capital Markets Authority of Uganda.
                       </p>
                     </div>
                   </div>
                 )}
 
-                {/* UPDATES TAB */}
-                {tab === "updates" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                    {updates.map((u, i) => (
-                      <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 20, position: "relative" }}>
+                {/* CALCULATOR */}
+                {tab === "calculator" && (
+                  <div style={{ maxWidth: 480 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", textAlign: "center", margin: "0 0 4px 0" }}>Investment Calculator</h3>
+                    <p style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", margin: "0 0 20px 0" }}>Initial investment</p>
+                    <div style={{ border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>UGX {investment.toLocaleString()}</span>
+                      <span style={{ fontSize: 18, color: "#94a3b8" }}>✏️</span>
+                    </div>
+                    <input type="range" min={50000} max={10000000} step={50000} value={investment} onChange={e => setInvestment(Number(e.target.value))} style={{ width: "100%", accentColor: "#0d9488", marginBottom: 20, cursor: "pointer" }} />
+                    <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid #f1f4f8", borderRadius: 12, overflow: "hidden", marginBottom: 14 }}>
+                      {[
+                        { label: "Actual investment amount",   value: `UGX ${Math.floor(investment / property.pricePerShare) * property.pricePerShare === 0 ? 0 : (Math.floor(investment / property.pricePerShare) * property.pricePerShare).toLocaleString()}` },
+                        { label: "Shares you will get",        value: calcShares.toLocaleString() },
+                        { label: "Average share price",        value: `UGX ${formatCurrency(property.pricePerShare)}` },
+                        { label: "Monthly rental income",      value: `UGX ${formatCurrency(calcMonthly)}`, teal: true },
+                        { label: "Annual rental income",       value: `UGX ${formatCurrency(calcAnnual)}`, teal: true },
+                        { label: "Annual percentage rate",     value: `${property.rentalYield}%`, teal: true },
+                      ].map((r, i) => (
+                        <div key={r.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 16px", borderTop: i === 0 ? "none" : "1px solid #f8f9fb", backgroundColor: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                          <span style={{ fontSize: 13, color: "#64748b" }}>{r.label}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: (r as {teal?: boolean}).teal ? "#0d9488" : "#0f172a" }}>{r.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ backgroundColor: "#f0fdfa", border: "1.5px solid #99f6e4", borderRadius: 12, padding: "16px 20px", textAlign: "center" }}>
+                      <p style={{ fontSize: 12, color: "#0d9488", fontWeight: 600, margin: "0 0 4px 0" }}>Projected annual return</p>
+                      <p style={{ fontSize: 26, fontWeight: 900, color: "#0d9488", margin: 0, letterSpacing: "-0.5px" }}>UGX {formatCurrency(investment + calcAnnual)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ACTIVITIES */}
+                {tab === "activities" && (
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 4px 0" }}>Property Activities</h3>
+                    <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 22px 0" }}>All events and changes related to this property, including rental payments and updates.</p>
+                    {extra.activityFeed.map((item, i) => (
+                      <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 24, position: "relative" }}>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                          <div style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#10b981", border: "2px solid #fff", boxShadow: "0 0 0 2px #bbf7d0", marginTop: 4 }} />
-                          {i < updates.length - 1 && <div style={{ width: 1, flex: 1, backgroundColor: "#f1f5f9", marginTop: 6 }} />}
+                          <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: item.icon === "payment" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${item.icon === "payment" ? "#bbf7d0" : "#bfdbfe"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+                            {item.icon === "payment" ? "💰" : "🏢"}
+                          </div>
+                          {i < extra.activityFeed.length - 1 && <div style={{ width: 1, flex: 1, borderLeft: "1.5px dashed #e8ecf0", marginTop: 8 }} />}
                         </div>
                         <div style={{ flex: 1 }}>
-                          <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 4px 0", fontWeight: 600 }}>{u.date}</p>
-                          <p style={{ fontSize: 13, color: "#374151", margin: 0, lineHeight: 1.6 }}>{u.event}</p>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0 }}>{item.title}</h4>
+                            <span style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0, marginLeft: 12 }}>{item.date}</span>
+                          </div>
+                          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 10px 0", lineHeight: 1.6 }}>{item.desc}</p>
+                          {item.photos && item.photos.length > 0 && (
+                            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                              {item.photos.map((p, pi) => <div key={pi} style={{ width: 80, height: 60, borderRadius: 8, overflow: "hidden" }}><img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>)}
+                              {item.extra && <div style={{ width: 80, height: 60, borderRadius: 8, backgroundColor: "#f1f4f8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#64748b" }}>{item.extra}</div>}
+                            </div>
+                          )}
+                          {item.attachment && <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}><ArrowTopRightOnSquareIcon style={{ width: 13, height: 13 }} />{item.attachment}</button>}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
+
+                {/* TRADE HISTORY */}
+                {tab === "trades" && (
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 4px 0" }}>Trade History</h3>
+                    <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 18px 0" }}>Recent share transactions for this property.</p>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr style={{ borderBottom: "1.5px solid #f1f4f8" }}>
+                            {["Transaction", "Date", "Shares", "Share Price", "Volume", "Status"].map(h => (
+                              <th key={h} style={{ padding: "10px 14px", textAlign: h === "Transaction" ? "left" : "right", fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap" }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {extra.tradeHistory.map((t, i) => (
+                            <tr key={i} style={{ borderBottom: "1px solid #f8f9fb" }}>
+                              <td style={{ padding: "12px 14px" }}><span style={{ fontSize: 12, color: "#2563eb", fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>{t.hash}<ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} /></span></td>
+                              <td style={{ padding: "12px 14px", textAlign: "right" }}><p style={{ fontSize: 12, color: "#374151", fontWeight: 600, margin: 0 }}>{t.date}</p><p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{t.time}</p></td>
+                              <td style={{ padding: "12px 14px", textAlign: "right", fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{t.shares} {t.shares === 1 ? "Share" : "Shares"}</td>
+                              <td style={{ padding: "12px 14px", textAlign: "right", fontSize: 13, color: "#374151" }}>UGX {formatCurrency(t.price)}</td>
+                              <td style={{ padding: "12px 14px", textAlign: "right", fontSize: 13, fontWeight: 600, color: "#0f172a" }}>UGX {formatCurrency(t.volume)}</td>
+                              <td style={{ padding: "12px 14px", textAlign: "right" }}><span style={{ fontSize: 11, fontWeight: 700, color: "#0d9488", backgroundColor: "#f0fdfa", border: "1px solid #99f6e4", padding: "3px 10px", borderRadius: 99 }}>{t.status}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           </div>
 
-          {/* ══ RIGHT COLUMN — BUY WIDGET ══ */}
-          <div style={{ position: "sticky", top: 120 }}>
-            <div style={{ backgroundColor: "#fff", borderRadius: 18, border: "1.5px solid #f1f5f9", boxShadow: "0 4px 24px rgba(37,99,235,0.08)", overflow: "hidden" }}>
-
-              {/* Widget header */}
-              <div style={{ padding: "16px 20px 14px", background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #4f46e5 100%)" }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.7)", margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: "0.07em" }}>Current Share Price</p>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <p style={{ fontSize: 26, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.5px" }}>
-                    UGX {formatCurrency(property.pricePerShare)}
-                  </p>
+          {/* ── RIGHT — Buy Widget ── */}
+          <div style={{ position: "sticky", top: 84 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+              <div style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #4f46e5 100%)", padding: "16px 20px" }}>
+                <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Share Price</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: isPositive ? "#6ee7b7" : "#fca5a5" }}>
                     {isPositive ? <ArrowTrendingUpIcon style={{ width: 14, height: 14 }} /> : <ArrowTrendingDownIcon style={{ width: 14, height: 14 }} />}
                     {formatPercentage(property.priceChangePercent)}
@@ -321,91 +438,64 @@ export default function PropertyDetailPage({ id }: { id: string }) {
               </div>
 
               <div style={{ padding: "18px 20px" }}>
-                {/* Share progress bar */}
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b" }}>Shares sold</span>
+                {/* Shares sold bar */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                    <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Shares sold</span>
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>{soldPct}% of {property.totalShares.toLocaleString()}</span>
                   </div>
                   <div style={{ height: 6, borderRadius: 99, backgroundColor: "#f1f5f9", overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${soldPct}%`, borderRadius: 99, background: "linear-gradient(90deg, #2563eb, #4f46e5)", transition: "width 0.5s" }} />
+                    <div style={{ height: "100%", width: `${soldPct}%`, borderRadius: 99, background: "linear-gradient(90deg, #2563eb, #4f46e5)" }} />
                   </div>
-                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "5px 0 0 0" }}>{property.availableShares.toLocaleString()} shares remaining</p>
+                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "4px 0 0 0" }}>{property.availableShares.toLocaleString()} shares remaining</p>
                 </div>
 
                 {/* Shares input */}
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 8 }}>Number of Shares</label>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <button onClick={() => setShares(Math.max(1, shares - 10))} style={{ width: 38, height: 44, borderRadius: 9, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontSize: 18, fontWeight: 600, cursor: "pointer", color: "#374151", flexShrink: 0 }}>−</button>
-                    <input
-                      type="number" value={shares}
-                      onChange={e => setShares(Math.max(1, parseInt(e.target.value) || 1))}
-                      style={{ flex: 1, height: 44, borderRadius: 9, border: "1.5px solid #e2e8f0", textAlign: "center", fontSize: 18, fontWeight: 700, color: "#0f172a", outline: "none" }}
-                      min={1} max={property.availableShares}
-                    />
-                    <button onClick={() => setShares(Math.min(property.availableShares, shares + 10))} style={{ width: 38, height: 44, borderRadius: 9, border: "1.5px solid #bfdbfe", background: "#eff6ff", fontSize: 18, fontWeight: 600, cursor: "pointer", color: "#2563eb", flexShrink: 0 }}>+</button>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 7 }}>Number of Shares</label>
+                  <div style={{ display: "flex", gap: 7 }}>
+                    <button onClick={() => setShares(Math.max(1, shares - 10))} style={{ width: 36, height: 42, borderRadius: 9, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontSize: 16, cursor: "pointer", color: "#374151" }}>−</button>
+                    <input type="number" value={shares} onChange={e => setShares(Math.max(1, parseInt(e.target.value) || 1))} style={{ flex: 1, height: 42, borderRadius: 9, border: "1.5px solid #e2e8f0", textAlign: "center", fontSize: 16, fontWeight: 700, color: "#0f172a", outline: "none" }} />
+                    <button onClick={() => setShares(Math.min(property.availableShares, shares + 10))} style={{ width: 36, height: 42, borderRadius: 9, border: "1.5px solid #bfdbfe", background: "#eff6ff", fontSize: 16, cursor: "pointer", color: "#2563eb" }}>+</button>
                   </div>
                 </div>
 
                 {/* Quick presets */}
-                <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                  {[50, 100, 250, 500].map(n => (
-                    <button key={n} onClick={() => setShares(n)} style={{ padding: "5px 13px", borderRadius: 8, border: `1.5px solid ${shares === n ? "#2563eb" : "#e2e8f0"}`, backgroundColor: shares === n ? "#eff6ff" : "#f8fafc", color: shares === n ? "#2563eb" : "#64748b", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                      {n}
-                    </button>
-                  ))}
+                <div style={{ display: "flex", gap: 5, marginBottom: 14, flexWrap: "wrap" }}>
+                  {[50, 100, 250, 500].map(n => <button key={n} onClick={() => setShares(n)} style={{ padding: "4px 11px", borderRadius: 8, border: `1.5px solid ${shares === n ? "#2563eb" : "#e2e8f0"}`, backgroundColor: shares === n ? "#eff6ff" : "#f8fafc", color: shares === n ? "#2563eb" : "#64748b", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{n}</button>)}
                 </div>
 
                 {/* Cost summary */}
-                <div style={{ backgroundColor: "#f8fafc", borderRadius: 12, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ backgroundColor: "#f8fafc", borderRadius: 11, padding: "12px 14px", marginBottom: 12 }}>
                   {[
-                    { label: "Price per share", val: `UGX ${formatCurrency(property.pricePerShare)}` },
-                    { label: "Number of shares", val: shares.toLocaleString() },
-                    { label: "Transaction fee", val: "Free", muted: true },
+                    { label: "Price per share",  val: `UGX ${formatCurrency(property.pricePerShare)}` },
+                    { label: "Total cost",        val: `UGX ${formatCurrency(totalCost)}`, bold: true },
                   ].map(r => (
-                    <div key={r.label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, color: r.muted ? "#94a3b8" : "#64748b" }}>{r.label}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: r.muted ? "#10b981" : "#374151" }}>{r.val}</span>
+                    <div key={r.label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
+                      <span style={{ fontSize: 12, color: "#64748b" }}>{r.label}</span>
+                      <span style={{ fontSize: r.bold ? 15 : 12, fontWeight: r.bold ? 800 : 600, color: "#0f172a" }}>{r.val}</span>
                     </div>
                   ))}
-                  <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>Total Investment</span>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.3px" }}>UGX {formatCurrency(totalCost)}</span>
-                  </div>
                 </div>
 
                 {/* Income estimate */}
-                <div style={{ background: "linear-gradient(135deg, #f0fdf4, #dcfce7)", border: "1.5px solid #bbf7d0", borderRadius: 12, padding: "12px 16px", marginBottom: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: "#16a34a", margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>Est. Income</p>
-                    <span style={{ fontSize: 10, color: "#4ade80", backgroundColor: "#166534", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>PASSIVE</span>
+                <div style={{ background: "linear-gradient(135deg, #f0fdf4, #dcfce7)", border: "1.5px solid #bbf7d0", borderRadius: 11, padding: "10px 14px", marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", margin: "0 0 2px 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>Est. Monthly Income</p>
+                    <p style={{ fontSize: 10, color: "#4ade80", margin: 0 }}>Based on {property.rentalYield}% APR</p>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                    <div>
-                      <p style={{ fontSize: 10, color: "#16a34a", margin: "0 0 1px 0" }}>Monthly</p>
-                      <p style={{ fontSize: 18, fontWeight: 800, color: "#15803d", margin: 0 }}>UGX {formatCurrency(monthlyIncome)}</p>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 10, color: "#16a34a", margin: "0 0 1px 0" }}>Annual</p>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: "#15803d", margin: 0 }}>UGX {formatCurrency(annualIncome)}</p>
-                    </div>
-                  </div>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: "#15803d", margin: 0 }}>UGX {formatCurrency(monthlyIncome)}</p>
                 </div>
 
-                {/* Buy button */}
-                <button style={{ width: "100%", padding: "14px 0", borderRadius: 12, background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)", color: "#fff", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginBottom: 10, letterSpacing: "0.01em" }}>
-                  Buy {shares} Shares Now
+                <button style={{ width: "100%", padding: "13px 0", borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginBottom: 9 }}>
+                  Buy {shares} Shares
                 </button>
-                <button style={{ width: "100%", padding: "11px 0", borderRadius: 12, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}>
+                <button style={{ width: "100%", padding: "10px 0", borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}>
                   Preview Order
                 </button>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center" }}>
-                  <ShieldCheckIcon style={{ width: 14, height: 14, color: "#16a34a" }} />
-                  <p style={{ fontSize: 11, color: "#94a3b8", margin: 0, textAlign: "center" }}>
-                    Regulated · Secure · Verified
-                  </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
+                  <ShieldCheckIcon style={{ width: 13, height: 13, color: "#16a34a" }} />
+                  <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>Regulated · Secure · Verified</p>
                 </div>
               </div>
             </div>

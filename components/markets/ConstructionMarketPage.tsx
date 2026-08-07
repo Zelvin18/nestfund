@@ -494,7 +494,7 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
 
         {/* Buy button + share price */}
         <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 2 }}>
-          <Link href={`/property/${project.id}`} style={{ flex: 1, textDecoration: "none" }}>
+          <Link href={`/construction/${project.id}`} style={{ flex: 1, textDecoration: "none" }}>
             <button
               style={{
                 width: "100%", padding: "10px 0", borderRadius: 9,
