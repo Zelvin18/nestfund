@@ -156,11 +156,12 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-            {/* Image gallery */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 180px", gap: 8, borderRadius: 16, overflow: "hidden" }}>
-              <div style={{ position: "relative", height: 340 }}>
-                <img src={extra.images[0]} alt={property.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5) 100%)" }} />
+            {/* Image gallery — Binaryx layout: main left, 4 thumbs right */}
+            <div style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
+              {/* Main image */}
+              <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
+                <img src={extra.images[0]} alt={property.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.3) 100%)" }} />
                 <div style={{ position: "absolute", top: 12, left: 12 }}>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 99, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: "#16a34a" }}>
                     <CheckBadgeIcon style={{ width: 13, height: 13 }} />Verified
@@ -170,13 +171,16 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                   <span style={{ backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 6 }}>{property.rentalYield}% APR</span>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: 8 }}>
+              {/* 4 thumbnails stacked */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 168, flexShrink: 0 }}>
                 {extra.images.slice(1, 5).map((img, i) => (
-                  <div key={i} style={{ position: "relative", borderRadius: 8, overflow: "hidden" }}>
-                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    {i === 3 && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>+3</span>
-                    </div>}
+                  <div key={i} style={{ position: "relative", flex: 1, borderRadius: 8, overflow: "hidden", minHeight: 0 }}>
+                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    {i === 3 && (
+                      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8 }}>
+                        <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>+3</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -199,20 +203,20 @@ export default function PropertyDetailPage({ id }: { id: string }) {
               </div>
             </div>
 
-            {/* Property detail icons */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {/* Property detail icons — proper SVG icons, no emojis */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[
-                ...(extra.beds > 0 ? [{ icon: "🛏", label: `${extra.beds} Bed` }] : []),
-                ...(extra.baths > 0 ? [{ icon: "🛁", label: `${extra.baths} Bath` }] : []),
-                { icon: "📐", label: `${extra.sqm} m²` },
-                { icon: "🚗", label: `${extra.parking} Parking` },
-                { icon: "🏢", label: `${extra.floors} Floors` },
-                { icon: "📅", label: `Built ${extra.yearBuilt}` },
-                { icon: "✅", label: "Occupied" },
+                ...(extra.beds > 0 ? [{ svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v10m0-6h18M3 11v0a2 2 0 012-2h14a2 2 0 012 2v0M7 11V7a1 1 0 011-1h8a1 1 0 011 1v4" /></svg>, label: `${extra.beds} Bed` }] : []),
+                ...(extra.baths > 0 ? [{ svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16v4a4 4 0 01-4 4H8a4 4 0 01-4-4v-4z" /><path d="M6 12V6a3 3 0 013-3h1" /></svg>, label: `${extra.baths} Bath` }] : []),
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l4-4m0 0L18 6a1 1 0 011 1l-11 11-4.4 1.1.4-1.1z" /></svg>, label: `${extra.sqm} m²` },
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /><circle cx="8.5" cy="14.5" r="1.5" /><circle cx="15.5" cy="14.5" r="1.5" /></svg>, label: `${extra.parking} Parking` },
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13" /><path d="M9 21V12h6v9" /></svg>, label: `${extra.floors} Floors` },
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>, label: `Built ${extra.yearBuilt}` },
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>, label: "Occupied", green: true },
               ].map(d => (
-                <div key={d.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, backgroundColor: "#f0f9ff", borderRadius: 12, padding: "10px 14px", minWidth: 72, border: "1px solid #e0f2fe" }}>
-                  <span style={{ fontSize: 18 }}>{d.icon}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "#0369a1" }}>{d.label}</span>
+                <div key={d.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, backgroundColor: (d as {green?: boolean}).green ? "#f0fdf4" : "#f0f9ff", borderRadius: 12, padding: "10px 14px", minWidth: 70, border: `1px solid ${(d as {green?: boolean}).green ? "#bbf7d0" : "#e0f2fe"}` }}>
+                  <div style={{ width: 22, height: 22 }}>{d.svg}</div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: (d as {green?: boolean}).green ? "#16a34a" : "#0369a1" }}>{d.label}</span>
                 </div>
               ))}
             </div>
@@ -360,28 +364,60 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                 {tab === "activities" && (
                   <div>
                     <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 4px 0" }}>Property Activities</h3>
-                    <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 22px 0" }}>All events and changes related to this property, including rental payments and updates.</p>
+                    <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 24px 0" }}>All events and changes related to this property, including rental payments and updates.</p>
                     {extra.activityFeed.map((item, i) => (
-                      <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 24, position: "relative" }}>
+                      <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 28, position: "relative" }}>
+                        {/* Timeline icon */}
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: item.icon === "payment" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${item.icon === "payment" ? "#bbf7d0" : "#bfdbfe"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
-                            {item.icon === "payment" ? "💰" : "🏢"}
+                          <div style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: item.icon === "payment" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${item.icon === "payment" ? "#bbf7d0" : "#bfdbfe"}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {item.icon === "payment" ? (
+                              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+                            ) : (
+                              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                            )}
                           </div>
-                          {i < extra.activityFeed.length - 1 && <div style={{ width: 1, flex: 1, borderLeft: "1.5px dashed #e8ecf0", marginTop: 8 }} />}
+                          {i < extra.activityFeed.length - 1 && <div style={{ width: 1, flex: 1, borderLeft: "1.5px dashed #e2e8f0", marginTop: 8 }} />}
                         </div>
-                        <div style={{ flex: 1 }}>
+
+                        {/* Content */}
+                        <div style={{ flex: 1, paddingBottom: 4 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0 }}>{item.title}</h4>
-                            <span style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0, marginLeft: 12 }}>{item.date}</span>
+                            <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0, lineHeight: 1.4 }}>{item.title}</h4>
+                            <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, flexShrink: 0, marginLeft: 16 }}>{item.date}</span>
                           </div>
-                          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 10px 0", lineHeight: 1.6 }}>{item.desc}</p>
+                          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 12px 0", lineHeight: 1.65 }}>{item.desc}</p>
+
+                          {/* Photos */}
                           {item.photos && item.photos.length > 0 && (
-                            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                              {item.photos.map((p, pi) => <div key={pi} style={{ width: 80, height: 60, borderRadius: 8, overflow: "hidden" }}><img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>)}
-                              {item.extra && <div style={{ width: 80, height: 60, borderRadius: 8, backgroundColor: "#f1f4f8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#64748b" }}>{item.extra}</div>}
+                            <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+                              {item.photos.map((p, pi) => (
+                                <div key={pi} style={{ width: 88, height: 66, borderRadius: 9, overflow: "hidden", border: "1px solid #f1f4f8" }}>
+                                  <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                </div>
+                              ))}
+                              {item.extra && (
+                                <div style={{ width: 88, height: 66, borderRadius: 9, backgroundColor: "#f1f4f8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#64748b", border: "1px solid #e2e8f0" }}>
+                                  {item.extra}
+                                </div>
+                              )}
                             </div>
                           )}
-                          {item.attachment && <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}><ArrowTopRightOnSquareIcon style={{ width: 13, height: 13 }} />{item.attachment}</button>}
+
+                          {/* Attachment / source link */}
+                          {item.attachment && (
+                            <button style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}>
+                              <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                              {item.attachment}
+                            </button>
+                          )}
+
+                          {/* Source link — always shown */}
+                          <div style={{ marginTop: item.attachment ? 8 : 0 }}>
+                            <a href="#" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, color: "#2563eb", textDecoration: "none", fontWeight: 500 }}>
+                              <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                              View source report
+                            </a>
+                          </div>
                         </div>
                       </div>
                     ))}

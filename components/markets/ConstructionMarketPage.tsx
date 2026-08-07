@@ -362,6 +362,7 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
   const soldPct = Math.round((soldShares / project.totalShares) * 100)
 
   return (
+    <Link href={`/construction/${project.id}`} style={{ textDecoration: "none", display: "block" }}>
     <div
       style={{
         backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14,
@@ -494,19 +495,17 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
 
         {/* Buy button + share price */}
         <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 2 }}>
-          <Link href={`/construction/${project.id}`} style={{ flex: 1, textDecoration: "none" }}>
-            <button
-              style={{
-                width: "100%", padding: "10px 0", borderRadius: 9,
-                backgroundColor: "#0f172a", color: "#fff", fontSize: 13,
-                fontWeight: 700, border: "none", cursor: "pointer", transition: "background 0.15s",
-              }}
-              onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1e293b")}
-              onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#0f172a")}
-            >
-              Buy Shares
-            </button>
-          </Link>
+          <button
+            style={{
+              flex: 1, padding: "10px 0", borderRadius: 9,
+              backgroundColor: "#0f172a", color: "#fff", fontSize: 13,
+              fontWeight: 700, border: "none", cursor: "pointer", transition: "background 0.15s",
+            }}
+            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1e293b")}
+            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#0f172a")}
+          >
+            View Details
+          </button>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0 }}>
             <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, whiteSpace: "nowrap" }}>Per share</span>
             <span style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>UGX {formatPrice(project.sharePrice)}</span>
@@ -524,6 +523,7 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
         </div>
       </div>
     </div>
+    </Link>
   )
 }
 

@@ -209,10 +209,10 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
           {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-            {/* Image gallery — main + 4 thumbnails */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 180px", gap: 8, borderRadius: 16, overflow: "hidden" }}>
-              <div style={{ position: "relative", height: 340 }}>
-                <img src={project.images[0]} alt={project.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            {/* Image gallery — main left, 4 thumbs right */}
+            <div style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
+              <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
+                <img src={project.images[0]} alt={project.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 <div style={{ position: "absolute", top: 12, left: 12 }}>
                   <span style={{ backgroundColor: project.stageColor, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99 }}>{project.stage}</span>
                 </div>
@@ -220,13 +220,15 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                   <span style={{ backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 6 }}>{project.projectedROI}% ROI</span>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 168, flexShrink: 0 }}>
                 {project.images.slice(1, 5).map((img, i) => (
-                  <div key={i} style={{ position: "relative", borderRadius: 8, overflow: "hidden" }}>
-                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    {i === 3 && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>+3</span>
-                    </div>}
+                  <div key={i} style={{ position: "relative", flex: 1, borderRadius: 8, overflow: "hidden", minHeight: 0 }}>
+                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    {i === 3 && (
+                      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8 }}>
+                        <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>+3</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -251,18 +253,18 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
               </div>
             </div>
 
-            {/* Property detail icons row */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {/* Property detail icons — proper SVG, no emojis */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[
-                ...(project.beds > 0 ? [{ icon: "🛏", label: `${project.beds} Bed` }] : []),
-                ...(project.baths > 0 ? [{ icon: "🛁", label: `${project.baths} Bath` }] : []),
-                { icon: "📐", label: `${project.sqm.toLocaleString()} m²` },
-                { icon: "🏢", label: project.type },
-                { icon: "🔨", label: project.status },
+                ...(project.beds > 0 ? [{ svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v10m0-6h18M3 11v0a2 2 0 012-2h14a2 2 0 012 2v0M7 11V7a1 1 0 011-1h8a1 1 0 011 1v4" /></svg>, label: `${project.beds} Bed` }] : []),
+                ...(project.baths > 0 ? [{ svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16v4a4 4 0 01-4 4H8a4 4 0 01-4-4v-4z" /><path d="M6 12V6a3 3 0 013-3h1" /></svg>, label: `${project.baths} Bath` }] : []),
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l4-4m0 0L18 6a1 1 0 011 1L8 18l-4.4 1.1.4-1.1z" /></svg>, label: `${project.sqm.toLocaleString()} m²` },
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg>, label: project.type },
+                { svg: <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>, label: project.status, amber: true },
               ].map(d => (
-                <div key={d.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, backgroundColor: "#f0f9ff", borderRadius: 12, padding: "10px 16px", minWidth: 80, border: "1px solid #e0f2fe" }}>
-                  <span style={{ fontSize: 18 }}>{d.icon}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "#0369a1" }}>{d.label}</span>
+                <div key={d.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, backgroundColor: (d as {amber?: boolean}).amber ? "#fffbeb" : "#f0f9ff", borderRadius: 12, padding: "10px 14px", minWidth: 70, border: `1px solid ${(d as {amber?: boolean}).amber ? "#fde68a" : "#e0f2fe"}` }}>
+                  <div style={{ width: 22, height: 22 }}>{d.svg}</div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: (d as {amber?: boolean}).amber ? "#92400e" : "#0369a1" }}>{d.label}</span>
                 </div>
               ))}
             </div>
@@ -400,37 +402,48 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                     <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 22px 0" }}>All events and updates related to this project, including progress reports and fund releases.</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                       {activityFeed.map((item, i) => (
-                        <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 24, position: "relative" }}>
+                        <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 28, position: "relative" }}>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: item.icon === "payment" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${item.icon === "payment" ? "#bbf7d0" : "#bfdbfe"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
-                              {item.icon === "report" ? <BuildingOffice2Icon style={{ width: 16, height: 16, color: "#2563eb" }} /> : <ArrowTrendingUpIcon style={{ width: 16, height: 16, color: "#16a34a" }} />}
+                            <div style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: item.icon === "payment" ? "#f0fdf4" : "#eff6ff", border: `1.5px solid ${item.icon === "payment" ? "#bbf7d0" : "#bfdbfe"}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              {item.icon === "report"
+                                ? <BuildingOffice2Icon style={{ width: 17, height: 17, color: "#2563eb" }} />
+                                : <ArrowTrendingUpIcon style={{ width: 17, height: 17, color: "#16a34a" }} />
+                              }
                             </div>
                             {i < activityFeed.length - 1 && <div style={{ width: 1, flex: 1, backgroundColor: "#e8ecf0", marginTop: 8, borderLeft: "1.5px dashed #e8ecf0" }} />}
                           </div>
                           <div style={{ flex: 1, paddingBottom: 4 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                              <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0 }}>{item.title}</h4>
+                              <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0, lineHeight: 1.4 }}>{item.title}</h4>
                               <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, flexShrink: 0, marginLeft: 12 }}>{item.date}</span>
                             </div>
-                            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 10px 0", lineHeight: 1.6 }}>{item.desc}</p>
+                            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 10px 0", lineHeight: 1.65 }}>{item.desc}</p>
                             {item.photos && item.photos.length > 0 && (
-                              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                              <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
                                 {item.photos.map((p, pi) => (
-                                  <div key={pi} style={{ width: 80, height: 60, borderRadius: 8, overflow: "hidden" }}>
+                                  <div key={pi} style={{ width: 88, height: 66, borderRadius: 9, overflow: "hidden", border: "1px solid #f1f4f8" }}>
                                     <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                   </div>
                                 ))}
                                 {item.extra && (
-                                  <div style={{ width: 80, height: 60, borderRadius: 8, backgroundColor: "#f1f4f8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#64748b" }}>{item.extra}</div>
+                                  <div style={{ width: 88, height: 66, borderRadius: 9, backgroundColor: "#f1f4f8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#64748b", border: "1px solid #e2e8f0" }}>
+                                    {item.extra}
+                                  </div>
                                 )}
                               </div>
                             )}
-                            {item.attachment && (
-                              <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}>
-                                <ArrowTopRightOnSquareIcon style={{ width: 13, height: 13 }} />
-                                {item.attachment}
-                              </button>
-                            )}
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                              {item.attachment && (
+                                <button style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 99, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}>
+                                  <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                                  {item.attachment}
+                                </button>
+                              )}
+                              <a href="#" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, color: "#2563eb", textDecoration: "none", fontWeight: 500 }}>
+                                <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                                View source report
+                              </a>
+                            </div>
                           </div>
                         </div>
                       ))}
