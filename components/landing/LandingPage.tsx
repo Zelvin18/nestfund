@@ -159,37 +159,48 @@ function HeroSection({ ticker }: { ticker: number }) {
       {/* Content */}
       <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px 24px 0", maxWidth: 1140, margin: "0 auto", width: "100%" }}>
 
-        {/* Headline — Binaryx style: clean, moderate weight, centered */}
+        {/* Headline — clean, moderate weight */}
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <h1 style={{
-            fontSize: "clamp(32px, 5.5vw, 62px)",
+            fontSize: "clamp(30px, 5vw, 58px)",
             fontWeight: 400,
-            color: "rgba(255,255,255,0.92)",
-            lineHeight: 1.18,
-            letterSpacing: "-0.5px",
-            margin: "0 0 6px 0",
+            color: "rgba(255,255,255,0.88)",
+            lineHeight: 1.2,
+            letterSpacing: "-0.3px",
+            margin: "0 0 4px 0",
           }}>
-            Own Real Estate. Get Monthly Rent.
+            Invest in Property.
           </h1>
           <h1 style={{
-            fontSize: "clamp(32px, 5.5vw, 62px)",
+            fontSize: "clamp(30px, 5vw, 58px)",
+            fontWeight: 400,
+            color: "rgba(255,255,255,0.88)",
+            lineHeight: 1.2,
+            letterSpacing: "-0.3px",
+            margin: "0 0 4px 0",
+          }}>
+            Earn Monthly.
+          </h1>
+          <h1 style={{
+            fontSize: "clamp(30px, 5vw, 58px)",
             fontWeight: 700,
             color: "#fff",
-            lineHeight: 1.18,
-            letterSpacing: "-0.5px",
-            margin: "0 0 24px 0",
+            lineHeight: 1.2,
+            letterSpacing: "-0.3px",
+            margin: "0 0 22px 0",
           }}>
-            Sell Anytime.
+            From UGX 50,000.
           </h1>
           <p style={{
-            fontSize: "clamp(15px, 1.8vw, 18px)",
-            color: "rgba(255,255,255,0.6)",
-            maxWidth: 520,
-            margin: "0 auto 36px",
+            fontSize: "clamp(14px, 1.7vw, 17px)",
+            color: "rgba(255,255,255,0.58)",
+            maxWidth: 500,
+            margin: "0 auto 34px",
             lineHeight: 1.7,
             fontWeight: 400,
           }}>
-            Build your real estate portfolio from UGX 50,000. Own shares of verified properties, earn monthly rental income, and exit whenever you want.
+            NestFund lets you own shares of verified rental properties across Uganda.
+            Receive rental income every month and trade your shares anytime.
           </p>
         </div>
 
@@ -526,10 +537,11 @@ function FinalCTA() {
     <section style={{ background: "linear-gradient(135deg, #0d9488 0%, #2563eb 60%, #4f46e5 100%)", padding: "80px 24px" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
         <h2 style={{ fontSize: "clamp(28px, 4vw, 46px)", fontWeight: 900, color: "#fff", letterSpacing: "-1px", margin: "0 0 14px 0", lineHeight: 1.1 }}>
-          Start Owning Real Estate Today
+          Start Building Wealth
+          <br />Through Property Today
         </h2>
         <p style={{ fontSize: 17, color: "rgba(255,255,255,0.75)", margin: "0 0 36px 0", lineHeight: 1.65 }}>
-          Join 14,250+ investors already earning passive income from verified properties across Uganda.
+          More than 14,000 investors are already earning passive income from verified properties on NestFund. Join them.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
           <Link href="/auth/register" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px", borderRadius: 12, backgroundColor: "#fff", color: "#1e3a8a", fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}>

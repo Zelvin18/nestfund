@@ -209,10 +209,10 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
           {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-            {/* Image gallery — main left, 4 thumbs right */}
-            <div className="property-gallery-row" style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
-              <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
-                <img src={project.images[0]} alt={project.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            {/* Image gallery — CSS-driven responsive */}
+            <div className="property-gallery-row">
+              <div className="property-gallery-main">
+                <img src={project.images[0]} alt={project.name} />
                 <div style={{ position: "absolute", top: 12, left: 12 }}>
                   <span style={{ backgroundColor: project.stageColor, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99 }}>{project.stage}</span>
                 </div>
@@ -220,12 +220,12 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                   <span style={{ backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 6 }}>{project.projectedROI}% ROI</span>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 168, flexShrink: 0 }}>
+              <div className="gallery-thumbs">
                 {project.images.slice(1, 5).map((img, i) => (
-                  <div key={i} style={{ position: "relative", flex: 1, borderRadius: 8, overflow: "hidden", minHeight: 0 }}>
-                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <div key={i} className="gallery-thumb">
+                    <img src={img} alt="" />
                     {i === 3 && (
-                      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8 }}>
+                      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>+3</span>
                       </div>
                     )}

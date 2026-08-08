@@ -156,11 +156,11 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-            {/* Image gallery — mobile: main image + 3 thumbs below. Desktop: main left + 4 thumbs right */}
-            <div className="property-gallery-row" style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
+            {/* Image gallery — CSS-driven responsive layout */}
+            <div className="property-gallery-row">
               {/* Main image */}
-              <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
-                <img src={extra.images[0]} alt={property.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div className="property-gallery-main">
+                <img src={extra.images[0]} alt={property.name} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.3) 100%)" }} />
                 <div style={{ position: "absolute", top: 12, left: 12 }}>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 99, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: "#16a34a" }}>
@@ -171,13 +171,13 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                   <span style={{ backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 6 }}>{property.rentalYield}% APR</span>
                 </div>
               </div>
-              {/* 4 thumbnails stacked */}
-              <div className="gallery-thumbs" style={{ display: "flex", flexDirection: "column", gap: 8, width: 168, flexShrink: 0 }}>
+              {/* Thumbnails */}
+              <div className="gallery-thumbs">
                 {extra.images.slice(1, 5).map((img, i) => (
-                  <div key={i} style={{ position: "relative", flex: 1, borderRadius: 8, overflow: "hidden", minHeight: 0 }}>
-                    <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <div key={i} className="gallery-thumb">
+                    <img src={img} alt="" />
                     {i === 3 && (
-                      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8 }}>
+                      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>+3</span>
                       </div>
                     )}

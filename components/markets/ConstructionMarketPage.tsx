@@ -364,12 +364,11 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
   return (
     <Link href={`/construction/${project.id}`} style={{ textDecoration: "none", display: "block" }}>
     <div
+      className="construction-card-row"
       style={{
         backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14,
-        overflow: "hidden", display: "flex", flexDirection: "row",
         transition: "box-shadow 0.2s, transform 0.2s", cursor: "pointer",
       }}
-      className="construction-card-row"
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement
         el.style.boxShadow = "0 8px 32px rgba(37,99,235,0.10)"
@@ -382,7 +381,7 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
       }}
     >
       {/* Left: Image panel */}
-      <div className="card-image" style={{ width: "40%", minWidth: 200, position: "relative", flexShrink: 0, minHeight: 300 }}>
+      <div className="construction-card-img" style={{ position: "relative" }}>
         <img
           src={project.image}
           alt={project.name}

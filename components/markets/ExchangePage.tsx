@@ -461,17 +461,14 @@ function SidebarStat({
 function ListingCard({ listing }: { listing: ExchangeListing }) {
   return (
     <div
+      className="exchange-card-row"
       style={{
         backgroundColor: "#fff",
         border: "1px solid #e8ecf0",
         borderRadius: 14,
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "row",
         transition: "box-shadow 0.2s, transform 0.2s",
         cursor: "pointer",
       }}
-      className="exchange-card-row"
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement
         el.style.boxShadow = "0 8px 28px rgba(37,99,235,0.09)"
@@ -486,13 +483,8 @@ function ListingCard({ listing }: { listing: ExchangeListing }) {
 
       {/* ── Left: image ────────────────────────────────────────────────── */}
       <div
-        className="card-image"
-        style={{
-          width: 200,
-          minWidth: 200,
-          position: "relative",
-          flexShrink: 0,
-        }}
+        className="exchange-card-img"
+        style={{ position: "relative" }}
       >
         <img
           src={listing.image}

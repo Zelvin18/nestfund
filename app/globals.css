@@ -1,43 +1,34 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #111827;
-}
+/* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  overflow-x: hidden;       /* ← KEY: stops horizontal scroll */
-  max-width: 100vw;
+html {
   scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: #ffffff;
-  color: #111827;
+  -webkit-text-size-adjust: 100%;
+}
+
+html, body {
   margin: 0;
   padding: 0;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-/* Prevent any element from causing horizontal overflow */
-section,
-header,
-footer,
-nav,
-main {
-  max-width: 100vw;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  background: #ffffff;
+  color: #111827;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, video { max-width: 100%; display: block; height: auto; }
+
+/* Prevent ALL elements from overflowing their container */
+div, section, header, footer, nav, main, article, aside {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Scrollbar */
@@ -47,300 +38,291 @@ main {
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* ── ANIMATIONS ── */
-@keyframes ticker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-33.333%); }
-}
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
+@keyframes ticker    { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ══════════════════════════════════════
+   LAYOUT UTILITIES
+══════════════════════════════════════ */
+
+/* Max-width container */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
 /* ══════════════════════════════════════
-   MOBILE RESPONSIVE
+   NAVBAR
 ══════════════════════════════════════ */
+.nav-links, .nav-search, .nav-bell, .nav-wallet { display: flex; }
+.nav-hamburger { display: none; }
+.nav-sign-in   { display: flex; }
 
-/* ── Navbar ── */
 @media (max-width: 768px) {
   .nav-links     { display: none !important; }
   .nav-search    { display: none !important; }
-  .nav-wallet    { display: none !important; }
   .nav-bell      { display: none !important; }
-  .nav-hamburger { display: flex !important; }
+  .nav-wallet    { display: none !important; }
   .nav-sign-in   { display: none !important; }
+  .nav-hamburger { display: flex !important; }
 }
 
-/* ── Hero ── */
-@media (max-width: 900px) {
-  .hero-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0 !important;
-  }
-  .hero-right { display: none !important; }
-}
-@media (max-width: 640px) {
-  .hero-section  { padding: 48px 0 40px !important; }
-  .hero-headline { font-size: 34px !important; letter-spacing: -0.5px !important; line-height: 1.1 !important; }
-  .hero-desc     { font-size: 16px !important; }
-  .hero-ctas     { flex-direction: column !important; gap: 10px !important; }
-  .hero-ctas a   { width: 100% !important; text-align: center !important; justify-content: center !important; box-sizing: border-box !important; }
-  .hero-trust    { gap: 12px !important; }
-}
+/* ══════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════ */
+.mobile-bottom-nav { display: none; }
 
-/* ── Stats cards ── */
-@media (max-width: 900px) {
-  .stats-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Property cards ── */
-@media (max-width: 900px) {
-  .property-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 600px) {
-  .property-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Features grid ── */
-@media (max-width: 900px) {
-  .features-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 540px) {
-  .features-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── How-it-works steps ── */
-@media (max-width: 900px) {
-  .steps-grid      { grid-template-columns: 1fr 1fr !important; }
-  .steps-connector { display: none !important; }
-}
-@media (max-width: 480px) {
-  .steps-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Portfolio ── */
-@media (max-width: 1024px) {
-  .portfolio-chart-grid { grid-template-columns: 1fr !important; }
-  .portfolio-top-grid   { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 900px) {
-  .portfolio-top-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 640px) {
-  .portfolio-top-grid { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 800px) {
-  .summary-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 480px) {
-  .summary-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Property detail ── */
-@media (max-width: 1024px) {
-  .property-detail-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Intelligence ── */
-@media (max-width: 900px) {
-  .intel-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Footer ── */
-@media (max-width: 900px) {
-  .footer-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 540px) {
-  .footer-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Section padding ── */
 @media (max-width: 768px) {
-  .section-pad {
-    padding-top: 48px !important;
-    padding-bottom: 48px !important;
-  }
-  .container {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-  .page-header {
-    padding: 24px 16px 20px !important;
-  }
-}
-
-/* ── Tables ── */
-@media (max-width: 768px) {
-  .responsive-table {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* ── Filter tabs ── */
-@media (max-width: 640px) {
-  .filter-tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
-  }
-  .filter-tabs::-webkit-scrollbar { display: none; }
-}
-
-/* ── Wallet ── */
-@media (max-width: 1024px) {
-  .wallet-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Auth ── */
-@media (max-width: 768px) {
-  .auth-grid { grid-template-columns: 1fr !important; }
-  .auth-left { display: none !important; }
-}
-
-/* ── Landing page ── */
-@media (max-width: 768px) {
-  .landing-nav-links { display: none !important; }
-  .trust-grid         { grid-template-columns: 1fr 1fr !important; }
-  .markets-grid       { grid-template-columns: 1fr !important; }
-  .steps-grid         { grid-template-columns: 1fr 1fr !important; }
-  .trust-features-grid{ grid-template-columns: 1fr 1fr !important; }
-  .testimonials-grid  { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 480px) {
-  .trust-grid          { grid-template-columns: 1fr 1fr !important; }
-  .trust-features-grid { grid-template-columns: 1fr !important; }
-  .steps-grid          { grid-template-columns: 1fr !important; }
-}
-
-/* ── Landing featured property grid ── */
-@media (max-width: 900px) {
-  .featured-prop-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Mobile bottom nav spacer ── */
-@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block !important; }
   body { padding-bottom: 64px; }
 }
 
-/* ── Show bottom nav on mobile ── */
-@media (max-width: 768px) {
-  .mobile-bottom-nav { display: block !important; }
+/* ══════════════════════════════════════
+   GRIDS — all default to multi-col, collapse on mobile
+══════════════════════════════════════ */
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 860px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+/* Property cards */
+.property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+@media (max-width: 640px)  { .property-grid { grid-template-columns: 1fr; } }
+
+/* Feature grid */
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 900px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .features-grid { grid-template-columns: 1fr; } }
+
+/* Steps */
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+@media (max-width: 900px) { .steps-grid { grid-template-columns: 1fr 1fr; } .steps-connector { display: none !important; } }
+@media (max-width: 480px) { .steps-grid { grid-template-columns: 1fr; } }
+
+/* Portfolio */
+.portfolio-top-grid   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.portfolio-chart-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+.summary-grid         { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+@media (max-width: 1024px) {
+  .portfolio-top-grid   { grid-template-columns: 1fr 1fr; }
+  .portfolio-chart-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px)  {
+  .portfolio-top-grid { grid-template-columns: 1fr; }
+  .summary-grid       { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 420px)  { .summary-grid { grid-template-columns: 1fr 1fr; } }
+
+/* ══════════════════════════════════════
+   PROPERTY DETAIL — THE CRITICAL ONE
+══════════════════════════════════════ */
+
+/* Main 2-col grid */
+.property-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+@media (max-width: 1024px) {
+  .property-detail-grid { grid-template-columns: 1fr; }
 }
 
-/* ── Fix: horizontal card overflow on mobile (construction cards etc) ── */
-@media (max-width: 700px) {
-  /* Stack horizontal flex cards vertically */
-  .construction-card-row { flex-direction: column !important; }
-  .construction-card-row .card-image { width: 100% !important; min-width: unset !important; height: 200px !important; }
-  /* Exchange listing cards */
-  .exchange-card-row { flex-direction: column !important; }
-  .exchange-card-row .card-image { width: 100% !important; min-width: unset !important; height: 180px !important; }
+/* Gallery: desktop = flex row (main + thumbs right), mobile = column (main + thumbs below) */
+.property-gallery-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  height: 340px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+.property-gallery-main {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.property-gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gallery-thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 140px;
+  flex-shrink: 0;
+}
+.gallery-thumb {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-/* ── Property gallery on mobile ── */
 @media (max-width: 640px) {
-  /* Stack gallery: main image on top, thumbs in a row below */
   .property-gallery-row {
-    flex-direction: column !important;
-    height: auto !important;
+    flex-direction: column;
+    height: auto;
   }
-  .property-gallery-row > div:first-child {
-    height: 220px !important;
-    width: 100% !important;
-    flex: none !important;
+  .property-gallery-main {
+    width: 100%;
+    height: 240px;
+    flex: none;
   }
-  .property-gallery-row .gallery-thumbs {
-    flex-direction: row !important;
-    width: 100% !important;
-    height: 80px !important;
-    flex: none !important;
+  .gallery-thumbs {
+    flex-direction: row;
+    width: 100%;
+    height: 76px;
+    flex: none;
   }
-  .property-gallery-row .gallery-thumbs > div {
-    flex: 1 !important;
-    height: 80px !important;
-    min-height: unset !important;
-  }
-}
-
-/* ── Property detail grid on mobile ── */
-@media (max-width: 860px) {
-  .property-detail-grid {
-    grid-template-columns: 1fr !important;
+  .gallery-thumb {
+    flex: 1;
+    height: 76px;
+    border-radius: 8px;
   }
 }
 
-/* ── Property feature icons scroll on mobile ── */
+/* Feature icons row */
+.prop-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 @media (max-width: 500px) {
   .prop-features-row {
-    overflow-x: auto !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
   }
   .prop-features-row::-webkit-scrollbar { display: none; }
 }
 
-/* ── Landing hero cards ── */
-@media (max-width: 500px) {
-  .landing-hero-cards { gap: 12px !important; }
-  .landing-hero-card  { min-width: 180px !important; max-width: 200px !important; }
+/* Buy widget */
+.buy-widget-col { position: sticky; top: 84px; }
+@media (max-width: 1024px) { .buy-widget-col { position: static; } }
+
+/* ══════════════════════════════════════
+   CONSTRUCTION CARDS — horizontal on desktop, vertical on mobile
+══════════════════════════════════════ */
+.construction-card-row {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+.construction-card-img {
+  width: 40%;
+  min-width: 200px;
+  flex-shrink: 0;
+  position: relative;
+  min-height: 300px;
+}
+@media (max-width: 700px) {
+  .construction-card-row { flex-direction: column; }
+  .construction-card-img { width: 100%; min-width: unset; height: 200px; min-height: unset; }
 }
 
-/* ── Fix: SharePriceChart overflow ── */
-@media (max-width: 600px) {
-  .share-price-chart-wrap { overflow-x: auto; }
-  .share-price-chart-wrap svg { min-width: 280px; }
+/* ══════════════════════════════════════
+   EXCHANGE CARDS
+══════════════════════════════════════ */
+.exchange-card-row { display: flex; flex-direction: row; overflow: hidden; }
+.exchange-card-img { width: 200px; min-width: 200px; flex-shrink: 0; position: relative; }
+@media (max-width: 700px) {
+  .exchange-card-row { flex-direction: column; }
+  .exchange-card-img { width: 100%; min-width: unset; height: 180px; }
 }
 
-/* ── Buy widget not sticky on mobile ── */
-@media (max-width: 860px) {
-  .buy-widget-col { position: static !important; }
-}
-
-/* ── Intelligence page cards ── */
-@media (max-width: 600px) {
-  .intel-grid { grid-template-columns: 1fr !important; }
-}
-
-/* ── Ensure all sections are contained ── */
-* { box-sizing: border-box; }
-img { max-width: 100%; height: auto; }
-
-/* ── Exchange ── */
+/* Exchange layout */
+.exchange-layout  { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
+.exchange-sidebar { display: block; }
 @media (max-width: 1024px) {
-  .exchange-layout  { grid-template-columns: 1fr !important; }
-  .exchange-sidebar { display: none !important; }
-}
-@media (max-width: 640px) {
-  .exchange-layout  { grid-template-columns: 1fr !important; }
+  .exchange-layout  { grid-template-columns: 1fr; }
+  .exchange-sidebar { display: none; }
 }
 
-@media (max-width: 480px) {
-  .ticker-item-name {
-    display: none !important;   /* show only price + change on tiny screens */
-  }
-}
+/* ══════════════════════════════════════
+   SECTION HELPERS
+══════════════════════════════════════ */
+.section-pad { padding: 64px 0; }
+@media (max-width: 768px) { .section-pad { padding: 48px 0; } .container { padding-left: 16px; padding-right: 16px; } }
 
-/* ── Exchange layout ── */
-@media (max-width: 1024px) {
-  .exchange-layout {
-    grid-template-columns: 1fr !important;
-  }
-  .exchange-sidebar {
-    display: none !important;
-  }
-}
+/* Filter tabs horizontal scroll */
+.filter-tabs { display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.filter-tabs::-webkit-scrollbar { display: none; }
+
+/* Tables */
+.responsive-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ══════════════════════════════════════
+   INTELLIGENCE
+══════════════════════════════════════ */
+.intel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 800px) { .intel-grid { grid-template-columns: 1fr; } }
+
+/* ══════════════════════════════════════
+   WALLET
+══════════════════════════════════════ */
+.wallet-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+@media (max-width: 1024px) { .wallet-grid { grid-template-columns: 1fr; } }
+
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+.auth-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+@media (max-width: 768px) { .auth-grid { grid-template-columns: 1fr; } .auth-left { display: none; } }
+
+/* ══════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════ */
+.landing-nav-links { display: flex; }
+.trust-grid          { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.markets-grid        { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.trust-features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.testimonials-grid   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 
 @media (max-width: 900px) {
-  .exchange-layout { grid-template-columns: 1fr !important; }
-  .exchange-sidebar { position: static !important; }
+  .landing-nav-links  { display: none !important; }
+  .trust-grid         { grid-template-columns: 1fr 1fr; }
+  .markets-grid       { grid-template-columns: 1fr; }
+  .trust-features-grid{ grid-template-columns: 1fr 1fr; }
+  .testimonials-grid  { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .trust-features-grid { grid-template-columns: 1fr; }
+  .steps-grid          { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 640px) {
-  .exchange-layout .property-grid {
-    grid-template-columns: 1fr !important;
-  }
+/* SharePrice chart overflow fix */
+@media (max-width: 600px) {
+  .share-price-chart-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
+
+/* Hero home page */
+@media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr !important; gap: 0 !important; } .hero-right { display: none !important; } }
+@media (max-width: 640px) { .hero-section { padding: 48px 0 40px !important; } .hero-headline { font-size: 34px !important; } .hero-ctas { flex-direction: column !important; gap: 10px !important; } .hero-ctas a { width: 100% !important; justify-content: center !important; } }
+
+/* Footer */
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } }
+@media (max-width: 540px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* Ticker */
+@media (max-width: 480px) { .ticker-item-name { display: none !important; } }
