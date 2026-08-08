@@ -1,15 +1,14 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
+import ConditionalShell from "@/components/ConditionalShell"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "NestFund — The Real Estate Investment Market",
+  title: "NestFund — Own Real Estate. Earn Monthly. Trade Anytime.",
   description:
-    "Buy shares of verified properties, earn monthly rental income, and trade real estate like stocks. NestFund is the financial intelligence layer for property investment.",
+    "Buy shares of verified properties from UGX 50,000. Earn monthly rental income. Trade anytime. NestFund is the real estate investment market for East Africa.",
 }
 
 export default function RootLayout({
@@ -19,10 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-white text-gray-900 antialiased`}>
-        <Navbar />
-        {children}
-        <Footer />
+      <body className={inter.className} style={{ backgroundColor: "#fff", margin: 0, padding: 0 }}>
+        <ConditionalShell>{children}</ConditionalShell>
       </body>
     </html>
   )

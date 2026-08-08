@@ -1,23 +1,10 @@
-import HeroSection from "@/components/home/HeroSection"
-import LiveTicker from "@/components/home/LiveTicker"
-import MarketOverview from "@/components/home/MarketOverview"
-import TrendingProperties from "@/components/home/TrendingProperties"
-import MarketIntelligenceSection from "@/components/home/MarketIntelligence"
-import HowItWorks from "@/components/home/HowItWorks"
-import WhyNestFund from "@/components/home/WhyNestFund"
-import CTASection from "@/components/home/CTASection"
+import LandingPage from "@/components/landing/LandingPage"
 
-export default function Home() {
-  return (
-    <main>
-      <HeroSection />
-      <LiveTicker />
-      <MarketOverview />
-      <TrendingProperties />
-      <MarketIntelligenceSection />
-      <HowItWorks />
-      <WhyNestFund />
-      <CTASection />
-    </main>
-  )
+export const metadata = {
+  title: "NestFund — Own Real Estate. Earn Monthly. Trade Anytime.",
+  description: "Buy shares of verified properties in Uganda from UGX 50,000. Earn monthly rental income. Trade shares anytime. NestFund is the real estate investment market.",
+}
+
+export default function Landing() {
+  return <LandingPage />
 }

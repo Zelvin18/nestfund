@@ -200,6 +200,79 @@ main {
   .auth-left { display: none !important; }
 }
 
+/* ── Landing page ── */
+@media (max-width: 768px) {
+  .landing-nav-links { display: none !important; }
+  .trust-grid         { grid-template-columns: 1fr 1fr !important; }
+  .markets-grid       { grid-template-columns: 1fr !important; }
+  .steps-grid         { grid-template-columns: 1fr 1fr !important; }
+  .trust-features-grid{ grid-template-columns: 1fr 1fr !important; }
+  .testimonials-grid  { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 480px) {
+  .trust-grid          { grid-template-columns: 1fr 1fr !important; }
+  .trust-features-grid { grid-template-columns: 1fr !important; }
+  .steps-grid          { grid-template-columns: 1fr !important; }
+}
+
+/* ── Landing featured property grid ── */
+@media (max-width: 900px) {
+  .featured-prop-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Mobile bottom nav spacer ── */
+@media (max-width: 768px) {
+  body { padding-bottom: 64px; }
+}
+
+/* ── Show bottom nav on mobile ── */
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block !important; }
+}
+
+/* ── Fix: horizontal card overflow on mobile (construction cards etc) ── */
+@media (max-width: 700px) {
+  /* Stack horizontal flex cards vertically */
+  .construction-card-row { flex-direction: column !important; }
+  .construction-card-row .card-image { width: 100% !important; min-width: unset !important; height: 200px !important; }
+  /* Exchange listing cards */
+  .exchange-card-row { flex-direction: column !important; }
+  .exchange-card-row .card-image { width: 100% !important; min-width: unset !important; height: 180px !important; }
+}
+
+/* ── Property gallery on mobile ── */
+@media (max-width: 600px) {
+  .property-gallery-row { flex-direction: column !important; height: auto !important; }
+  .property-gallery-row .gallery-thumbs { display: flex !important; flex-direction: row !important; width: 100% !important; height: 72px !important; }
+  .property-gallery-row .gallery-thumbs > div { flex: 1 !important; height: 72px !important; min-height: unset !important; }
+}
+
+/* ── Landing hero cards ── */
+@media (max-width: 500px) {
+  .landing-hero-cards { gap: 12px !important; }
+  .landing-hero-card  { min-width: 180px !important; max-width: 200px !important; }
+}
+
+/* ── Fix: SharePriceChart overflow ── */
+@media (max-width: 600px) {
+  .share-price-chart-wrap { overflow-x: auto; }
+  .share-price-chart-wrap svg { min-width: 280px; }
+}
+
+/* ── Stat cards ── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ── Intelligence page cards ── */
+@media (max-width: 600px) {
+  .intel-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Ensure all sections are contained ── */
+* { box-sizing: border-box; }
+img { max-width: 100%; height: auto; }
+
 /* ── Exchange ── */
 @media (max-width: 1024px) {
   .exchange-layout  { grid-template-columns: 1fr !important; }

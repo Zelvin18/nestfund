@@ -210,7 +210,7 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* Image gallery — main left, 4 thumbs right */}
-            <div style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
+            <div className="property-gallery-row" style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
               <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
                 <img src={project.images[0]} alt={project.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 <div style={{ position: "absolute", top: 12, left: 12 }}>

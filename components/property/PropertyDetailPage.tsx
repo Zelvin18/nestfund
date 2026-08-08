@@ -157,7 +157,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* Image gallery — Binaryx layout: main left, 4 thumbs right */}
-            <div style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
+            <div className="property-gallery-row" style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
               {/* Main image */}
               <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
                 <img src={extra.images[0]} alt={property.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -172,7 +172,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                 </div>
               </div>
               {/* 4 thumbnails stacked */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 168, flexShrink: 0 }}>
+              <div className="gallery-thumbs" style={{ display: "flex", flexDirection: "column", gap: 8, width: 168, flexShrink: 0 }}>
                 {extra.images.slice(1, 5).map((img, i) => (
                   <div key={i} style={{ position: "relative", flex: 1, borderRadius: 8, overflow: "hidden", minHeight: 0 }}>
                     <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />

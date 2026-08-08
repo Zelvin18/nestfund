@@ -369,6 +369,7 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
         overflow: "hidden", display: "flex", flexDirection: "row",
         transition: "box-shadow 0.2s, transform 0.2s", cursor: "pointer",
       }}
+      className="construction-card-row"
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement
         el.style.boxShadow = "0 8px 32px rgba(37,99,235,0.10)"
@@ -381,7 +382,7 @@ function ProjectCard({ project }: { project: ConstructionProject }) {
       }}
     >
       {/* Left: Image panel */}
-      <div style={{ width: "40%", minWidth: 200, position: "relative", flexShrink: 0, minHeight: 300 }}>
+      <div className="card-image" style={{ width: "40%", minWidth: 200, position: "relative", flexShrink: 0, minHeight: 300 }}>
         <img
           src={project.image}
           alt={project.name}
