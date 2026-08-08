@@ -241,10 +241,46 @@ main {
 }
 
 /* ── Property gallery on mobile ── */
-@media (max-width: 600px) {
-  .property-gallery-row { flex-direction: column !important; height: auto !important; }
-  .property-gallery-row .gallery-thumbs { display: flex !important; flex-direction: row !important; width: 100% !important; height: 72px !important; }
-  .property-gallery-row .gallery-thumbs > div { flex: 1 !important; height: 72px !important; min-height: unset !important; }
+@media (max-width: 640px) {
+  /* Stack gallery: main image on top, thumbs in a row below */
+  .property-gallery-row {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .property-gallery-row > div:first-child {
+    height: 220px !important;
+    width: 100% !important;
+    flex: none !important;
+  }
+  .property-gallery-row .gallery-thumbs {
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 80px !important;
+    flex: none !important;
+  }
+  .property-gallery-row .gallery-thumbs > div {
+    flex: 1 !important;
+    height: 80px !important;
+    min-height: unset !important;
+  }
+}
+
+/* ── Property detail grid on mobile ── */
+@media (max-width: 860px) {
+  .property-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Property feature icons scroll on mobile ── */
+@media (max-width: 500px) {
+  .prop-features-row {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .prop-features-row::-webkit-scrollbar { display: none; }
 }
 
 /* ── Landing hero cards ── */
@@ -259,9 +295,9 @@ main {
   .share-price-chart-wrap svg { min-width: 280px; }
 }
 
-/* ── Stat cards ── */
-@media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+/* ── Buy widget not sticky on mobile ── */
+@media (max-width: 860px) {
+  .buy-widget-col { position: static !important; }
 }
 
 /* ── Intelligence page cards ── */

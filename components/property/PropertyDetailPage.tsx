@@ -156,7 +156,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-            {/* Image gallery — Binaryx layout: main left, 4 thumbs right */}
+            {/* Image gallery — mobile: main image + 3 thumbs below. Desktop: main left + 4 thumbs right */}
             <div className="property-gallery-row" style={{ display: "flex", gap: 8, borderRadius: 16, overflow: "hidden", height: 340 }}>
               {/* Main image */}
               <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
@@ -204,7 +204,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
             </div>
 
             {/* Property detail icons — proper SVG icons, no emojis */}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div className="prop-features-row" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[
                 ...(extra.beds > 0 ? [{ svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v10m0-6h18M3 11v0a2 2 0 012-2h14a2 2 0 012 2v0M7 11V7a1 1 0 011-1h8a1 1 0 011 1v4" /></svg>, label: `${extra.beds} Bed` }] : []),
                 ...(extra.baths > 0 ? [{ svg: <svg viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16v4a4 4 0 01-4 4H8a4 4 0 01-4-4v-4z" /><path d="M6 12V6a3 3 0 013-3h1" /></svg>, label: `${extra.baths} Bath` }] : []),
@@ -460,7 +460,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           </div>
 
           {/* ── RIGHT — Buy Widget ── */}
-          <div style={{ position: "sticky", top: 84 }}>
+          <div className="buy-widget-col" style={{ position: "sticky", top: 84 }}>
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
               <div style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #4f46e5 100%)", padding: "16px 20px" }}>
                 <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Share Price</p>

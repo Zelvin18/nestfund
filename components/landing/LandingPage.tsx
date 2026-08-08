@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { ArrowRightIcon, CheckIcon, PlayIcon } from "@heroicons/react/24/outline"
+import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ShieldCheckIcon, StarIcon } from "@heroicons/react/24/solid"
 
 /* ── Inline SVG icons (professional, no emoji) ── */
@@ -142,70 +142,132 @@ function LandingNav() {
    HERO SECTION
 ══════════════════════════════════ */
 function HeroSection({ ticker }: { ticker: number }) {
-  const card = featuredCards[ticker]
   return (
-    <section style={{ background: "linear-gradient(160deg, #0f172a 0%, #1e3a8a 45%, #2563eb 100%)", padding: "80px 24px 0", position: "relative", overflow: "hidden" }}>
-      {/* Background city silhouette */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 160, backgroundImage: "url(https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1400&q=30)", backgroundSize: "cover", backgroundPosition: "center top", opacity: 0.07 }} />
+    <section style={{ position: "relative", overflow: "hidden", minHeight: "88vh", display: "flex", flexDirection: "column" }}>
 
-      <div style={{ maxWidth: 1140, margin: "0 auto", position: "relative", zIndex: 1 }}>
-        {/* Trustpilot row */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "7px 16px", border: "1px solid rgba(255,255,255,0.15)" }}>
-            <div style={{ display: "flex", gap: 2 }}>{[1,2,3,4,5].map(s => <StarIcon key={s} style={{ width: 14, height: 14, color: "#10b981" }} />)}</div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>Rated 4.8/5 · 2,600+ investors</span>
-          </div>
+      {/* Full-bleed background photo */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <img
+          src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80"
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%" }}
+        />
+        {/* Dark overlay — teal tint like Binaryx */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(10,25,40,0.88) 0%, rgba(13,60,80,0.82) 50%, rgba(10,30,60,0.78) 100%)" }} />
+      </div>
+
+      {/* Content */}
+      <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px 24px 0", maxWidth: 1140, margin: "0 auto", width: "100%" }}>
+
+        {/* Headline — Binaryx style: clean, moderate weight, centered */}
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <h1 style={{
+            fontSize: "clamp(32px, 5.5vw, 62px)",
+            fontWeight: 400,
+            color: "rgba(255,255,255,0.92)",
+            lineHeight: 1.18,
+            letterSpacing: "-0.5px",
+            margin: "0 0 6px 0",
+          }}>
+            Own Real Estate. Get Monthly Rent.
+          </h1>
+          <h1 style={{
+            fontSize: "clamp(32px, 5.5vw, 62px)",
+            fontWeight: 700,
+            color: "#fff",
+            lineHeight: 1.18,
+            letterSpacing: "-0.5px",
+            margin: "0 0 24px 0",
+          }}>
+            Sell Anytime.
+          </h1>
+          <p style={{
+            fontSize: "clamp(15px, 1.8vw, 18px)",
+            color: "rgba(255,255,255,0.6)",
+            maxWidth: 520,
+            margin: "0 auto 36px",
+            lineHeight: 1.7,
+            fontWeight: 400,
+          }}>
+            Build your real estate portfolio from UGX 50,000. Own shares of verified properties, earn monthly rental income, and exit whenever you want.
+          </p>
         </div>
 
-        {/* Headline */}
-        <h1 style={{ fontSize: "clamp(36px, 6vw, 68px)", fontWeight: 900, color: "#fff", textAlign: "center", lineHeight: 1.08, letterSpacing: "-2px", margin: "0 0 8px 0" }}>
-          Own Real Estate.
-          <br />Get Monthly Rent.
-          <br /><span style={{ color: "#10b981", fontStyle: "italic" }}>Sell Anytime.</span>
-        </h1>
-        <p style={{ fontSize: "clamp(16px, 2.2vw, 20px)", color: "rgba(255,255,255,0.7)", textAlign: "center", margin: "16px auto 36px", maxWidth: 580, lineHeight: 1.65 }}>
-          Build your real estate portfolio from <strong style={{ color: "#fff" }}>UGX 50,000</strong>. Own shares of verified properties, earn monthly rental income, and exit whenever you want.
-        </p>
-
-        {/* CTA buttons */}
-        <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginBottom: 52 }}>
-          <Link href="/auth/register" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 12, backgroundColor: "#10b981", color: "#fff", fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: "0 6px 20px rgba(16,185,129,0.35)" }}>
-            <div style={{ width: 18, height: 18, display: "flex" }}><IconHome /></div>
-            Explore Properties
+        {/* CTA buttons — Binaryx style */}
+        <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginBottom: 56 }}>
+          <Link
+            href="/home"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "13px 28px", borderRadius: 8,
+              backgroundColor: "#0d9488",
+              color: "#fff", fontSize: 15, fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Explore properties
           </Link>
-          <button style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 24px", borderRadius: 12, backgroundColor: "transparent", border: "1.5px solid rgba(255,255,255,0.3)", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-            <PlayIcon style={{ width: 18, height: 18 }} />
+          <Link
+            href="#how-it-works"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "13px 24px", borderRadius: 8,
+              backgroundColor: "transparent",
+              border: "1.5px solid rgba(255,255,255,0.25)",
+              color: "rgba(255,255,255,0.85)", fontSize: 15, fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" />
+            </svg>
             How it works
-          </button>
+          </Link>
         </div>
 
-        {/* Floating property cards strip */}
-        <div style={{ display: "flex", gap: 16, justifyContent: "center", overflowX: "auto", paddingBottom: 40, scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+        {/* Property cards strip */}
+        <div style={{ display: "flex", gap: 14, justifyContent: "center", overflowX: "auto", paddingBottom: 0, WebkitOverflowScrolling: "touch" as const }}>
           {featuredCards.map((c, i) => (
-            <div key={i} style={{ backgroundColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, overflow: "hidden", minWidth: 220, maxWidth: 240, flexShrink: 0, transition: "transform 0.3s", transform: i === ticker ? "translateY(-8px)" : "translateY(0)" }}>
-              <div style={{ height: 130, overflow: "hidden" }}>
-                <img src={c.img} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-              <div style={{ padding: "12px 14px 14px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: c.type === "Rental" ? "#10b981" : "#f59e0b", backgroundColor: c.type === "Rental" ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)", padding: "2px 7px", borderRadius: 99, textTransform: "uppercase", letterSpacing: "0.05em" }}>{c.type}</span>
+            <Link key={i} href="/home" style={{ textDecoration: "none", flexShrink: 0 }}>
+              <div style={{
+                backgroundColor: "rgba(255,255,255,0.08)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 14, overflow: "hidden",
+                minWidth: 210, maxWidth: 230,
+                transition: "transform 0.35s, border-color 0.35s",
+                transform: i === ticker ? "translateY(-10px)" : "translateY(0)",
+                borderColor: i === ticker ? "rgba(13,148,136,0.6)" : "rgba(255,255,255,0.12)",
+              }}>
+                <div style={{ height: 120, overflow: "hidden" }}>
+                  <img src={c.img} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "#fff", margin: "0 0 2px 0" }}>{c.name}</p>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>{c.location}</p>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.3px" }}>{c.price}</p>
-                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", margin: 0 }}>per share</p>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: "#10b981", margin: 0 }}>{c.change}</p>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#0d9488", margin: 0 }}>{c.apr} APR</p>
+                <div style={{ padding: "11px 13px 13px" }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: c.type === "Rental" ? "#0d9488" : "#f59e0b", backgroundColor: c.type === "Rental" ? "rgba(13,148,136,0.18)" : "rgba(245,158,11,0.18)", padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" as const, letterSpacing: "0.04em" }}>{c.type}</span>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", margin: "6px 0 2px 0" }}>{c.name}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", margin: "0 0 9px 0" }}>{c.location}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.2px" }}>{c.price}</p>
+                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", margin: "1px 0 0 0" }}>per share</p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: "#10b981", margin: 0 }}>{c.change}</p>
+                      <p style={{ fontSize: 11, color: "#0d9488", margin: 0 }}>{c.apr} APR</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
+
+        {/* Bottom fade into next section */}
+        <div style={{ height: 48, background: "linear-gradient(to bottom, transparent, rgba(248,250,252,0.15))" }} />
       </div>
     </section>
   )
