@@ -124,14 +124,34 @@ div, section, header, footer, nav, main, article, aside {
 
 /* Main 2-col grid */
 .property-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 24px;
-  align-items: start;
-  width: 100%;
+  display: grid !important;
+  grid-template-columns: 1fr 340px !important;
+  gap: 24px !important;
+  align-items: start !important;
+  width: 100% !important;
 }
+
+/* Left column: content — order 1 */
+.property-detail-grid > div:first-child {
+  order: 1;
+}
+
+/* Right column: buy widget — order 2 on desktop, order 2 on mobile (after content) */
+.buy-widget-col {
+  order: 2;
+  position: sticky !important;
+  top: 84px !important;
+  min-width: 0 !important;
+}
+
 @media (max-width: 1024px) {
-  .property-detail-grid { grid-template-columns: 1fr; }
+  .property-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .buy-widget-col {
+    position: static !important;
+    order: 2 !important;
+  }
 }
 
 /* Gallery: desktop = flex row (main + thumbs right), mobile = column (main + thumbs below) */

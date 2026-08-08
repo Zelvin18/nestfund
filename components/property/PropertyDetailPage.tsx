@@ -151,10 +151,10 @@ export default function PropertyDetailPage({ id }: { id: string }) {
       </div>
 
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 48px" }}>
-        <div className="property-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
+        <div className="property-detail-grid">
 
           {/* ── LEFT ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
 
             {/* Image gallery — CSS-driven responsive layout */}
             <div className="property-gallery-row">
@@ -460,7 +460,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           </div>
 
           {/* ── RIGHT — Buy Widget ── */}
-          <div className="buy-widget-col" style={{ position: "sticky", top: 84 }}>
+          <div className="buy-widget-col" style={{ minWidth: 0 }}>
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
               <div style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #4f46e5 100%)", padding: "16px 20px" }}>
                 <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Share Price</p>

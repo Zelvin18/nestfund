@@ -204,7 +204,7 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
       </div>
 
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 48px" }}>
-        <div className="property-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
+        <div className="property-detail-grid">
 
           {/* ── LEFT ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -505,7 +505,7 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
           </div>
 
           {/* ── RIGHT — Buy widget ── */}
-          <div style={{ position: "sticky", top: 84 }}>
+          <div className="buy-widget-col" style={{ minWidth: 0 }}>
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
 
               {/* Header */}
