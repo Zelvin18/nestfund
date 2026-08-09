@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRightIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
-import { ArrowTrendingUpIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
+import { ArrowRightIcon, ShieldCheckIcon, PlayCircleIcon } from "@heroicons/react/24/outline"
+import { ArrowTrendingUpIcon, CheckBadgeIcon, BoltIcon } from "@heroicons/react/24/solid"
 import Sparkline from "@/components/ui/Sparkline"
 
 const heroSparkData = [1140, 1120, 1155, 1148, 1170, 1162, 1180, 1195, 1185, 1210, 1205, 1220, 1215, 1235, 1250]
@@ -14,31 +14,22 @@ export default function HeroSection() {
       style={{
         position: "relative",
         overflow: "hidden",
-        backgroundColor: "#fff",
-        padding: "80px 0 72px",
+        background: "linear-gradient(150deg, #0a1628 0%, #0f2247 55%, #101b3a 100%)",
+        padding: "76px 0 68px",
         maxWidth: "100vw",
       }}
     >
-      {/* Background blobs */}
+      {/* Ambient glows */}
+      <div style={{ position: "absolute", top: -180, right: "8%", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 65%)", zIndex: 0, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -220, left: "-6%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(13,148,136,0.16) 0%, transparent 65%)", zIndex: 0, pointerEvents: "none" }} />
+      {/* Fine grid pattern */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          background: "linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #eef2ff 100%)",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: -80,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 600,
-          height: 600,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 70%)",
-          zIndex: 0,
+          position: "absolute", inset: 0, zIndex: 0, opacity: 0.5, pointerEvents: "none",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+          maskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%)",
         }}
       />
 
@@ -58,40 +49,40 @@ export default function HeroSection() {
       >
         {/* Left — copy */}
         <div>
-          {/* Clean label - no badge/icon */}
-          <p style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: "#2563eb",
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            marginBottom: 18,
-            margin: "0 0 18px 0",
+          {/* Live market chip */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            backgroundColor: "rgba(16,185,129,0.1)",
+            border: "1px solid rgba(16,185,129,0.25)",
+            borderRadius: 99, padding: "6px 14px", marginBottom: 22,
           }}>
-            Real Estate Investment Platform
-          </p>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: "#10b981", display: "inline-block", animation: "pulse-dot 1.6s ease-in-out infinite" }} />
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#6ee7b7", letterSpacing: "0.02em" }}>
+              Market is live · 47 properties trading
+            </span>
+          </div>
 
           {/* Headline */}
           <h1
             style={{
-              fontSize: 56,
-              fontWeight: 900,
-              lineHeight: 1.05,
-              letterSpacing: "-1.5px",
-              color: "#0f172a",
-              margin: "0 0 20px 0",
+              fontSize: "clamp(36px, 5vw, 58px)",
+              fontWeight: 850,
+              lineHeight: 1.06,
+              letterSpacing: "-1.8px",
+              color: "#fff",
+              margin: "0 0 22px 0",
             }}
           >
-            Invest in Real Estate.
+            Own Real Estate.
             <br />
             <span
               style={{
-                background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
+                background: "linear-gradient(100deg, #60a5fa 0%, #34d399 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Own the Future.
+              Earn Every Month.
             </span>
           </h1>
 
@@ -99,67 +90,75 @@ export default function HeroSection() {
           <p
             className="hero-desc"
             style={{
-              fontSize: 18,
-              lineHeight: 1.7,
-              color: "#475569",
-              margin: "0 0 36px 0",
+              fontSize: 17,
+              lineHeight: 1.75,
+              color: "rgba(255,255,255,0.62)",
+              margin: "0 0 34px 0",
               maxWidth: 480,
             }}
           >
-            Buy shares of verified properties, earn monthly rental income, and trade
-            real estate like stocks — with full financial intelligence.
+            Buy shares of verified Ugandan properties from UGX 50,000, collect rental
+            income every month, and trade your shares on a live market — like stocks.
           </p>
 
           {/* CTA buttons */}
-          <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 40 }}>
+          <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 38 }}>
             <Link
               href="/market"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                padding: "13px 24px",
+                padding: "14px 28px",
                 borderRadius: 11,
                 background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
                 color: "#fff",
                 fontSize: 15,
                 fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 4px 14px rgba(37,99,235,0.3)",
+                boxShadow: "0 8px 28px rgba(37,99,235,0.45)",
               }}
             >
               Start Investing
               <ArrowRightIcon style={{ width: 18, height: 18 }} />
             </Link>
             <Link
-              href="/market"
+              href="/exchange"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                padding: "13px 24px",
+                gap: 8,
+                padding: "14px 24px",
                 borderRadius: 11,
-                border: "1.5px solid #e2e8f0",
-                backgroundColor: "#fff",
-                color: "#0f172a",
+                border: "1.5px solid rgba(255,255,255,0.18)",
+                backgroundColor: "rgba(255,255,255,0.04)",
+                color: "rgba(255,255,255,0.92)",
                 fontSize: 15,
                 fontWeight: 600,
                 textDecoration: "none",
+                backdropFilter: "blur(6px)",
               }}
             >
-              Explore Properties
+              <PlayCircleIcon style={{ width: 19, height: 19 }} />
+              See the Exchange
             </Link>
           </div>
 
           {/* Trust row */}
-          <div className="hero-trust" style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+          <div className="hero-trust" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {[
-              { icon: <ShieldCheckIcon style={{ width: 16, height: 16, color: "#16a34a" }} />, text: "Secure & Regulated" },
-              { icon: <ArrowTrendingUpIcon style={{ width: 16, height: 16, color: "#2563eb" }} />, text: "Avg. 8.6% Annual Return" },
-              { icon: <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#10b981", display: "inline-block" }} />, text: "14,250+ Active Investors" },
+              { icon: <ShieldCheckIcon style={{ width: 15, height: 15, color: "#34d399" }} />, text: "CMA Regulated" },
+              { icon: <BoltIcon style={{ width: 15, height: 15, color: "#60a5fa" }} />, text: "Avg. 10.4% Annual Yield" },
+              { icon: <CheckBadgeIcon style={{ width: 15, height: 15, color: "#a78bfa" }} />, text: "14,250+ Investors" },
             ].map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 7,
+                backgroundColor: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                borderRadius: 99, padding: "7px 14px",
+              }}>
                 {item.icon}
-                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{item.text}</span>
+                <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>{item.text}</span>
               </div>
             ))}
           </div>
@@ -171,15 +170,16 @@ export default function HeroSection() {
           <div
             style={{
               position: "absolute",
-              top: 24,
-              left: -24,
+              top: 18,
+              left: -26,
               zIndex: 10,
-              backgroundColor: "#fff",
-              borderRadius: 12,
-              padding: "10px 14px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-              border: "1px solid #f1f5f9",
+              backgroundColor: "rgba(255,255,255,0.98)",
+              borderRadius: 13,
+              padding: "11px 15px",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.35)",
+              border: "1px solid rgba(255,255,255,0.6)",
               minWidth: 150,
+              animation: "float-a 5.5s ease-in-out infinite",
             }}
           >
             <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px 0", fontWeight: 500 }}>Portfolio Value</p>
@@ -194,19 +194,20 @@ export default function HeroSection() {
           <div
             style={{
               position: "absolute",
-              bottom: 80,
-              right: -20,
+              bottom: 74,
+              right: -22,
               zIndex: 10,
-              backgroundColor: "#fff",
-              borderRadius: 12,
-              padding: "10px 14px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-              border: "1px solid #f1f5f9",
+              backgroundColor: "rgba(255,255,255,0.98)",
+              borderRadius: 13,
+              padding: "11px 15px",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.35)",
+              border: "1px solid rgba(255,255,255,0.6)",
+              animation: "float-b 6.5s ease-in-out infinite",
             }}
           >
             <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px 0", fontWeight: 500 }}>Monthly Income</p>
             <p style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0" }}>UGX 185K</p>
-            <p style={{ fontSize: 11, color: "#10b981", fontWeight: 600, margin: 0 }}>From rental yield</p>
+            <p style={{ fontSize: 11, color: "#10b981", fontWeight: 600, margin: 0 }}>Paid on the 5th, automatically</p>
           </div>
 
           {/* Main property card */}
@@ -214,15 +215,15 @@ export default function HeroSection() {
             style={{
               backgroundColor: "#fff",
               borderRadius: 20,
-              boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
-              border: "1.5px solid #f1f5f9",
+              boxShadow: "0 32px 80px rgba(0,0,0,0.45)",
+              border: "1px solid rgba(255,255,255,0.14)",
               overflow: "hidden",
               maxWidth: 420,
               marginLeft: "auto",
             }}
           >
             {/* Property image */}
-            <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
+            <div style={{ position: "relative", height: 210, overflow: "hidden" }}>
               <img
                 src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=700&q=80"
                 alt="Sunrise Apartments"
@@ -232,16 +233,16 @@ export default function HeroSection() {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  background: "linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%)",
+                  background: "linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%)",
                 }}
               />
-              <div style={{ position: "absolute", top: 12, left: 12 }}>
+              <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 6 }}>
                 <span
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
-                    backgroundColor: "rgba(255,255,255,0.92)",
+                    backgroundColor: "rgba(255,255,255,0.94)",
                     borderRadius: 99,
                     padding: "4px 10px",
                     fontSize: 11,
@@ -251,7 +252,21 @@ export default function HeroSection() {
                   }}
                 >
                   <CheckBadgeIcon style={{ width: 13, height: 13 }} />
-                  Verified Property
+                  Verified
+                </span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    backgroundColor: "rgba(13,148,136,0.92)",
+                    borderRadius: 99,
+                    padding: "4px 10px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#fff",
+                  }}
+                >
+                  100% Occupied
                 </span>
               </div>
             </div>
@@ -312,10 +327,12 @@ export default function HeroSection() {
               </div>
 
               {/* CTA */}
-              <button
+              <Link
+                href="/property/sunrise-apartments"
                 style={{
+                  display: "block",
                   width: "100%",
-                  padding: "11px 0",
+                  padding: "12px 0",
                   borderRadius: 10,
                   background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
                   color: "#fff",
@@ -323,10 +340,13 @@ export default function HeroSection() {
                   fontWeight: 700,
                   border: "none",
                   cursor: "pointer",
+                  textAlign: "center",
+                  textDecoration: "none",
+                  boxSizing: "border-box",
                 }}
               >
                 Buy Shares — UGX 1,250/share
-              </button>
+              </Link>
             </div>
           </div>
         </div>
