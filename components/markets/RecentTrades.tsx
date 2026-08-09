@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { traderNames as names, tradeTargets as properties } from "@/lib/data/exchange"
 
 interface Trade {
   id: number
@@ -11,15 +12,6 @@ interface Trade {
   price: number
   secondsAgo: number
 }
-
-const names = ["James K.", "Amina N.", "David O.", "Grace T.", "Peter M.", "Sarah L.", "Brian S.", "Joan A.", "Moses W.", "Diana R."]
-const properties = [
-  { name: "Ibis Apartments", price: 1380 },
-  { name: "Acacia Office Park", price: 2150 },
-  { name: "Green Heights", price: 815 },
-  { name: "Kololo Towers", price: 4520 },
-  { name: "Naalya Gardens", price: 962 },
-]
 
 let nextId = 100
 
@@ -44,6 +36,7 @@ export default function RecentTrades() {
 
   // Seed after mount (avoids SSR/client randomness mismatch), then add a trade every few seconds
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional client-only seeding; random data would mismatch the server render
     setTrades([randomTrade(40), randomTrade(160), randomTrade(380), randomTrade(700), randomTrade(1400)])
     const addInterval = setInterval(() => {
       setTrades(prev => [randomTrade(0), ...prev].slice(0, 5))

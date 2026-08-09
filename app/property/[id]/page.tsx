@@ -1,4 +1,5 @@
 import PropertyDetailPage from "@/components/property/PropertyDetailPage"
+import { rentalProperties } from "@/lib/data/rentals"
 
 // Next.js 15: params is a Promise
 export default async function PropertyDetail({
@@ -10,11 +11,7 @@ export default async function PropertyDetail({
   return <PropertyDetailPage id={id} />
 }
 
+// Prerender every canonical property — stays in sync with lib/data
 export async function generateStaticParams() {
-  return [
-    { id: "sunrise-apartments" },
-    { id: "green-heights" },
-    { id: "acacia-office-park" },
-    { id: "lake-view-residences" },
-  ]
+  return rentalProperties.map(p => ({ id: p.id }))
 }

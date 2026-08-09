@@ -12,7 +12,7 @@ import {
   ArrowTrendingUpIcon, ArrowTrendingDownIcon,
   CheckBadgeIcon, StarIcon,
 } from "@heroicons/react/24/solid"
-import { featuredProperties, generatePriceSeries } from "@/lib/mockData"
+import { featuredProperties, generatePriceSeries, propertyExtras } from "@/lib/mockData"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 
@@ -39,88 +39,6 @@ const rangeConfig: Record<TimeRange, { points: number; stepDays: number; driftSh
 
 /* Long-term annual growth per story tier */
 const annualGrowthPct = { High: 16, Medium: 9, Low: 3.5 }
-
-const propertyExtras: Record<string, {
-  beds: number; baths: number; sqm: number; parking: number; floors: number; yearBuilt: number
-  images: string[]
-  activityFeed: Array<{icon: string; title: string; desc: string; date: string; photos?: string[]; extra?: string; attachment?: string}>
-  tradeHistory: Array<{hash: string; date: string; time: string; shares: number; price: number; volume: number; status: string}>
-}> = {
-  "sunrise-apartments": {
-    beds: 2, baths: 2, sqm: 85, parking: 1, floors: 6, yearBuilt: 2021,
-    images: [
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80",
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=70",
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=70",
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=70",
-    ],
-    activityFeed: [
-      { icon: "payment", title: "Rental Income Distributed — Jan 2026", desc: "Monthly rental income of UGX 18M distributed to all shareholders proportionally. Yield maintained at 11.2%.", date: "Jan 30", photos: [] },
-      { icon: "update", title: "100% Occupancy Maintained", desc: "All 24 units remain occupied. Tenant renewal rate 94%. New 2-year lease signed for units 301 and 412.", date: "Jan 15", photos: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=120&q=70","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=120&q=70"], extra: "+2 more" },
-      { icon: "payment", title: "Rental Income Distributed — Dec 2025", desc: "Monthly rental income of UGX 17.5M distributed. Annual yield 11.2%.", date: "Dec 31", photos: [] },
-      { icon: "update", title: "Property Valuation Completed", desc: "Independent valuation confirms 12% value increase year-over-year. Current estimated value: UGX 274M.", date: "Dec 10", photos: [], attachment: "Download Valuation Report" },
-    ],
-    tradeHistory: [
-      { hash: "0xe84...46ef6", date: "07.08.2026", time: "00:07", shares: 4,  price: 1250, volume: 5000,  status: "Sold" },
-      { hash: "0x97a...1c2ee", date: "05.08.2026", time: "14:11", shares: 1,  price: 1250, volume: 1250,  status: "Sold" },
-      { hash: "0x7dd...4eb71", date: "05.08.2026", time: "11:57", shares: 10, price: 1240, volume: 12400, status: "Sold" },
-      { hash: "0x3c7...56b5b", date: "04.08.2026", time: "09:55", shares: 5,  price: 1250, volume: 6250,  status: "Sold" },
-    ],
-  },
-  "green-heights": {
-    beds: 3, baths: 2, sqm: 110, parking: 1, floors: 8, yearBuilt: 2019,
-    images: [
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80",
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=70",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=70",
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70",
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=70",
-    ],
-    activityFeed: [
-      { icon: "payment", title: "Rental Income Distributed — Jan 2026", desc: "Monthly income of UGX 12.8M distributed. Yield at 9.6% p.a.", date: "Jan 31" },
-      { icon: "update", title: "96% Occupancy — Strong Demand", desc: "One unit temporarily vacant during renovation. Expected re-let by Feb 2026.", date: "Jan 5" },
-    ],
-    tradeHistory: [
-      { hash: "0xab1...33ef2", date: "06.08.2026", time: "13:20", shares: 2, price: 840, volume: 1680, status: "Sold" },
-      { hash: "0xcc4...71ab9", date: "04.08.2026", time: "10:05", shares: 5, price: 840, volume: 4200, status: "Sold" },
-    ],
-  },
-  "acacia-office-park": {
-    beds: 0, baths: 4, sqm: 3200, parking: 80, floors: 12, yearBuilt: 2020,
-    images: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80",
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&q=70",
-      "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=400&q=70",
-      "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=70",
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70",
-    ],
-    activityFeed: [
-      { icon: "payment", title: "Commercial Rent Distributed — Jan 2026", desc: "Commercial tenants' monthly rent of UGX 35M distributed. Offices 98% leased.", date: "Jan 28" },
-      { icon: "update", title: "New Anchor Tenant Signed", desc: "MTN Uganda signed a 5-year lease for floors 9–11. Expected to boost yield by 0.4%.", date: "Dec 15", attachment: "Lease Agreement Summary" },
-    ],
-    tradeHistory: [
-      { hash: "0xf12...88ac3", date: "07.08.2026", time: "11:30", shares: 8,  price: 2100, volume: 16800, status: "Sold" },
-      { hash: "0xd44...22bc1", date: "05.08.2026", time: "16:45", shares: 3,  price: 2100, volume: 6300,  status: "Sold" },
-    ],
-  },
-  "lake-view-residences": {
-    beds: 2, baths: 2, sqm: 95, parking: 1, floors: 5, yearBuilt: 2022,
-    images: [
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=80",
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70",
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=70",
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=70",
-    ],
-    activityFeed: [
-      { icon: "payment", title: "Rental Income Distributed — Jan 2026", desc: "UGX 10.2M distributed this month. Lake view premium driving strong rental demand.", date: "Jan 29" },
-    ],
-    tradeHistory: [
-      { hash: "0xa91...55de4", date: "06.08.2026", time: "09:10", shares: 6, price: 1680, volume: 10080, status: "Sold" },
-    ],
-  },
-}
 
 export default function PropertyDetailPage({ id }: { id: string }) {
   const property = featuredProperties.find(p => p.id === id)

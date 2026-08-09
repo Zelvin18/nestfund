@@ -1,24 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-interface TickerItem {
-  name: string
-  price: number
-  change: number
-  img: string
-}
-
-const initialItems: TickerItem[] = [
-  { name: "Sunrise Apartments",   price: 1250, change: 4.34,  img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=56&h=56&fit=crop&q=60" },
-  { name: "Green Heights",        price: 840,  change: -1.29, img: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=56&h=56&fit=crop&q=60" },
-  { name: "Acacia Office Park",   price: 2100, change: 4.43,  img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=56&h=56&fit=crop&q=60" },
-  { name: "Lake View Residences", price: 1680, change: 2.63,  img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=56&h=56&fit=crop&q=60" },
-  { name: "Naguru Heights",       price: 3200, change: 1.87,  img: "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=56&h=56&fit=crop&q=60" },
-  { name: "Muyenga Villas",       price: 2800, change: -0.54, img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=56&h=56&fit=crop&q=60" },
-  { name: "Kololo Towers",        price: 4500, change: 6.12,  img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=56&h=56&fit=crop&q=60" },
-  { name: "Naalya Gardens",       price: 950,  change: 3.21,  img: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=56&h=56&fit=crop&q=60" },
-]
+import { tickerItems as initialItems } from "@/lib/data/exchange"
 
 export default function LiveTicker() {
   const [items, setItems] = useState(initialItems)

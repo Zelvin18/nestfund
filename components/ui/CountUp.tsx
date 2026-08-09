@@ -17,7 +17,7 @@ export default function CountUp({ value, duration = 1200 }: { value: string; dur
     if (!el) return
 
     const match = value.match(/([\d,]+(?:\.\d+)?)/)
-    if (!match) { setDisplay(value); return }
+    if (!match) return // nothing numeric to animate; display already shows `value`
 
     const numStr = match[1]
     const target = parseFloat(numStr.replace(/,/g, ""))

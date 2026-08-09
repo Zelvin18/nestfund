@@ -4,14 +4,8 @@ import Link from "next/link"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/solid"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import { featuredProperties } from "@/lib/mockData"
+import { featuredProperties, mockPortfolio } from "@/lib/mockData"
 import Sparkline from "@/components/ui/Sparkline"
-
-const mockPortfolio = [
-  { propertyId: "sunrise-apartments", shares: 800, invested: 1000000, currentValue: 1045000 },
-  { propertyId: "acacia-office-park", shares: 200, invested: 420000, currentValue: 504000 },
-  { propertyId: "green-heights", shares: 630, invested: 504000, currentValue: 474500 },
-]
 
 type AssetTab = "All Assets" | "Rental" | "Construction"
 

@@ -26,51 +26,21 @@ import {
 import { formatCurrency } from "@/lib/utils"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 
-/* ── Mock data ────────────────────────────────────────────── */
+import {
+  walletTransactions as transactions,
+  walletIncomeSeries as incomeData,
+  initialPayMethods,
+  type MethodKind,
+  type PayMethod,
+} from "@/lib/data/portfolio"
 
-const incomeData = [
-  { month: "Aug", income: 142000 },
-  { month: "Sep", income: 158000 },
-  { month: "Oct", income: 149000 },
-  { month: "Nov", income: 171000 },
-  { month: "Dec", income: 165000 },
-  { month: "Jan", income: 185000 },
-]
-
-const transactions = [
-  { id: "1", type: "income",   label: "Rental Income — Sunrise Apartments",    amount: 93333,    date: "Jan 30, 2026", status: "completed" },
-  { id: "2", type: "income",   label: "Rental Income — Acacia Office Park",    amount: 54600,    date: "Jan 30, 2026", status: "completed" },
-  { id: "3", type: "buy",      label: "Bought 100 shares — Sunrise Apartments", amount: -125000,  date: "Jan 22, 2026", status: "completed" },
-  { id: "4", type: "deposit",  label: "Deposit via MTN Mobile Money",          amount: 500000,   date: "Jan 18, 2026", status: "completed" },
-  { id: "5", type: "income",   label: "Rental Income — Green Heights",         amount: 37067,    date: "Dec 31, 2025", status: "completed" },
-  { id: "6", type: "buy",      label: "Bought 50 shares — Green Heights",      amount: -42000,   date: "Dec 14, 2025", status: "completed" },
-  { id: "7", type: "withdraw", label: "Withdrawal to Stanbic Bank",            amount: -200000,  date: "Dec 5, 2025",  status: "completed" },
-  { id: "8", type: "deposit",  label: "Deposit via Bank Transfer",             amount: 1000000,  date: "Nov 28, 2025", status: "completed" },
-]
-
-/* Payment method model — brand-styled */
-type MethodKind = "mtn" | "airtel" | "bank" | "card"
-
-interface PayMethod {
-  id: number
-  kind: MethodKind
-  label: string
-  detail: string
-  isDefault: boolean
-}
-
+/* Payment method branding — UI concern, stays with the component */
 const methodBrand: Record<MethodKind, { name: string; short: string; color: string; bg: string; text: string; icon: typeof DevicePhoneMobileIcon }> = {
   mtn:    { name: "MTN Mobile Money", short: "MTN",    color: "#facc15", bg: "linear-gradient(135deg, #fbbf24, #f59e0b)", text: "#422006", icon: DevicePhoneMobileIcon },
   airtel: { name: "Airtel Money",     short: "airtel", color: "#ef4444", bg: "linear-gradient(135deg, #ef4444, #b91c1c)", text: "#fff",    icon: DevicePhoneMobileIcon },
   bank:   { name: "Bank Account",     short: "BANK",   color: "#2563eb", bg: "linear-gradient(135deg, #3b82f6, #1d4ed8)", text: "#fff",    icon: BuildingLibraryIcon },
   card:   { name: "Debit / Credit Card", short: "CARD", color: "#7c3aed", bg: "linear-gradient(135deg, #8b5cf6, #6d28d9)", text: "#fff",   icon: CreditCardIcon },
 }
-
-const initialMethods: PayMethod[] = [
-  { id: 1, kind: "mtn",    label: "MTN Mobile Money", detail: "+256 772 ••• 481", isDefault: true },
-  { id: 2, kind: "airtel", label: "Airtel Money",     detail: "+256 750 ••• 921", isDefault: false },
-  { id: 3, kind: "bank",   label: "Stanbic Bank",     detail: "•••• •••• 3421",   isDefault: false },
-]
 
 const quickAmounts = [50000, 100000, 250000, 500000, 1000000]
 
@@ -79,7 +49,7 @@ const quickAmounts = [50000, 100000, 250000, 500000, 1000000]
 export default function WalletPage() {
   const [activeTab, setActiveTab] = useState<"all" | "income" | "buy" | "deposit" | "withdraw">("all")
   const [modal, setModal] = useState<"deposit" | "withdraw" | "add-method" | null>(null)
-  const [methods, setMethods] = useState<PayMethod[]>(initialMethods)
+  const [methods, setMethods] = useState<PayMethod[]>(initialPayMethods)
   const [balanceHidden, setBalanceHidden] = useState(false)
 
   const filtered = activeTab === "all" ? transactions : transactions.filter(t => t.type === activeTab)

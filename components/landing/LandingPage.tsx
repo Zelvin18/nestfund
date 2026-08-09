@@ -476,7 +476,7 @@ function TestimonialsSection() {
               <div style={{ display: "flex", gap: 2, marginBottom: 14 }}>
                 {Array.from({ length: t.rating }).map((_, s) => <StarIcon key={s} style={{ width: 14, height: 14, color: "#f59e0b" }} />)}
               </div>
-              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 18px 0", fontStyle: "italic" }}>"{t.text}"</p>
+              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 18px 0", fontStyle: "italic" }}>&ldquo;{t.text}&rdquo;</p>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
                   {t.name[0]}
