@@ -382,6 +382,28 @@ div, section, header, footer, nav, main, article, aside {
   .featured-split-body { padding: 24px 20px 28px; }
 }
 
+/* ══════════════════════════════════════
+   ADMIN CONSOLE
+══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .admin-root { flex-direction: column !important; }
+  .admin-sidebar {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  .admin-nav {
+    display: flex !important;
+    overflow-x: auto !important;
+    padding: 8px 10px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-nav::-webkit-scrollbar { display: none; }
+  .admin-nav a { flex-shrink: 0; margin-bottom: 0 !important; white-space: nowrap; }
+  .admin-side-footer { display: none !important; }
+  .admin-main { padding: 20px 16px 40px !important; }
+}
+
 /* SharePrice chart overflow fix */
 @media (max-width: 600px) {
   .share-price-chart-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }

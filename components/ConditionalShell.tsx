@@ -9,15 +9,16 @@ export default function ConditionalShell({ children }: { children: React.ReactNo
   const pathname = usePathname()
 
   // Pages with their own chrome: landing has a built-in nav/footer,
-  // auth and onboarding are focused full-screen flows
+  // auth and onboarding are focused full-screen flows, admin has its own shell
   const bare =
     pathname === "/" ||
     pathname.startsWith("/auth") ||
-    pathname.startsWith("/onboarding")
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/admin")
 
   // Landing keeps the mobile bottom nav for quick access to the markets;
   // auth/onboarding flows stay fully focused
-  const hideBottomNav = pathname.startsWith("/auth") || pathname.startsWith("/onboarding")
+  const hideBottomNav = pathname.startsWith("/auth") || pathname.startsWith("/onboarding") || pathname.startsWith("/admin")
 
   return (
     <>
