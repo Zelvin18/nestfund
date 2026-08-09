@@ -10,13 +10,15 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline"
 import { PageHeader, Card } from "@/components/admin/AdminShell"
-import { rentalProperties, monthlyIncomeOf } from "@/lib/data/rentals"
+import { monthlyIncomeOf } from "@/lib/data/rentals"
 import { constructionProjects } from "@/lib/data/construction"
-import { intelligenceFeed } from "@/lib/data/intelligence"
+import { useRentals, useIntelligence } from "@/lib/hooks"
 
 const fmtB = (v: number) => v >= 1e9 ? `UGX ${(v / 1e9).toFixed(1)}B` : `UGX ${(v / 1e6).toFixed(0)}M`
 
 export default function AdminDashboard() {
+  const { rentals: rentalProperties } = useRentals()
+  const { items: intelligenceFeed } = useIntelligence()
   const totalValue = rentalProperties.reduce((s, p) => s + p.currentPrice, 0)
   const totalInvestors = rentalProperties.reduce((s, p) => s + p.investors, 0) + constructionProjects.reduce((s, p) => s + p.investors, 0)
   const monthlyIncome = rentalProperties.reduce((s, p) => s + monthlyIncomeOf(p), 0)

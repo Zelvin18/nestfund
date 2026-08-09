@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PlusIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { PageHeader, Card, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
-import { intelligenceFeed, type IntelligenceItem, type IntelType } from "@/lib/data/intelligence"
+import { type IntelligenceItem, type IntelType } from "@/lib/data/intelligence"
+import { useIntelligence } from "@/lib/hooks"
+import { publishIntelligence, deleteIntelligence } from "@/lib/api"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
 const typeMeta: Record<IntelType, { label: string; color: string; bg: string; category: string }> = {
@@ -13,32 +15,67 @@ const typeMeta: Record<IntelType, { label: string; color: string; bg: string; ca
 }
 
 export default function AdminIntelligence() {
-  const [items, setItems] = useState<IntelligenceItem[]>(intelligenceFeed)
+  const { items: liveItems, live } = useIntelligence()
+  const [items, setItems] = useState<IntelligenceItem[]>(liveItems)
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState({ type: "development" as IntelType, title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "" })
   const [posted, setPosted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const publish = () => {
+  // Adopt database rows when they arrive
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing list to async-loaded records
+    setItems(liveItems)
+  }, [liveItems])
+
+  const publish = async () => {
     if (!draft.title.trim()) return
     const meta = typeMeta[draft.type]
-    setItems(prev => [{
-      id: String(Date.now()),
+    const payload = {
       type: draft.type,
       category: meta.category,
       title: draft.title.trim(),
       location: draft.location.trim(),
-      affectedProps: draft.affected,
+      affected: draft.affected,
       desc: draft.desc.trim(),
       change: draft.change,
-      timeAgo: "just now",
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
       sourceLabel: draft.sourceLabel.trim() || "NestFund Research",
-      sourceUrl: "#",
-    }, ...prev])
-    setDraft({ type: "development", title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "" })
-    setShowForm(false)
-    setPosted(true)
-    setTimeout(() => setPosted(false), 4000)
+    }
+    setError(null)
+    try {
+      let newItem: IntelligenceItem | null = null
+      if (live) newItem = await publishIntelligence(payload)
+      setItems(prev => [newItem ?? {
+        id: String(Date.now()),
+        type: payload.type,
+        category: payload.category,
+        title: payload.title,
+        location: payload.location,
+        affectedProps: payload.affected,
+        desc: payload.desc,
+        change: payload.change,
+        timeAgo: "just now",
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
+        sourceLabel: payload.sourceLabel,
+        sourceUrl: "#",
+      }, ...prev])
+      setDraft({ type: "development", title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "" })
+      setShowForm(false)
+      setPosted(true)
+      setTimeout(() => setPosted(false), 4000)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Publish failed")
+    }
+  }
+
+  const remove = async (id: string) => {
+    setError(null)
+    try {
+      if (live) await deleteIntelligence(id)
+      setItems(prev => prev.filter(x => x.id !== id))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed")
+    }
   }
 
   return (
@@ -57,8 +94,13 @@ export default function AdminIntelligence() {
       {posted && (
         <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #dcfce7", borderRadius: 11, padding: "11px 16px", marginBottom: 16 }}>
           <p style={{ fontSize: 12.5, fontWeight: 600, color: "#166534", margin: 0 }}>
-            ✓ Published{isSupabaseConfigured() ? "" : " (session only — connect the database to persist)"}
+            ✓ Published{isSupabaseConfigured() ? " to database — live on the site" : " (session only — connect the database to persist)"}
           </p>
+        </div>
+      )}
+      {error && (
+        <div style={{ backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 11, padding: "11px 16px", marginBottom: 16 }}>
+          <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", margin: 0, lineHeight: 1.55 }}>{error}</p>
         </div>
       )}
 
@@ -120,7 +162,7 @@ export default function AdminIntelligence() {
                 {item.change >= 0 ? "+" : ""}{item.change}%
               </span>
               <span style={{ fontSize: 11, color: "#b6c1cf", flexShrink: 0, minWidth: 52, textAlign: "right" }}>{item.timeAgo}</span>
-              <button onClick={() => setItems(prev => prev.filter(x => x.id !== item.id))} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", flexShrink: 0 }}>
+              <button onClick={() => remove(item.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", flexShrink: 0 }}>
                 <TrashIcon style={{ width: 14, height: 14, color: "#cbd5e1" }} />
               </button>
             </div>

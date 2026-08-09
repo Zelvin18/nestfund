@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
-import { incomeProperties, type IncomeProperty } from "@/lib/data/rentals"
+import { toIncomeProperty, type IncomeProperty } from "@/lib/data/rentals"
+import { useRentals } from "@/lib/hooks"
 
 type PropertyType = "All" | "Residential" | "Commercial" | "Hotels"
 type SortKey = "yield-high" | "yield-low" | "income-high" | "price-low" | "price-high"
@@ -27,6 +28,8 @@ const filterTabs: { key: PropertyType; label: string }[] = [
 export default function IncomeMarketPage() {
   const [activeFilter, setActiveFilter] = useState<PropertyType>("All")
   const [sort, setSort] = useState<SortKey>("yield-high")
+  const { rentals } = useRentals()
+  const incomeProperties = useMemo(() => rentals.map(toIncomeProperty), [rentals])
 
   const filtered = incomeProperties
     .filter(p => activeFilter === "All" || p.type === activeFilter)

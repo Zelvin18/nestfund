@@ -4,17 +4,17 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
 } from "@heroicons/react/24/outline"
-import { marketStats } from "@/lib/mockData"
+import { usePlatformStats } from "@/lib/hooks"
 import CountUp from "@/components/ui/CountUp"
 
-const stats = [
-  { label: "Market Volume",      value: marketStats.marketVolume,                    change: marketStats.marketVolumeChange, sub: "Total 24H Trading"       },
-  { label: "Total Investors",    value: marketStats.totalInvestors.toLocaleString(), change: marketStats.investorsChange,    sub: "Active Platform Users"   },
-  { label: "Active Listings",    value: String(marketStats.activeListings),          change: marketStats.listingsChange,     sub: "Available Properties"    },
-  { label: "Avg. Annual Return", value: `${marketStats.avgAnnualReturn}%`,           change: marketStats.returnChange,       sub: "Historical Performance"  },
-]
-
 export default function MarketOverview() {
+  const marketStats = usePlatformStats()
+  const stats = [
+    { label: "Market Volume",      value: marketStats.marketVolume,                    change: marketStats.marketVolumeChange, sub: "Total 24H Trading"       },
+    { label: "Total Investors",    value: marketStats.totalInvestors.toLocaleString(), change: marketStats.investorsChange,    sub: "Active Platform Users"   },
+    { label: "Active Listings",    value: String(marketStats.activeListings),          change: marketStats.listingsChange,     sub: "Available Properties"    },
+    { label: "Avg. Annual Return", value: `${marketStats.avgAnnualReturn}%`,           change: marketStats.returnChange,       sub: "Historical Performance"  },
+  ]
   return (
     <section className="section-pad" style={{ backgroundColor: "#f8fafc", padding: "48px 0" }}>
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>

@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { MapPinIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
-import { featuredProperties } from "@/lib/mockData"
+import { type RentalProperty } from "@/lib/data/rentals"
+import { useRentals } from "@/lib/hooks"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import Sparkline from "@/components/ui/Sparkline"
 
@@ -14,6 +15,7 @@ type Sort = "trending" | "price-low" | "price-high" | "yield"
 export default function MarketPage() {
   const [filter, setFilter] = useState<Filter>("all")
   const [sort, setSort] = useState<Sort>("trending")
+  const { rentals: featuredProperties } = useRentals()
 
   const filterTabs: { key: Filter; label: string }[] = [
     { key: "all", label: "All Properties" },
@@ -109,7 +111,7 @@ export default function MarketPage() {
   )
 }
 
-function PropertyCard({ property }: { property: typeof featuredProperties[0] }) {
+function PropertyCard({ property }: { property: RentalProperty }) {
   const isPositive = property.priceChangePercent >= 0
   const sparkData = property.chartData.map(d => d.value)
 

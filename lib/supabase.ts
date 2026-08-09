@@ -15,12 +15,18 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js"
    the UI is identical, only persistence is missing.
 ═══════════════════════════════════════════════════════════════ */
 
+/* Fallbacks so deploys work without Vercel env config. The anon key is
+   public by design (it ships in every browser request) — row-level
+   security is the actual boundary. Env vars override when set. */
+const FALLBACK_URL = "https://cmrwksxoajukfxtbpgqh.supabase.co"
+const FALLBACK_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtcndrc3hvYWp1a2Z4dGJwZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNzc5MTksImV4cCI6MjEwMTg1MzkxOX0.EZpXxsiMF_1Pnm3G73eAZjEy4zT5AOECF6o_siqRupk"
+
 let client: SupabaseClient | null | undefined
 
 export function getSupabase(): SupabaseClient | null {
   if (client !== undefined) return client
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_ANON_KEY
   client = url && key ? createClient(url, key) : null
   return client
 }

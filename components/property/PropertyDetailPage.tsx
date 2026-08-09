@@ -12,7 +12,8 @@ import {
   ArrowTrendingUpIcon, ArrowTrendingDownIcon,
   CheckBadgeIcon, StarIcon,
 } from "@heroicons/react/24/solid"
-import { featuredProperties, generatePriceSeries, propertyExtras } from "@/lib/mockData"
+import { generatePriceSeries } from "@/lib/mockData"
+import { useRentals } from "@/lib/hooks"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 
@@ -41,8 +42,8 @@ const rangeConfig: Record<TimeRange, { points: number; stepDays: number; driftSh
 const annualGrowthPct = { High: 16, Medium: 9, Low: 3.5 }
 
 export default function PropertyDetailPage({ id }: { id: string }) {
-  const property = featuredProperties.find(p => p.id === id)
-  const extra = propertyExtras[id] || propertyExtras["sunrise-apartments"]
+  const { rentals } = useRentals()
+  const property = rentals.find(p => p.id === id)
   const [shares, setShares] = useState(100)
   const [range, setRange] = useState<TimeRange>("1M")
   const [saved, setSaved] = useState(false)
@@ -68,6 +69,8 @@ export default function PropertyDetailPage({ id }: { id: string }) {
     </div>
   )
 
+  // The canonical record carries specs, gallery, activities, and trades
+  const extra = property
   const isPositive = property.priceChangePercent >= 0
   const totalCost = shares * property.pricePerShare
   const monthlyIncome = (totalCost * (property.rentalYield / 100)) / 12

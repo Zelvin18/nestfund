@@ -3,11 +3,13 @@
 import Link from "next/link"
 import { MapPinIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
-import { featuredProperties } from "@/lib/mockData"
+import { type RentalProperty } from "@/lib/data/rentals"
+import { useRentals } from "@/lib/hooks"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import Sparkline from "@/components/ui/Sparkline"
 
 export default function TrendingProperties() {
+  const { rentals: featuredProperties } = useRentals()
   return (
     <section style={{ backgroundColor: "#fff", padding: "72px 0" }} className="section-pad">
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }} className="container">
@@ -60,7 +62,7 @@ export default function TrendingProperties() {
   )
 }
 
-function PropertyCard({ property }: { property: typeof featuredProperties[0] }) {
+function PropertyCard({ property }: { property: RentalProperty }) {
   const isPositive = property.priceChangePercent >= 0
   const sparkData = property.chartData.map(d => d.value)
 

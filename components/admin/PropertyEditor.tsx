@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import {
   ArrowLeftIcon,
@@ -12,7 +12,9 @@ import {
   BellAlertIcon,
 } from "@heroicons/react/24/outline"
 import { PageHeader, Card, SaveBar, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
-import { getRentalProperty, type RentalProperty, type ActivityItem } from "@/lib/data/rentals"
+import { type RentalProperty, type ActivityItem } from "@/lib/data/rentals"
+import { useRentals } from "@/lib/hooks"
+import { savePropertyFields, savePropertyImages, addPropertyActivity } from "@/lib/api"
 
 const emptyProperty: RentalProperty = {
   id: "", name: "", location: "", type: "Residential",
@@ -27,11 +29,24 @@ const emptyProperty: RentalProperty = {
 
 export default function PropertyEditor({ id }: { id: string }) {
   const isNew = id === "new"
-  const source = isNew ? emptyProperty : getRentalProperty(id)
+  const { rentals, live } = useRentals()
+  const source = isNew ? emptyProperty : rentals.find(r => r.id === id)
   const [p, setP] = useState<RentalProperty | undefined>(source ? { ...source, images: [...source.images], activityFeed: [...source.activityFeed] } : undefined)
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [newImageUrl, setNewImageUrl] = useState("")
   const [newActivity, setNewActivity] = useState({ title: "", desc: "", icon: "update" })
+  const dirty = useRef(false)
+
+  // When database rows replace the mock (or arrive late), refresh the form —
+  // but never clobber edits in progress
+  useEffect(() => {
+    if (dirty.current || isNew) return
+    const fresh = rentals.find(r => r.id === id)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing form state to async-loaded record
+    if (fresh) setP({ ...fresh, images: [...fresh.images], activityFeed: [...fresh.activityFeed] })
+  }, [rentals, id, isNew])
 
   if (!p) return (
     <div style={{ padding: 40, textAlign: "center" }}>
@@ -41,13 +56,31 @@ export default function PropertyEditor({ id }: { id: string }) {
   )
 
   const set = <K extends keyof RentalProperty>(key: K, value: RentalProperty[K]) => {
+    dirty.current = true
     setP(prev => prev ? { ...prev, [key]: value } : prev)
     setSaved(false)
+    setError(null)
   }
 
   const num = (v: string) => { const n = parseFloat(v.replace(/,/g, "")); return isNaN(n) ? 0 : n }
 
-  const save = () => setSaved(true)
+  const save = async () => {
+    if (!p) return
+    setSaving(true)
+    setError(null)
+    try {
+      if (live && !isNew) {
+        await savePropertyFields(id, p)
+        await savePropertyImages(id, p.images)
+      }
+      dirty.current = false
+      setSaved(true)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Save failed")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const addImage = () => {
     if (!newImageUrl.trim()) return
@@ -56,15 +89,21 @@ export default function PropertyEditor({ id }: { id: string }) {
     setNewImageUrl("")
   }
 
-  const addActivity = () => {
+  const addActivity = async () => {
     if (!newActivity.title.trim()) return
     const entry: ActivityItem = {
       icon: newActivity.icon, title: newActivity.title.trim(),
       desc: newActivity.desc.trim(),
       date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
     }
-    set("activityFeed", [entry, ...p.activityFeed])
-    setNewActivity({ title: "", desc: "", icon: "update" })
+    setError(null)
+    try {
+      if (live && !isNew) await addPropertyActivity(id, { icon: entry.icon, title: entry.title, desc: entry.desc })
+      set("activityFeed", [entry, ...p.activityFeed])
+      setNewActivity({ title: "", desc: "", icon: "update" })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not post activity")
+    }
   }
 
   return (
@@ -293,7 +332,7 @@ export default function PropertyEditor({ id }: { id: string }) {
             </div>
           </Card>
 
-          <SaveBar onSave={save} saved={saved} label={isNew ? "Create Property" : "Save Changes"} />
+          <SaveBar onSave={save} saved={saved} saving={saving} error={error} label={isNew ? "Create Property" : "Save Changes"} />
         </div>
       </div>
     </>

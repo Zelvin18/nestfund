@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { ArrowPathIcon, MapPinIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/solid"
-import { intelligenceFeed as allItems } from "@/lib/data/intelligence"
+import { useIntelligence } from "@/lib/hooks"
+import { type IntelligenceItem } from "@/lib/data/intelligence"
 
 /* ── Inline SVG icon components ── */
 const IconGovt = () => (
@@ -46,6 +47,7 @@ const filters: { key: FilterKey; label: string }[] = [
 
 export default function IntelligencePage() {
   const [active, setActive] = useState<FilterKey>("all")
+  const { items: allItems } = useIntelligence()
 
   const filtered = allItems.filter(item => {
     if (active === "all") return true
@@ -124,7 +126,7 @@ export default function IntelligencePage() {
   )
 }
 
-function IntelCard({ item }: { item: typeof allItems[0] }) {
+function IntelCard({ item }: { item: IntelligenceItem }) {
   const positive = item.change >= 0
 
   const typeConfig = {

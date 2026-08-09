@@ -4,7 +4,8 @@ import Link from "next/link"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/solid"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import { featuredProperties, mockPortfolio } from "@/lib/mockData"
+import { mockPortfolio } from "@/lib/mockData"
+import { useRentals } from "@/lib/hooks"
 import Sparkline from "@/components/ui/Sparkline"
 
 type AssetTab = "All Assets" | "Rental" | "Construction"
@@ -12,6 +13,7 @@ type AssetTab = "All Assets" | "Rental" | "Construction"
 const assetFilterTabs: AssetTab[] = ["All Assets", "Rental", "Construction"]
 
 export default function PortfolioPage() {
+  const { rentals: featuredProperties } = useRentals()
   const totalValue = mockPortfolio.reduce((s, p) => s + p.currentValue, 0)
   const totalInvested = mockPortfolio.reduce((s, p) => s + p.invested, 0)
   const totalGain = totalValue - totalInvested

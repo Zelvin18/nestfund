@@ -4,10 +4,12 @@ import { useState } from "react"
 import Link from "next/link"
 import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
 import { PageHeader, Card } from "@/components/admin/AdminShell"
-import { rentalProperties, monthlyIncomeOf } from "@/lib/data/rentals"
+import { monthlyIncomeOf } from "@/lib/data/rentals"
+import { useRentals } from "@/lib/hooks"
 
 export default function AdminProperties() {
   const [query, setQuery] = useState("")
+  const { rentals: rentalProperties } = useRentals()
 
   const filtered = rentalProperties.filter(p =>
     (p.name + p.location + p.type).toLowerCase().includes(query.toLowerCase())

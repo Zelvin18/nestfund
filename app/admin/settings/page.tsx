@@ -1,18 +1,57 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import { PageHeader, Card, SaveBar, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
-import { rentalProperties } from "@/lib/data/rentals"
 import { constructionProjects } from "@/lib/data/construction"
-import { marketStats } from "@/lib/data/intelligence"
+import { useRentals, usePlatformStats } from "@/lib/hooks"
+import { fetchSiteSetting, saveSiteSetting } from "@/lib/api"
 
 export default function AdminSettings() {
+  const { rentals: rentalProperties } = useRentals()
+  const liveStats = usePlatformStats()
   // Featured content selections
   const [homeHeroId, setHomeHeroId] = useState("sunrise-apartments")
   const [landingIds, setLandingIds] = useState<string[]>(["sunrise-apartments", "acacia-office-park", "ibis-residences-ii"])
-  const [stats, setStats] = useState({ ...marketStats })
+  const [stats, setStats] = useState({ ...liveStats })
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
+
+  // Load stored selections from the database
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing form state to async-loaded settings */
+  useEffect(() => {
+    if (!dirty) setStats({ ...liveStats })
+  }, [liveStats, dirty])
+
+  useEffect(() => {
+    let active = true
+    fetchSiteSetting<{ featuredPropertyId: string }>("home_hero")
+      .then(v => { if (active && v?.featuredPropertyId) setHomeHeroId(v.featuredPropertyId) })
+      .catch(() => {})
+    fetchSiteSetting<{ featuredPropertyIds: string[] }>("landing_hero")
+      .then(v => { if (active && v?.featuredPropertyIds) setLandingIds(v.featuredPropertyIds) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const save = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      await saveSiteSetting("platform_stats", stats)
+      await saveSiteSetting("home_hero", { featuredPropertyId: homeHeroId })
+      await saveSiteSetting("landing_hero", { featuredPropertyIds: landingIds })
+      setSaved(true)
+      setDirty(false)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Save failed")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const allFeaturable = [
     ...rentalProperties.map(p => ({ id: p.id, name: p.name, image: p.image, sub: `Rental · UGX ${p.pricePerShare.toLocaleString()}/share` })),
@@ -65,19 +104,19 @@ export default function AdminSettings() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div>
                 <label style={fieldLabel}>Market Volume</label>
-                <input style={fieldInput} value={stats.marketVolume} onChange={e => { setStats(s => ({ ...s, marketVolume: e.target.value })); setSaved(false) }} />
+                <input style={fieldInput} value={stats.marketVolume} onChange={e => { setStats(s => ({ ...s, marketVolume: e.target.value })); setSaved(false); setDirty(true) }} />
               </div>
               <div>
                 <label style={fieldLabel}>Total Investors</label>
-                <input style={fieldInput} inputMode="numeric" value={String(stats.totalInvestors)} onChange={e => { setStats(s => ({ ...s, totalInvestors: parseInt(e.target.value.replace(/\D/g, "")) || 0 })); setSaved(false) }} />
+                <input style={fieldInput} inputMode="numeric" value={String(stats.totalInvestors)} onChange={e => { setStats(s => ({ ...s, totalInvestors: parseInt(e.target.value.replace(/\D/g, "")) || 0 })); setSaved(false); setDirty(true) }} />
               </div>
               <div>
                 <label style={fieldLabel}>Active Listings</label>
-                <input style={fieldInput} inputMode="numeric" value={String(stats.activeListings)} onChange={e => { setStats(s => ({ ...s, activeListings: parseInt(e.target.value.replace(/\D/g, "")) || 0 })); setSaved(false) }} />
+                <input style={fieldInput} inputMode="numeric" value={String(stats.activeListings)} onChange={e => { setStats(s => ({ ...s, activeListings: parseInt(e.target.value.replace(/\D/g, "")) || 0 })); setSaved(false); setDirty(true) }} />
               </div>
               <div>
                 <label style={fieldLabel}>Avg. Annual Return (%)</label>
-                <input style={fieldInput} inputMode="decimal" value={String(stats.avgAnnualReturn)} onChange={e => { setStats(s => ({ ...s, avgAnnualReturn: parseFloat(e.target.value) || 0 })); setSaved(false) }} />
+                <input style={fieldInput} inputMode="decimal" value={String(stats.avgAnnualReturn)} onChange={e => { setStats(s => ({ ...s, avgAnnualReturn: parseFloat(e.target.value) || 0 })); setSaved(false); setDirty(true) }} />
               </div>
             </div>
             <p style={{ fontSize: 11.5, color: "#b6c1cf", margin: "12px 0 0 0", lineHeight: 1.55 }}>
@@ -121,7 +160,7 @@ export default function AdminSettings() {
             </p>
           </Card>
 
-          <SaveBar onSave={() => setSaved(true)} saved={saved} label="Save Settings" />
+          <SaveBar onSave={save} saved={saved} saving={saving} error={error} label="Save Settings" />
         </div>
       </div>
     </>

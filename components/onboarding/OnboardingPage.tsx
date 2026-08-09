@@ -12,7 +12,7 @@ import {
   MapPinIcon,
 } from "@heroicons/react/24/outline"
 import { CheckCircleIcon, CheckBadgeIcon, ShieldCheckIcon } from "@heroicons/react/24/solid"
-import { featuredProperties } from "@/lib/mockData"
+import { useRentals } from "@/lib/hooks"
 import { formatCurrency } from "@/lib/utils"
 
 const steps = [
@@ -230,7 +230,8 @@ function FundStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }
 
 /* ── Step 3: First investment ── */
 function InvestStep() {
-  const picks = featuredProperties.slice(0, 3)
+  const { rentals } = useRentals()
+  const picks = rentals.slice(0, 3)
 
   return (
     <StepCard title="You're all set — pick your first property" subtitle="These verified properties are popular with first-time investors. One share is all it takes to start earning.">

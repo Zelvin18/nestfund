@@ -137,24 +137,35 @@ export const fieldInput: React.CSSProperties = {
   backgroundColor: "#fff",
 }
 
-export function SaveBar({ onSave, saved, label = "Save Changes" }: { onSave: () => void; saved: boolean; label?: string }) {
+export function SaveBar({ onSave, saved, saving, error, label = "Save Changes" }: {
+  onSave: () => void; saved: boolean; saving?: boolean; error?: string | null; label?: string
+}) {
   const live = isSupabaseConfigured()
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 4 }}>
-      <button
-        onClick={onSave}
-        style={{
-          padding: "11px 26px", borderRadius: 10, border: "none", cursor: "pointer",
-          background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff",
-          fontSize: 13.5, fontWeight: 700,
-        }}
-      >
-        {label}
-      </button>
-      {saved && (
-        <span style={{ fontSize: 12.5, fontWeight: 600, color: "#10b981" }}>
-          ✓ Saved{live ? "" : " (session only — connect the database to persist)"}
-        </span>
+    <div style={{ marginTop: 4 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <button
+          onClick={onSave}
+          disabled={saving}
+          style={{
+            padding: "11px 26px", borderRadius: 10, border: "none",
+            cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1,
+            background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff",
+            fontSize: 13.5, fontWeight: 700,
+          }}
+        >
+          {saving ? "Saving..." : label}
+        </button>
+        {saved && !error && (
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: "#10b981" }}>
+            ✓ Saved{live ? " to database" : " (session only — connect the database to persist)"}
+          </span>
+        )}
+      </div>
+      {error && (
+        <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 9, padding: "9px 13px", margin: "12px 0 0 0", lineHeight: 1.55 }}>
+          {error}
+        </p>
       )}
     </div>
   )

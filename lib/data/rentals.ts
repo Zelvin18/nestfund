@@ -320,7 +320,7 @@ export interface IncomeProperty {
   lastActivity: string
 }
 
-export const incomeProperties: IncomeProperty[] = rentalProperties.map(p => ({
+export const toIncomeProperty = (p: RentalProperty): IncomeProperty => ({
   id: p.id,
   name: p.name,
   location: p.location,
@@ -336,7 +336,9 @@ export const incomeProperties: IncomeProperty[] = rentalProperties.map(p => ({
   investors: p.investors,
   priceChange: p.priceChangePercent,
   lastActivity: p.lastActivity,
-}))
+})
+
+export const incomeProperties: IncomeProperty[] = rentalProperties.map(toIncomeProperty)
 
 /** Property detail extras keyed by id (legacy shape) */
 export const propertyExtras: Record<string, {
