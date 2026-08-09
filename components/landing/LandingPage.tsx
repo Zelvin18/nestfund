@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ShieldCheckIcon, StarIcon } from "@heroicons/react/24/solid"
+import CountUp from "@/components/ui/CountUp"
 
 /* ── Inline SVG icons (professional, no emoji) ── */
 const IconHome = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
@@ -25,7 +26,7 @@ const featuredCards = [
 
 const stats = [
   { value: "UGX 24.6B", label: "invested in real estate" },
-  { value: "312+",       label: "verified properties" },
+  { value: "30+",       label: "verified properties" },
   { value: "UGX 4.2B",  label: "distributed to investors" },
   { value: "14,250+",   label: "investors on the platform" },
 ]
@@ -297,7 +298,7 @@ function TrustNumbers() {
         <div className="trust-grid">
           {stats.map((s, i) => (
             <div key={i} style={{ backgroundColor: "#fff", borderRadius: 16, padding: "24px 20px", border: "1px solid #e8ecf0", textAlign: "center" }}>
-              <p style={{ fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 900, color: "#0f172a", letterSpacing: "-1px", margin: "0 0 6px 0" }}>{s.value}</p>
+              <p style={{ fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 900, color: "#0f172a", letterSpacing: "-1px", margin: "0 0 6px 0" }}><CountUp value={s.value} /></p>
               <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>{s.label}</p>
             </div>
           ))}

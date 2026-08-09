@@ -5,6 +5,7 @@ import Link from "next/link"
 import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
   DocumentTextIcon, ArrowTopRightOnSquareIcon, ClipboardDocumentIcon,
+  LinkIcon, BuildingLibraryIcon, PencilSquareIcon,
 } from "@heroicons/react/24/outline"
 import {
   ArrowTrendingUpIcon, CheckBadgeIcon,
@@ -336,14 +337,14 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
 
                     {/* Document list */}
                     {[
-                      { icon: "📄", name: "Articles of Organization — NestFund DAO.pdf", type: "pdf", source: "Capital Markets Authority" },
-                      { icon: "🔗", name: "Smart Contract", type: "link", source: "verified.nestfund.io" },
-                      { icon: "🏛", name: "Developer Company Registration", type: "link", source: "URSB Uganda" },
+                      { icon: DocumentTextIcon, name: "Articles of Organization — NestFund DAO.pdf", type: "pdf", source: "Capital Markets Authority" },
+                      { icon: LinkIcon, name: "Smart Contract", type: "link", source: "verified.nestfund.io" },
+                      { icon: BuildingLibraryIcon, name: "Developer Company Registration", type: "link", source: "URSB Uganda" },
                     ].map((doc, i) => (
                       <div key={i} style={{ border: "1.5px solid #f1f4f8", borderRadius: 11, padding: "14px 16px", marginBottom: 10 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: doc.type === "link" ? 12 : 0 }}>
-                          <div style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
-                            {doc.icon}
+                          <div style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <doc.icon style={{ width: 19, height: 19, color: "#2563eb" }} />
                           </div>
                           <div style={{ flex: 1 }}>
                             <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>{doc.name}</p>
@@ -369,7 +370,7 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                     <p style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", margin: "0 0 22px 0" }}>Initial investment</p>
                     <div style={{ border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>UGX {investment.toLocaleString()}</span>
-                      <span style={{ fontSize: 20, color: "#94a3b8" }}>✏️</span>
+                      <PencilSquareIcon style={{ width: 20, height: 20, color: "#94a3b8" }} />
                     </div>
                     <input type="range" min={100000} max={50000000} step={100000} value={investment} onChange={e => setInvestment(Number(e.target.value))}
                       style={{ width: "100%", accentColor: "#0d9488", marginBottom: 22, cursor: "pointer" }} />

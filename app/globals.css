@@ -40,6 +40,8 @@ div, section, header, footer, nav, main, article, aside {
 /* ── ANIMATIONS ── */
 @keyframes ticker    { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
 @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes trade-in  { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes fade-up   { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
 
 /* ══════════════════════════════════════
    LAYOUT UTILITIES

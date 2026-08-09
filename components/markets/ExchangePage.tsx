@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import RecentTrades from "@/components/markets/RecentTrades"
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -316,6 +317,8 @@ export default function ExchangePage() {
                   Market is live
                 </span>
               </div>
+
+              <RecentTrades />
             </div>
           </aside>
 

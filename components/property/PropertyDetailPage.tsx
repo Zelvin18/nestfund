@@ -6,6 +6,7 @@ import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
   ShieldCheckIcon, ArrowTopRightOnSquareIcon, ClipboardDocumentIcon,
   UserGroupIcon, CalendarIcon, BuildingOfficeIcon,
+  DocumentTextIcon, ChartBarSquareIcon, LinkIcon, ClipboardDocumentListIcon, PencilSquareIcon,
 } from "@heroicons/react/24/outline"
 import {
   ArrowTrendingUpIcon, ArrowTrendingDownIcon,
@@ -297,14 +298,14 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                       ))}
                     </div>
                     {[
-                      { icon: "📄", name: "Title Deed — " + property.name + ".pdf", type: "pdf", source: "Uganda Land Registry" },
-                      { icon: "📊", name: "Independent Valuation Report.pdf", type: "pdf", source: "Knight Frank Uganda" },
-                      { icon: "🔗", name: "Smart Contract — Share Registry", type: "link", source: "verified.nestfund.io" },
-                      { icon: "📋", name: "Investment Prospectus.pdf", type: "pdf", source: "NestFund Legal" },
+                      { icon: DocumentTextIcon, name: "Title Deed — " + property.name + ".pdf", type: "pdf", source: "Uganda Land Registry" },
+                      { icon: ChartBarSquareIcon, name: "Independent Valuation Report.pdf", type: "pdf", source: "Knight Frank Uganda" },
+                      { icon: LinkIcon, name: "Smart Contract — Share Registry", type: "link", source: "verified.nestfund.io" },
+                      { icon: ClipboardDocumentListIcon, name: "Investment Prospectus.pdf", type: "pdf", source: "NestFund Legal" },
                     ].map((doc, i) => (
                       <div key={i} style={{ border: "1.5px solid #f1f4f8", borderRadius: 11, padding: "13px 16px", marginBottom: 10 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: doc.type === "link" ? 12 : 0 }}>
-                          <div style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{doc.icon}</div>
+                          <div style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><doc.icon style={{ width: 19, height: 19, color: "#2563eb" }} /></div>
                           <div style={{ flex: 1 }}>
                             <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>{doc.name}</p>
                             <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{doc.source}</p>
@@ -335,7 +336,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                     <p style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", margin: "0 0 20px 0" }}>Initial investment</p>
                     <div style={{ border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>UGX {investment.toLocaleString()}</span>
-                      <span style={{ fontSize: 18, color: "#94a3b8" }}>✏️</span>
+                      <PencilSquareIcon style={{ width: 19, height: 19, color: "#94a3b8" }} />
                     </div>
                     <input type="range" min={50000} max={10000000} step={50000} value={investment} onChange={e => setInvestment(Number(e.target.value))} style={{ width: "100%", accentColor: "#0d9488", marginBottom: 20, cursor: "pointer" }} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid #f1f4f8", borderRadius: 12, overflow: "hidden", marginBottom: 14 }}>

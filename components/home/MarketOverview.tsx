@@ -5,6 +5,7 @@ import {
   ArrowTrendingDownIcon,
 } from "@heroicons/react/24/outline"
 import { marketStats } from "@/lib/mockData"
+import CountUp from "@/components/ui/CountUp"
 
 const stats = [
   { label: "Market Volume",      value: marketStats.marketVolume,                    change: marketStats.marketVolumeChange, sub: "Total 24H Trading"       },
@@ -73,7 +74,7 @@ function StatCard({ label, value, change, sub }: {
 
       {/* Big value */}
       <p style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.6px", margin: "0 0 5px 0", lineHeight: 1 }}>
-        {value}
+        <CountUp value={value} />
       </p>
 
       {/* Sub label */}
