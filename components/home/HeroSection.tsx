@@ -14,24 +14,24 @@ export default function HeroSection() {
       style={{
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(150deg, #0a1628 0%, #0f2247 55%, #101b3a 100%)",
+        backgroundColor: "#0a1628",
         padding: "76px 0 68px",
         maxWidth: "100vw",
       }}
     >
-      {/* Ambient glows */}
-      <div style={{ position: "absolute", top: -180, right: "8%", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 65%)", zIndex: 0, pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: -220, left: "-6%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(13,148,136,0.16) 0%, transparent 65%)", zIndex: 0, pointerEvents: "none" }} />
-      {/* Fine grid pattern */}
-      <div
-        style={{
-          position: "absolute", inset: 0, zIndex: 0, opacity: 0.5, pointerEvents: "none",
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
-          backgroundSize: "44px 44px",
-          maskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%)",
-        }}
-      />
+      {/* Full-bleed architecture photo */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <img
+          src="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=1800&q=80"
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }}
+        />
+        {/* Navy overlay keeps text readable while the towers show through */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(105deg, rgba(8,18,36,0.96) 0%, rgba(10,26,54,0.88) 45%, rgba(12,30,62,0.72) 100%)" }} />
+        {/* Soft glow accents */}
+        <div style={{ position: "absolute", top: -180, right: "8%", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -220, left: "-6%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(13,148,136,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
+      </div>
 
       <div
         style={{
@@ -49,18 +49,17 @@ export default function HeroSection() {
       >
         {/* Left — copy */}
         <div>
-          {/* Live market chip */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            backgroundColor: "rgba(16,185,129,0.1)",
-            border: "1px solid rgba(16,185,129,0.25)",
-            borderRadius: 99, padding: "6px 14px", marginBottom: 22,
+          {/* Eyebrow label */}
+          <p style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#7dd3fc",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            margin: "0 0 20px 0",
           }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: "#10b981", display: "inline-block", animation: "pulse-dot 1.6s ease-in-out infinite" }} />
-            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#6ee7b7", letterSpacing: "0.02em" }}>
-              Market is live · 47 properties trading
-            </span>
-          </div>
+            The Real Estate Investment Market
+          </p>
 
           {/* Headline */}
           <h1

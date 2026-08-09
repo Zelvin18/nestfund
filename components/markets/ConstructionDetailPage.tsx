@@ -509,10 +509,14 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
           <div className="buy-widget-col" style={{ minWidth: 0 }}>
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
 
-              {/* Header */}
-              <div style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #4f46e5 100%)", padding: "16px 20px" }}>
-                <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Current Share Price</p>
-                <p style={{ fontSize: 26, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.5px" }}>UGX {fmtPrice(project.sharePrice)}</p>
+              {/* Header — project photo behind a deep blue overlay */}
+              <div style={{ position: "relative", overflow: "hidden", padding: "16px 20px" }}>
+                <img src={project.images[0]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg, rgba(15,32,84,0.94) 0%, rgba(30,58,138,0.88) 55%, rgba(37,99,235,0.78) 100%)" }} />
+                <div style={{ position: "relative" }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.65)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Current Share Price</p>
+                  <p style={{ fontSize: 26, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.5px" }}>UGX {fmtPrice(project.sharePrice)}</p>
+                </div>
               </div>
 
               <div style={{ padding: "18px 20px" }}>

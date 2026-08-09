@@ -463,13 +463,18 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           {/* ── RIGHT — Buy Widget ── */}
           <div className="buy-widget-col" style={{ minWidth: 0 }}>
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
-              <div style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #4f46e5 100%)", padding: "16px 20px" }}>
-                <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Share Price</p>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <p style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: isPositive ? "#6ee7b7" : "#fca5a5" }}>
-                    {isPositive ? <ArrowTrendingUpIcon style={{ width: 14, height: 14 }} /> : <ArrowTrendingDownIcon style={{ width: 14, height: 14 }} />}
-                    {formatPercentage(property.priceChangePercent)}
+              <div style={{ position: "relative", overflow: "hidden", padding: "16px 20px" }}>
+                {/* Property photo behind a deep blue overlay */}
+                <img src={property.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg, rgba(15,32,84,0.94) 0%, rgba(30,58,138,0.88) 55%, rgba(37,99,235,0.78) 100%)" }} />
+                <div style={{ position: "relative" }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.65)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Share Price</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <p style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: isPositive ? "#6ee7b7" : "#fca5a5" }}>
+                      {isPositive ? <ArrowTrendingUpIcon style={{ width: 14, height: 14 }} /> : <ArrowTrendingDownIcon style={{ width: 14, height: 14 }} />}
+                      {formatPercentage(property.priceChangePercent)}
+                    </div>
                   </div>
                 </div>
               </div>

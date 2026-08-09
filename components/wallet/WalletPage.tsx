@@ -101,8 +101,17 @@ export default function WalletPage() {
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
 
       {/* ── Header / balance card ── */}
-      <div style={{ background: "linear-gradient(145deg, #0a1628 0%, #12264a 55%, #1e3a8a 100%)", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -140, right: "10%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <div style={{ backgroundColor: "#0a1628", position: "relative", overflow: "hidden" }}>
+        {/* City skyline behind the balance */}
+        <div style={{ position: "absolute", inset: 0 }}>
+          <img
+            src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1800&q=80"
+            alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%" }}
+          />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(105deg, rgba(8,18,36,0.96) 0%, rgba(13,28,58,0.9) 50%, rgba(20,38,74,0.8) 100%)" }} />
+        </div>
+        <div style={{ position: "absolute", top: -140, right: "10%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
         <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "34px 24px 38px", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
             <div>
