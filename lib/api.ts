@@ -7,11 +7,18 @@ import {
   type TradeRecord,
 } from "./data/rentals"
 import {
-  intelligenceFeed as mockIntel,
   marketStats as mockStats,
   type IntelligenceItem,
   type IntelType,
 } from "./data/intelligence"
+import {
+  constructionProjects as mockProjects,
+  type ConstructionProject,
+} from "./data/construction"
+import {
+  exchangeListings as mockListings,
+  type ExchangeListing,
+} from "./data/exchange"
 
 /* ═══════════════════════════════════════════════════════════════
    DATA API — Supabase-backed with mock fallback.
@@ -69,6 +76,7 @@ function mapProperty(row: any): RentalProperty {
     name: row.name,
     location: row.location,
     type: row.type,
+    description: row.description ?? mock?.description ?? "",
     image: row.image || images[0] || mock?.image || "",
     images: images.length ? images : mock?.images ?? (row.image ? [row.image] : []),
     currentPrice: Number(row.current_price),
@@ -110,6 +118,69 @@ function mapIntelligence(row: any): IntelligenceItem {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function mapConstruction(row: any): ConstructionProject {
+  const mock = mockProjects.find(m => m.id === row.id)
+  const images: string[] = (row.construction_images ?? [])
+    .sort((a: any, b: any) => a.sort_order - b.sort_order)
+    .map((i: any) => i.url)
+  return {
+    id: row.id,
+    name: row.name,
+    location: row.location,
+    developer: row.developer,
+    image: row.image || images[0] || mock?.image || "",
+    images: images.length ? images : mock?.images ?? (row.image ? [row.image] : []),
+    projectCost: Number(row.project_cost),
+    developerInvestment: Number(row.developer_investment),
+    capitalNeeded: Number(row.capital_needed),
+    capitalRaised: Number(row.capital_raised),
+    fundingProgress: Number(row.funding_progress),
+    constructionProgress: Number(row.construction_progress),
+    expectedCompletion: row.expected_completion ?? "",
+    projectedYield: Number(row.projected_yield ?? 0),
+    projectedROI: Number(row.projected_roi ?? 0),
+    sharePrice: row.share_price,
+    sharePriceStart: row.share_price_start,
+    sharePriceAtCompletion: row.share_price_at_completion,
+    estimatedPropertyValue: Number(row.estimated_property_value ?? 0),
+    totalShares: row.total_shares,
+    availableShares: row.available_shares,
+    investors: row.investors,
+    stage: row.stage ?? "",
+    stageColor: row.stage_color ?? "#f59e0b",
+    beds: row.beds ?? 0, baths: row.baths ?? 0, sqm: row.sqm ?? 0,
+    type: row.type ?? "Residential",
+    status: row.status ?? "",
+  }
+}
+
+function mapExchangeListing(row: any): ExchangeListing & { dbId: string } {
+  const p = row.properties
+  const c = row.construction_projects
+  const original = row.market_type === "income" ? (p?.price_per_share ?? row.current_share_price) : (c?.share_price_start ?? row.current_share_price)
+  return {
+    dbId: row.id,
+    id: row.property_id ?? row.project_id ?? row.id,
+    name: p?.name ?? c?.name ?? "Unknown",
+    location: p?.location ?? c?.location ?? "",
+    type: row.market_type === "income" ? (p?.type ?? "Residential") : "Construction",
+    image: p?.image ?? c?.image ?? "",
+    propertyValue: Number(p?.current_price ?? c?.project_cost ?? 0),
+    currentSharePrice: row.current_share_price,
+    originalSharePrice: original,
+    priceChange: original ? Math.round(((row.current_share_price - original) / original) * 10000) / 100 : 0,
+    apr: Number(p?.rental_yield ?? c?.projected_yield ?? 0),
+    occupancy: row.market_type === "income" ? (p?.occupancy ?? null) : null,
+    availableBuyShares: row.available_buy_shares,
+    availableSellShares: row.available_sell_shares,
+    lastTradePrice: row.last_trade_price ?? row.current_share_price,
+    lastTradeTime: row.last_trade_at ? timeAgo(row.last_trade_at) : "recently",
+    marketType: row.market_type,
+  }
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 /* ── Fetchers (null = keep mock fallback) ────────────────────── */
 
 export async function fetchRentalProperties(): Promise<RentalProperty[] | null> {
@@ -133,6 +204,28 @@ export async function fetchIntelligence(): Promise<IntelligenceItem[] | null> {
     .order("published_at", { ascending: false })
   if (error || !data || data.length === 0) return null
   return data.map(mapIntelligence)
+}
+
+export async function fetchConstructionProjects(): Promise<ConstructionProject[] | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb
+    .from("construction_projects")
+    .select("*, construction_images(url, sort_order)")
+    .order("created_at", { ascending: true })
+  if (error || !data || data.length === 0) return null
+  return data.map(mapConstruction)
+}
+
+export async function fetchExchangeListings(): Promise<(ExchangeListing & { dbId: string })[] | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb
+    .from("exchange_listings")
+    .select("*, properties(name, location, type, image, current_price, price_per_share, rental_yield, occupancy), construction_projects(name, location, image, project_cost, share_price_start, projected_yield)")
+    .eq("is_active", true)
+  if (error || !data || data.length === 0) return null
+  return data.map(mapExchangeListing)
 }
 
 export type PlatformStats = typeof mockStats
@@ -165,6 +258,7 @@ export async function savePropertyFields(id: string, p: RentalProperty): Promise
     .from("properties")
     .update({
       name: p.name, location: p.location, type: p.type, status: p.status,
+      description: p.description ?? null,
       image: p.images[0] ?? p.image,
       current_price: p.currentPrice, price_per_share: p.pricePerShare,
       total_shares: p.totalShares, available_shares: p.availableShares,
@@ -203,7 +297,7 @@ export async function addPropertyActivity(id: string, a: { icon: string; title: 
 
 export async function publishIntelligence(item: {
   type: IntelType; category: string; title: string; location: string
-  affected: number; desc: string; change: number; sourceLabel: string
+  affected: number; desc: string; change: number; sourceLabel: string; image?: string
 }): Promise<IntelligenceItem | null> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")
@@ -214,12 +308,54 @@ export async function publishIntelligence(item: {
       location: item.location, affected_properties: item.affected,
       description: item.desc, change_percent: item.change,
       source_label: item.sourceLabel, source_url: "#",
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
+      image: item.image?.trim() || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
     })
     .select()
     .single()
   if (error) throw new Error(error.message.includes("row-level security") ? WRITE_BLOCKED : error.message)
   return data ? mapIntelligence(data) : null
+}
+
+export async function saveConstructionFields(id: string, c: ConstructionProject): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb
+    .from("construction_projects")
+    .update({
+      name: c.name, location: c.location, developer: c.developer,
+      type: c.type, status: c.status, image: c.images[0] ?? c.image,
+      project_cost: c.projectCost, developer_investment: c.developerInvestment,
+      capital_needed: c.capitalNeeded, capital_raised: c.capitalRaised,
+      funding_progress: c.fundingProgress, construction_progress: c.constructionProgress,
+      expected_completion: c.expectedCompletion,
+      projected_yield: c.projectedYield, projected_roi: c.projectedROI,
+      share_price: c.sharePrice, share_price_start: c.sharePriceStart,
+      share_price_at_completion: c.sharePriceAtCompletion,
+      estimated_property_value: c.estimatedPropertyValue,
+      total_shares: c.totalShares, available_shares: c.availableShares,
+      investors: c.investors, stage: c.stage, stage_color: c.stageColor,
+      beds: c.beds, baths: c.baths, sqm: c.sqm,
+    })
+    .eq("id", id)
+    .select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
+export async function saveExchangeListing(dbId: string, fields: { currentSharePrice: number; availableBuyShares: number; availableSellShares: number }): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb
+    .from("exchange_listings")
+    .update({
+      current_share_price: fields.currentSharePrice,
+      available_buy_shares: fields.availableBuyShares,
+      available_sell_shares: fields.availableSellShares,
+    })
+    .eq("id", dbId)
+    .select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
 }
 
 export async function deleteIntelligence(id: string): Promise<void> {

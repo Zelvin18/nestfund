@@ -54,7 +54,7 @@ export default function AdminProperties() {
             </thead>
             <tbody>
               {filtered.map(p => (
-                <tr key={p.id} style={{ borderBottom: "1px solid #f6f8fa" }}>
+                <tr key={p.id} className="admin-table-row" style={{ borderBottom: "1px solid #f6f8fa" }}>
                   <td style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
                       <img src={p.image} alt="" style={{ width: 46, height: 36, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />

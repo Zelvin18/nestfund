@@ -118,9 +118,13 @@ export default function AdminSettings() {
                 <label style={fieldLabel}>Avg. Annual Return (%)</label>
                 <input style={fieldInput} inputMode="decimal" value={String(stats.avgAnnualReturn)} onChange={e => { setStats(s => ({ ...s, avgAnnualReturn: parseFloat(e.target.value) || 0 })); setSaved(false); setDirty(true) }} />
               </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={fieldLabel}>Distributed to Investors (landing page)</label>
+                <input style={fieldInput} value={stats.distributedToInvestors} onChange={e => { setStats(s => ({ ...s, distributedToInvestors: e.target.value })); setSaved(false); setDirty(true) }} />
+              </div>
             </div>
             <p style={{ fontSize: 11.5, color: "#b6c1cf", margin: "12px 0 0 0", lineHeight: 1.55 }}>
-              Once the database is connected these become live-computed from real data — investor counts, volumes, and returns update automatically as the platform grows.
+              These numbers appear on the landing page and the Live Market Overview. The verified-properties count is computed automatically from your listings.
             </p>
           </Card>
         </div>

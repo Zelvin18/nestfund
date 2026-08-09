@@ -13,10 +13,10 @@ import {
 } from "@heroicons/react/24/solid"
 import SharePriceChart from "@/components/ui/SharePriceChart"
 import {
-  constructionProjects,
   constructionTradeHistory as tradeHistory,
   constructionActivityFeed as activityFeed,
 } from "@/lib/data/construction"
+import { useConstruction } from "@/lib/hooks"
 
 function fmtUGX(v: number) {
   if (v >= 1_000_000_000) return `UGX ${(v / 1_000_000_000).toFixed(1)}B`
@@ -28,6 +28,7 @@ function fmtPrice(v: number) { return v.toLocaleString() }
 type TabKey = "overview" | "documents" | "calculator" | "activities" | "trades"
 
 export default function ConstructionDetailPage({ id }: { id: string }) {
+  const { projects: constructionProjects } = useConstruction()
   const project = constructionProjects.find(p => p.id === id)
   const [saved, setSaved] = useState(false)
   const [tab, setTab] = useState<TabKey>("overview")

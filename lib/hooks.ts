@@ -1,9 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { fetchRentalProperties, fetchIntelligence, fetchPlatformStats, type PlatformStats } from "./api"
+import {
+  fetchRentalProperties, fetchIntelligence, fetchPlatformStats,
+  fetchConstructionProjects, fetchExchangeListings, fetchSiteSetting,
+  type PlatformStats,
+} from "./api"
 import { rentalProperties as mockRentals, type RentalProperty } from "./data/rentals"
 import { intelligenceFeed as mockIntel, marketStats as mockStats, type IntelligenceItem } from "./data/intelligence"
+import { constructionProjects as mockProjects, type ConstructionProject } from "./data/construction"
+import { exchangeListings as mockListings, type ExchangeListing } from "./data/exchange"
 
 /* ═══════════════════════════════════════════════════════════════
    LIVE DATA HOOKS
@@ -47,4 +53,77 @@ export function usePlatformStats(): PlatformStats {
     return () => { active = false }
   }, [])
   return stats
+}
+
+export function useConstruction(): { projects: ConstructionProject[]; live: boolean } {
+  const [state, setState] = useState<{ projects: ConstructionProject[]; live: boolean }>({ projects: mockProjects, live: false })
+  useEffect(() => {
+    let active = true
+    fetchConstructionProjects()
+      .then(d => { if (active && d) setState({ projects: d, live: true }) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  return state
+}
+
+export function useExchange(): { listings: (ExchangeListing & { dbId?: string })[]; live: boolean } {
+  const [state, setState] = useState<{ listings: (ExchangeListing & { dbId?: string })[]; live: boolean }>({ listings: mockListings, live: false })
+  useEffect(() => {
+    let active = true
+    fetchExchangeListings()
+      .then(d => { if (active && d) setState({ listings: d, live: true }) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  return state
+}
+
+/** The admin-selected property for the /home hero card */
+export function useHomeHeroProperty(): RentalProperty {
+  const { rentals } = useRentals()
+  const [heroId, setHeroId] = useState<string | null>(null)
+  useEffect(() => {
+    let active = true
+    fetchSiteSetting<{ featuredPropertyId: string }>("home_hero")
+      .then(v => { if (active && v?.featuredPropertyId) setHeroId(v.featuredPropertyId) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  return rentals.find(p => p.id === heroId) ?? rentals[0] ?? mockRentals[0]
+}
+
+export interface FeaturedCard {
+  id: string
+  name: string
+  location: string
+  price: number
+  changePct: number
+  apr: number
+  img: string
+  kind: "Rental" | "Construction"
+  href: string
+}
+
+/** The admin-selected property cards for the landing hero strip */
+export function useLandingFeatured(): FeaturedCard[] {
+  const { rentals } = useRentals()
+  const { projects } = useConstruction()
+  const [ids, setIds] = useState<string[]>(["sunrise-apartments", "acacia-office-park", "ibis-residences-ii"])
+  useEffect(() => {
+    let active = true
+    fetchSiteSetting<{ featuredPropertyIds: string[] }>("landing_hero")
+      .then(v => { if (active && v?.featuredPropertyIds?.length) setIds(v.featuredPropertyIds) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  return ids
+    .map((id): FeaturedCard | null => {
+      const r = rentals.find(p => p.id === id)
+      if (r) return { id, name: r.name, location: r.location, price: r.pricePerShare, changePct: r.priceChangePercent, apr: r.rentalYield, img: r.image, kind: "Rental", href: `/property/${id}` }
+      const c = projects.find(p => p.id === id)
+      if (c) return { id, name: c.name, location: c.location, price: c.sharePrice, changePct: Math.round(((c.sharePrice - c.sharePriceStart) / c.sharePriceStart) * 1000) / 10, apr: c.projectedYield, img: c.image, kind: "Construction", href: `/construction/${id}` }
+      return null
+    })
+    .filter((c): c is FeaturedCard => c !== null)
 }

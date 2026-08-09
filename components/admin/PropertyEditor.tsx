@@ -10,6 +10,10 @@ import {
   PlusIcon,
   ArrowTopRightOnSquareIcon,
   BellAlertIcon,
+  BuildingOfficeIcon,
+  BanknotesIcon,
+  Squares2X2Icon,
+  ChartBarIcon,
 } from "@heroicons/react/24/outline"
 import { PageHeader, Card, SaveBar, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
 import { type RentalProperty, type ActivityItem } from "@/lib/data/rentals"
@@ -130,11 +134,20 @@ export default function PropertyEditor({ id }: { id: string }) {
         {/* ── Left column ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          <Card title="General Information">
+          <Card title="General Information" icon={BuildingOfficeIcon}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={fieldLabel}>Property Name</label>
                 <input style={fieldInput} value={p.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Sunrise Apartments" />
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={fieldLabel}>Description</label>
+                <textarea
+                  style={{ ...fieldInput, minHeight: 76, resize: "vertical", fontFamily: "inherit", lineHeight: 1.6 }}
+                  value={p.description ?? ""}
+                  onChange={e => set("description", e.target.value)}
+                  placeholder="What investors should know about this property — location advantages, tenants, condition..."
+                />
               </div>
               <div>
                 <label style={fieldLabel}>Location</label>
@@ -161,7 +174,7 @@ export default function PropertyEditor({ id }: { id: string }) {
             </div>
           </Card>
 
-          <Card title="Pricing & Shares" subtitle="Share price changes here update every page on the site">
+          <Card title="Pricing & Shares" subtitle="Share price changes here update every page on the site" icon={BanknotesIcon} accent="#0d9488">
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div>
                 <label style={fieldLabel}>Property Valuation (UGX)</label>
@@ -199,7 +212,7 @@ export default function PropertyEditor({ id }: { id: string }) {
             </div>
           </Card>
 
-          <Card title="Property Specifications">
+          <Card title="Property Specifications" icon={Squares2X2Icon} accent="#7c3aed">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
               {([
                 ["beds", "Bedrooms"], ["baths", "Bathrooms"], ["sqm", "Size (sqm)"],
@@ -213,7 +226,7 @@ export default function PropertyEditor({ id }: { id: string }) {
             </div>
           </Card>
 
-          <Card title="Post Activity Update" subtitle="Shown in the property's Activities feed — income distributions, occupancy news, valuations">
+          <Card title="Post Activity Update" subtitle="Shown in the property's Activities feed — income distributions, occupancy news, valuations" icon={BellAlertIcon} accent="#d97706">
             <div style={{ display: "grid", gap: 12 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 12 }}>
                 <div>
@@ -259,7 +272,7 @@ export default function PropertyEditor({ id }: { id: string }) {
         {/* ── Right column ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          <Card title="Images" subtitle="First image is the card thumbnail and gallery cover">
+          <Card title="Images" subtitle="First image is the card thumbnail and gallery cover" icon={PhotoIcon} accent="#0ea5e9">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 14 }}>
               {p.images.map((url, i) => (
                 <div key={i} style={{ position: "relative", borderRadius: 9, overflow: "hidden", aspectRatio: "4/3", backgroundColor: "#f1f5f9" }}>
@@ -286,7 +299,7 @@ export default function PropertyEditor({ id }: { id: string }) {
             </div>
           </Card>
 
-          <Card title="Documents" subtitle="Title deeds, valuations, prospectus — visible on the property page">
+          <Card title="Documents" subtitle="Title deeds, valuations, prospectus — visible on the property page" icon={DocumentTextIcon} accent="#2563eb">
             {[
               { name: `Title Deed — ${p.name || "Property"}.pdf`, source: "Uganda Land Registry" },
               { name: "Independent Valuation Report.pdf", source: "Knight Frank Uganda" },
@@ -311,7 +324,7 @@ export default function PropertyEditor({ id }: { id: string }) {
             </button>
           </Card>
 
-          <Card title="Market Data" subtitle="24-hour movement shown next to the share price">
+          <Card title="Market Data" subtitle="24-hour movement shown next to the share price" icon={ChartBarIcon} accent="#dc2626">
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div>
                 <label style={fieldLabel}>Price Change (UGX)</label>

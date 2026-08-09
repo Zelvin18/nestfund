@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import RecentTrades from "@/components/markets/RecentTrades"
-import { exchangeStats, exchangeListings, type ExchangeListing } from "@/lib/data/exchange"
+import { exchangeStats, type ExchangeListing } from "@/lib/data/exchange"
+import { useExchange } from "@/lib/hooks"
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ const filterTabs: { key: FilterKey; label: string }[] = [
 
 export default function ExchangePage() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All")
+  const { listings: exchangeListings } = useExchange()
 
   const filtered = exchangeListings.filter(listing => {
     if (activeFilter === "All") return true

@@ -385,6 +385,12 @@ div, section, header, footer, nav, main, article, aside {
 /* ══════════════════════════════════════
    ADMIN CONSOLE
 ══════════════════════════════════════ */
+.admin-main > * { animation: fade-up 0.3s ease-out; }
+.admin-card { transition: box-shadow 0.2s, transform 0.2s; }
+a .admin-card:hover { box-shadow: 0 8px 24px rgba(15,23,42,0.09); transform: translateY(-2px); }
+.admin-table-row { transition: background-color 0.12s; }
+.admin-table-row:hover { background-color: #f7faff; }
+
 @media (max-width: 900px) {
   .admin-root { flex-direction: column !important; }
   .admin-sidebar {
@@ -399,6 +405,8 @@ div, section, header, footer, nav, main, article, aside {
     -webkit-overflow-scrolling: touch;
   }
   .admin-nav::-webkit-scrollbar { display: none; }
+  .admin-nav > div { display: flex; margin-bottom: 0 !important; }
+  .admin-nav-label { display: none !important; }
   .admin-nav a { flex-shrink: 0; margin-bottom: 0 !important; white-space: nowrap; }
   .admin-side-footer { display: none !important; }
   .admin-main { padding: 20px 16px 40px !important; }

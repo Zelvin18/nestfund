@@ -11,17 +11,39 @@ import {
   ArrowsRightLeftIcon,
   UserGroupIcon,
   ArrowTopRightOnSquareIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
-const nav = [
-  { href: "/admin", label: "Dashboard", icon: Squares2X2Icon, exact: true },
-  { href: "/admin/properties", label: "Properties", icon: BuildingOffice2Icon },
-  { href: "/admin/construction", label: "Construction", icon: WrenchScrewdriverIcon },
-  { href: "/admin/exchange", label: "Exchange", icon: ArrowsRightLeftIcon, soon: true },
-  { href: "/admin/intelligence", label: "Intelligence", icon: NewspaperIcon },
-  { href: "/admin/managers", label: "Managers", icon: UserGroupIcon, soon: true },
-  { href: "/admin/settings", label: "Site Settings", icon: Cog6ToothIcon },
+const navSections: Array<{ label: string; items: Array<{ href: string; label: string; icon: typeof Squares2X2Icon; exact?: boolean; soon?: boolean }> }> = [
+  {
+    label: "Overview",
+    items: [
+      { href: "/admin", label: "Dashboard", icon: Squares2X2Icon, exact: true },
+    ],
+  },
+  {
+    label: "Markets",
+    items: [
+      { href: "/admin/properties", label: "Properties", icon: BuildingOffice2Icon },
+      { href: "/admin/construction", label: "Construction", icon: WrenchScrewdriverIcon },
+      { href: "/admin/exchange", label: "Exchange", icon: ArrowsRightLeftIcon },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { href: "/admin/intelligence", label: "Intelligence", icon: NewspaperIcon },
+      { href: "/admin/settings", label: "Site Settings", icon: Cog6ToothIcon },
+    ],
+  },
+  {
+    label: "Platform",
+    items: [
+      { href: "/admin/managers", label: "Managers", icon: UserGroupIcon, soon: true },
+      { href: "/admin/investors", label: "Investors", icon: UsersIcon, soon: true },
+    ],
+  },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -29,62 +51,82 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const live = isSupabaseConfigured()
 
   return (
-    <div className="admin-root" style={{ minHeight: "100vh", display: "flex", backgroundColor: "#f4f6fa" }}>
+    <div className="admin-root" style={{ minHeight: "100vh", display: "flex", backgroundColor: "#f2f5f9" }}>
 
       {/* ── Sidebar ── */}
       <aside className="admin-sidebar" style={{
-        width: 232, flexShrink: 0, backgroundColor: "#0c1425",
+        width: 240, flexShrink: 0,
+        background: "linear-gradient(180deg, #0a1120 0%, #0d1730 60%, #101d3d 100%)",
         display: "flex", flexDirection: "column",
         position: "sticky", top: 0, height: "100vh",
       }}>
         {/* Brand */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "20px 20px 18px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg, #2563eb, #4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, color: "#fff", flexShrink: 0 }}>N</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "22px 20px 20px" }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: "linear-gradient(135deg, #3b82f6, #6366f1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 800, fontSize: 17, color: "#fff", flexShrink: 0,
+            boxShadow: "0 0 22px rgba(59,130,246,0.45)",
+          }}>N</div>
           <div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.2 }}>NestFund</p>
-            <p style={{ fontSize: 10.5, fontWeight: 600, color: "#475569", margin: 0, textTransform: "uppercase", letterSpacing: "0.1em" }}>Admin Console</p>
+            <p style={{ fontSize: 15.5, fontWeight: 800, color: "#fff", margin: 0, lineHeight: 1.2, letterSpacing: "-0.2px" }}>NestFund</p>
+            <p style={{ fontSize: 10, fontWeight: 700, color: "#4c5c7a", margin: 0, textTransform: "uppercase", letterSpacing: "0.14em" }}>Control Center</p>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="admin-nav" style={{ flex: 1, padding: "14px 12px", overflowY: "auto" }}>
-          {nav.map(item => {
-            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.soon ? "#" : item.href}
-                style={{
-                  display: "flex", alignItems: "center", gap: 11,
-                  padding: "10px 12px", borderRadius: 9, marginBottom: 3,
-                  backgroundColor: active ? "rgba(37,99,235,0.18)" : "transparent",
-                  color: active ? "#93c5fd" : item.soon ? "#3b4a63" : "#8fa3bf",
-                  fontSize: 13.5, fontWeight: 600, textDecoration: "none",
-                  cursor: item.soon ? "default" : "pointer",
-                  borderLeft: active ? "3px solid #3b82f6" : "3px solid transparent",
-                  transition: "all 0.15s",
-                }}
-              >
-                <item.icon style={{ width: 17, height: 17, flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>{item.label}</span>
-                {item.soon && <span style={{ fontSize: 8.5, fontWeight: 700, color: "#475569", border: "1px solid #26334d", borderRadius: 5, padding: "1px 5px", letterSpacing: "0.05em" }}>SOON</span>}
-              </Link>
-            )
-          })}
+        <nav className="admin-nav" style={{ flex: 1, padding: "4px 14px 14px", overflowY: "auto" }}>
+          {navSections.map(section => (
+            <div key={section.label} style={{ marginBottom: 6 }}>
+              <p className="admin-nav-label" style={{ fontSize: 9.5, fontWeight: 800, color: "#3d4c68", textTransform: "uppercase", letterSpacing: "0.16em", margin: "14px 10px 7px" }}>
+                {section.label}
+              </p>
+              {section.items.map(item => {
+                const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.soon ? "#" : item.href}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 11,
+                      padding: "10px 12px", borderRadius: 10, marginBottom: 2,
+                      background: active ? "linear-gradient(90deg, rgba(59,130,246,0.28), rgba(99,102,241,0.12))" : "transparent",
+                      color: active ? "#dbeafe" : item.soon ? "#334463" : "#8598b8",
+                      fontSize: 13.5, fontWeight: active ? 700 : 600, textDecoration: "none",
+                      cursor: item.soon ? "default" : "pointer",
+                      boxShadow: active ? "inset 0 0 0 1px rgba(96,165,250,0.35)" : "none",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <item.icon style={{ width: 17, height: 17, flexShrink: 0, color: active ? "#60a5fa" : undefined }} />
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    {item.soon && <span style={{ fontSize: 8, fontWeight: 800, color: "#41527a", border: "1px solid #223052", borderRadius: 5, padding: "2px 6px", letterSpacing: "0.06em" }}>SOON</span>}
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Footer: connection state + view site */}
         <div className="admin-side-footer" style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8, marginBottom: 12,
+            backgroundColor: live ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)",
+            border: `1px solid ${live ? "rgba(16,185,129,0.25)" : "rgba(245,158,11,0.25)"}`,
+            borderRadius: 9, padding: "8px 11px",
+          }}>
             <span style={{
               width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
               backgroundColor: live ? "#10b981" : "#f59e0b",
+              animation: "pulse-dot 2s ease-in-out infinite",
             }} />
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: live ? "#6ee7b7" : "#fbbf24" }}>
-              {live ? "Database connected" : "Mock mode — DB not connected"}
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: live ? "#6ee7b7" : "#fbbf24" }}>
+              {live ? "Database live" : "Mock mode"}
             </span>
           </div>
-          <Link href="/home" target="_blank" style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 600, color: "#64748b", textDecoration: "none" }}>
+          <Link href="/home" target="_blank" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 12.5, fontWeight: 700, color: "#8598b8", textDecoration: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, padding: "9px 0" }}>
             <ArrowTopRightOnSquareIcon style={{ width: 14, height: 14 }} />
             View live site
           </Link>
@@ -92,7 +134,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* ── Content ── */}
-      <main className="admin-main" style={{ flex: 1, minWidth: 0, padding: "28px 32px 48px" }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, padding: "30px 34px 56px" }}>
         {children}
       </main>
     </div>
@@ -103,23 +145,39 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 24 }}>
+    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 26 }}>
       <div>
-        <h1 style={{ fontSize: 23, fontWeight: 800, color: "#0f172a", margin: "0 0 4px 0", letterSpacing: "-0.4px" }}>{title}</h1>
-        {subtitle && <p style={{ fontSize: 13.5, color: "#8395ab", margin: 0 }}>{subtitle}</p>}
+        <h1 style={{ fontSize: 25, fontWeight: 850, color: "#0b1220", margin: "0 0 5px 0", letterSpacing: "-0.6px" }}>{title}</h1>
+        {subtitle && <p style={{ fontSize: 13.5, color: "#7c8ba1", margin: 0 }}>{subtitle}</p>}
       </div>
       {action}
     </div>
   )
 }
 
-export function Card({ title, subtitle, children, style }: { title?: string; subtitle?: string; children: React.ReactNode; style?: React.CSSProperties }) {
+export function Card({ title, subtitle, icon: Icon, accent = "#2563eb", children, style }: {
+  title?: string; subtitle?: string
+  icon?: React.ComponentType<{ style?: React.CSSProperties }>
+  accent?: string
+  children: React.ReactNode; style?: React.CSSProperties
+}) {
   return (
-    <div style={{ backgroundColor: "#fff", borderRadius: 14, border: "1px solid #e6eaf0", padding: "20px 22px", ...style }}>
+    <div className="admin-card" style={{
+      backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e5eaf2",
+      boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
+      padding: "22px 24px", ...style,
+    }}>
       {title && (
-        <div style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>{title}</h2>
-          {subtitle && <p style={{ fontSize: 12, color: "#94a3b8", margin: "3px 0 0 0" }}>{subtitle}</p>}
+        <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
+          {Icon && (
+            <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${accent}14`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Icon style={{ width: 17, height: 17, color: accent }} />
+            </div>
+          )}
+          <div>
+            <h2 style={{ fontSize: 15, fontWeight: 750, color: "#0b1220", margin: 0, letterSpacing: "-0.2px" }}>{title}</h2>
+            {subtitle && <p style={{ fontSize: 12, color: "#94a3b8", margin: "2px 0 0 0" }}>{subtitle}</p>}
+          </div>
         </div>
       )}
       {children}
@@ -128,13 +186,14 @@ export function Card({ title, subtitle, children, style }: { title?: string; sub
 }
 
 export const fieldLabel: React.CSSProperties = {
-  fontSize: 12, fontWeight: 700, color: "#3f4c60", display: "block", marginBottom: 6,
+  fontSize: 11.5, fontWeight: 700, color: "#46536b", display: "block", marginBottom: 6,
+  textTransform: "uppercase", letterSpacing: "0.04em",
 }
 
 export const fieldInput: React.CSSProperties = {
   width: "100%", boxSizing: "border-box", border: "1.5px solid #e2e8f0", borderRadius: 10,
   padding: "10px 13px", fontSize: 13.5, fontWeight: 500, color: "#0f172a", outline: "none",
-  backgroundColor: "#fff",
+  backgroundColor: "#fbfcfe",
 }
 
 export function SaveBar({ onSave, saved, saving, error, label = "Save Changes" }: {
@@ -148,22 +207,23 @@ export function SaveBar({ onSave, saved, saving, error, label = "Save Changes" }
           onClick={onSave}
           disabled={saving}
           style={{
-            padding: "11px 26px", borderRadius: 10, border: "none",
+            padding: "12px 30px", borderRadius: 11, border: "none",
             cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1,
             background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff",
-            fontSize: 13.5, fontWeight: 700,
+            fontSize: 13.5, fontWeight: 750,
+            boxShadow: "0 4px 14px rgba(37,99,235,0.3)",
           }}
         >
           {saving ? "Saving..." : label}
         </button>
         {saved && !error && (
-          <span style={{ fontSize: 12.5, fontWeight: 600, color: "#10b981" }}>
-            ✓ Saved{live ? " to database" : " (session only — connect the database to persist)"}
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: "#10b981" }}>
+            ✓ Saved{live ? " — live on the site" : " (session only — connect the database to persist)"}
           </span>
         )}
       </div>
       {error && (
-        <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 9, padding: "9px 13px", margin: "12px 0 0 0", lineHeight: 1.55 }}>
+        <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", margin: "12px 0 0 0", lineHeight: 1.55 }}>
           {error}
         </p>
       )}

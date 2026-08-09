@@ -119,7 +119,7 @@ export const marketIntelligence: MarketIntelligence[] = intelligenceFeed.slice(0
   timeAgo: i.timeAgo,
 }))
 
-/* Platform-wide stats (homepage market overview) */
+/* Platform-wide stats (homepage market overview + landing page) */
 export const marketStats = {
   marketVolume: "UGX 24.6B",
   marketVolumeChange: 4.49,
@@ -129,4 +129,5 @@ export const marketStats = {
   listingsChange: 5,
   avgAnnualReturn: 8.64,
   returnChange: -1.2,
+  distributedToInvestors: "UGX 4.2B",
 }

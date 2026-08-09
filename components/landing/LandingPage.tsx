@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ShieldCheckIcon, StarIcon } from "@heroicons/react/24/solid"
 import CountUp from "@/components/ui/CountUp"
+import { useLandingFeatured, usePlatformStats, useRentals, useConstruction } from "@/lib/hooks"
 
 /* ── Inline SVG icons (professional, no emoji) ── */
 const IconHome = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
@@ -17,19 +18,7 @@ const IconBuilding = () => <svg width={20} height={20} viewBox="0 0 24 24" fill=
 const IconConstruction = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M2 20h20M4 20V10l8-6 8 6v10" /><path d="M9 20v-5h6v5" /></svg>
 const IconExchange = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" /></svg>
 
-/* ── Featured properties for the hero ── */
-const featuredCards = [
-  { name: "Sunrise Apartments", location: "Kiira, Wakiso", price: "UGX 1,250", change: "+4.34%", apr: "11.2%", img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=75", type: "Rental" },
-  { name: "Acacia Office Park", location: "Nakasero, Kampala", price: "UGX 2,100", change: "+4.43%", apr: "10.8%", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=75", type: "Rental" },
-  { name: "Ibis Residences Phase II", location: "Kiira, Wakiso", price: "UGX 4,200", change: "+2.1%", apr: "13.2%", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=75", type: "Construction" },
-]
-
-const stats = [
-  { value: "UGX 24.6B", label: "invested in real estate" },
-  { value: "30+",       label: "verified properties" },
-  { value: "UGX 4.2B",  label: "distributed to investors" },
-  { value: "14,250+",   label: "investors on the platform" },
-]
+/* Featured hero cards + trust numbers are managed in Admin → Site Settings */
 
 const howSteps = [
   { num: "01", title: "Create your account", desc: "Sign up free. Complete KYC verification in minutes. No minimum experience required.", icon: IconUsers },
@@ -64,7 +53,7 @@ export default function LandingPage() {
   const [ticker, setTicker] = useState(0)
 
   useEffect(() => {
-    const t = setInterval(() => setTicker(p => (p + 1) % featuredCards.length), 3000)
+    const t = setInterval(() => setTicker(p => (p + 1) % 3), 3000)
     return () => clearInterval(t)
   }, [])
 
@@ -143,6 +132,7 @@ function LandingNav() {
    HERO SECTION
 ══════════════════════════════════ */
 function HeroSection({ ticker }: { ticker: number }) {
+  const featuredCards = useLandingFeatured()
   return (
     <section style={{ position: "relative", overflow: "hidden", minHeight: "88vh", display: "flex", flexDirection: "column" }}>
 
@@ -240,10 +230,10 @@ function HeroSection({ ticker }: { ticker: number }) {
           </Link>
         </div>
 
-        {/* Property cards strip */}
+        {/* Property cards strip — picked in Admin → Site Settings */}
         <div className="hero-cards-strip">
           {featuredCards.map((c, i) => (
-            <Link key={i} href="/home" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <Link key={c.id} href={c.href} style={{ textDecoration: "none", flexShrink: 0 }}>
               <div style={{
                 backgroundColor: "rgba(255,255,255,0.08)",
                 backdropFilter: "blur(16px)",
@@ -259,17 +249,17 @@ function HeroSection({ ticker }: { ticker: number }) {
                   <img src={c.img} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div style={{ padding: "11px 13px 13px" }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: c.type === "Rental" ? "#0d9488" : "#f59e0b", backgroundColor: c.type === "Rental" ? "rgba(13,148,136,0.18)" : "rgba(245,158,11,0.18)", padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" as const, letterSpacing: "0.04em" }}>{c.type}</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: c.kind === "Rental" ? "#0d9488" : "#f59e0b", backgroundColor: c.kind === "Rental" ? "rgba(13,148,136,0.18)" : "rgba(245,158,11,0.18)", padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" as const, letterSpacing: "0.04em" }}>{c.kind}</span>
                   <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", margin: "6px 0 2px 0" }}>{c.name}</p>
                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", margin: "0 0 9px 0" }}>{c.location}</p>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                     <div>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.2px" }}>{c.price}</p>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.2px" }}>UGX {c.price.toLocaleString()}</p>
                       <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", margin: "1px 0 0 0" }}>per share</p>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: "#10b981", margin: 0 }}>{c.change}</p>
-                      <p style={{ fontSize: 11, color: "#0d9488", margin: 0 }}>{c.apr} APR</p>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: c.changePct >= 0 ? "#10b981" : "#f87171", margin: 0 }}>{c.changePct >= 0 ? "+" : ""}{c.changePct}%</p>
+                      <p style={{ fontSize: 11, color: "#0d9488", margin: 0 }}>{c.apr}% APR</p>
                     </div>
                   </div>
                 </div>
@@ -289,6 +279,16 @@ function HeroSection({ ticker }: { ticker: number }) {
    TRUST NUMBERS
 ══════════════════════════════════ */
 function TrustNumbers() {
+  // Numbers come from Admin → Site Settings + live listing counts
+  const platform = usePlatformStats()
+  const { rentals } = useRentals()
+  const { projects } = useConstruction()
+  const stats = [
+    { value: platform.marketVolume, label: "invested in real estate" },
+    { value: `${rentals.length + projects.length}+`, label: "verified properties" },
+    { value: platform.distributedToInvestors, label: "distributed to investors" },
+    { value: `${platform.totalInvestors.toLocaleString()}+`, label: "investors on the platform" },
+  ]
   return (
     <section style={{ backgroundColor: "#f8fafc", padding: "56px 24px" }}>
       <div style={{ maxWidth: 1140, margin: "0 auto" }}>

@@ -39,6 +39,7 @@ export interface RentalProperty {
   name: string
   location: string
   type: PropertyKind
+  description?: string
   image: string
   images: string[]
   /** Total property valuation in UGX */

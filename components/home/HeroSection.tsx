@@ -2,12 +2,15 @@
 
 import Link from "next/link"
 import { ArrowRightIcon, ShieldCheckIcon, PlayCircleIcon } from "@heroicons/react/24/outline"
-import { ArrowTrendingUpIcon, CheckBadgeIcon, BoltIcon } from "@heroicons/react/24/solid"
+import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, CheckBadgeIcon, BoltIcon } from "@heroicons/react/24/solid"
 import Sparkline from "@/components/ui/Sparkline"
-
-const heroSparkData = [1140, 1120, 1155, 1148, 1170, 1162, 1180, 1195, 1185, 1210, 1205, 1220, 1215, 1235, 1250]
+import { useHomeHeroProperty } from "@/lib/hooks"
 
 export default function HeroSection() {
+  // The featured property is chosen in Admin → Site Settings
+  const hero = useHomeHeroProperty()
+  const heroUp = hero.priceChangePercent >= 0
+  const heroSparkData = hero.chartData.slice(-15).map(d => d.value)
   return (
     <section
       className="hero-section"
@@ -218,8 +221,8 @@ export default function HeroSection() {
             {/* Property image */}
             <div style={{ position: "relative", height: 210, overflow: "hidden" }}>
               <img
-                src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=700&q=80"
-                alt="Sunrise Apartments"
+                src={hero.image}
+                alt={hero.name}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
               <div
@@ -259,7 +262,7 @@ export default function HeroSection() {
                     color: "#fff",
                   }}
                 >
-                  100% Occupied
+                  {hero.occupancy}% Occupied
                 </span>
               </div>
             </div>
@@ -270,17 +273,17 @@ export default function HeroSection() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
                 <div>
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>
-                    Sunrise Apartments
+                    {hero.name}
                   </h3>
-                  <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>Kiira, Wakiso</p>
+                  <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>{hero.location}</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <p style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.5px" }}>
-                    UGX 1,250
+                    UGX {hero.pricePerShare.toLocaleString()}
                   </p>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3, fontSize: 12, fontWeight: 700, color: "#10b981" }}>
-                    <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} />
-                    +8.43% Today
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3, fontSize: 12, fontWeight: 700, color: heroUp ? "#10b981" : "#ef4444" }}>
+                    {heroUp ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
+                    {heroUp ? "+" : ""}{hero.priceChangePercent}% Today
                   </div>
                 </div>
               </div>
@@ -300,17 +303,17 @@ export default function HeroSection() {
               >
                 <div>
                   <p style={{ fontSize: 10, color: "#94a3b8", marginBottom: 1, fontWeight: 500 }}>30-day chart</p>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: "#10b981", margin: 0 }}>↑ Trending up</p>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: heroUp ? "#10b981" : "#ef4444", margin: 0 }}>{heroUp ? "↑ Trending up" : "↓ Cooling off"}</p>
                 </div>
-                <Sparkline data={heroSparkData} width={160} height={48} positive={true} strokeWidth={2.2} />
+                <Sparkline data={heroSparkData} width={160} height={48} positive={heroUp} strokeWidth={2.2} />
               </div>
 
               {/* Stats */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
                 {[
-                  { label: "Yield (Annual)", value: "11.2%", green: true },
-                  { label: "Area Score", value: "87/100" },
-                  { label: "Growth", value: "High", green: true },
+                  { label: "Yield (Annual)", value: `${hero.rentalYield}%`, green: true },
+                  { label: "Area Score", value: `${hero.areaScore}/100` },
+                  { label: "Growth", value: hero.futureGrowth, green: hero.futureGrowth === "High" },
                 ].map(s => (
                   <div key={s.label} style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "8px 6px", textAlign: "center" }}>
                     <p style={{ fontSize: 10, color: "#94a3b8", margin: "0 0 3px 0", fontWeight: 500 }}>{s.label}</p>
@@ -321,7 +324,7 @@ export default function HeroSection() {
 
               {/* CTA */}
               <Link
-                href="/property/sunrise-apartments"
+                href={`/property/${hero.id}`}
                 style={{
                   display: "block",
                   width: "100%",
@@ -338,7 +341,7 @@ export default function HeroSection() {
                   boxSizing: "border-box",
                 }}
               >
-                Buy Shares — UGX 1,250/share
+                Buy Shares — UGX {hero.pricePerShare.toLocaleString()}/share
               </Link>
             </div>
           </div>

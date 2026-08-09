@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import SharePriceChart from "@/components/ui/SharePriceChart"
-import { constructionProjects, type ConstructionProject } from "@/lib/data/construction"
+import { type ConstructionProject } from "@/lib/data/construction"
+import { useConstruction } from "@/lib/hooks"
 
 type FilterKey = "All" | "Active" | "Fully Funded" | "Completed"
 type SortKey = "roi-high" | "progress-high" | "price-low" | "price-high"
@@ -28,6 +29,7 @@ const filterTabs: { key: FilterKey; label: string }[] = [
 export default function ConstructionMarketPage() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All")
   const [sort, setSort] = useState<SortKey>("roi-high")
+  const { projects: constructionProjects } = useConstruction()
 
   const filtered = constructionProjects
     .filter(p => {

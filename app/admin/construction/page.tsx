@@ -1,13 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { PlusIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline"
+import { PlusIcon, ArrowTopRightOnSquareIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
 import { PageHeader, Card } from "@/components/admin/AdminShell"
-import { constructionProjects } from "@/lib/data/construction"
+import { useConstruction } from "@/lib/hooks"
 
 const fmtB = (v: number) => v >= 1e9 ? `UGX ${(v / 1e9).toFixed(1)}B` : `UGX ${(v / 1e6).toFixed(0)}M`
 
 export default function AdminConstruction() {
+  const { projects: constructionProjects } = useConstruction()
   return (
     <>
       <PageHeader
@@ -42,15 +43,20 @@ export default function AdminConstruction() {
                   <div style={{ height: "100%", width: `${Math.min(100, c.fundingProgress)}%`, backgroundColor: "#2563eb", borderRadius: 99 }} />
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                   <div style={{ display: "flex", gap: 14 }}>
                     <span style={{ fontSize: 11.5, color: "#64748b" }}>Share <strong style={{ color: "#0f172a" }}>UGX {c.sharePrice.toLocaleString()}</strong></span>
                     <span style={{ fontSize: 11.5, color: "#64748b" }}>ROI <strong style={{ color: "#0d9488" }}>{c.projectedROI}%</strong></span>
                     <span style={{ fontSize: 11.5, color: "#64748b" }}>Built <strong style={{ color: "#0f172a" }}>{c.constructionProgress}%</strong></span>
                   </div>
-                  <Link href={`/construction/${c.id}`} target="_blank" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: "#2563eb", textDecoration: "none" }}>
-                    View <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
-                  </Link>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <Link href={`/admin/construction/${c.id}`} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 750, color: "#d97706", textDecoration: "none" }}>
+                      <PencilSquareIcon style={{ width: 13, height: 13 }} /> Edit
+                    </Link>
+                    <Link href={`/construction/${c.id}`} target="_blank" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: "#2563eb", textDecoration: "none" }}>
+                      View <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -58,9 +64,6 @@ export default function AdminConstruction() {
         ))}
       </div>
 
-      <p style={{ fontSize: 12, color: "#b6c1cf", marginTop: 18 }}>
-        Full project editing (funding tranches, milestone reports, progress photos) arrives with the database connection — same pattern as the property editor.
-      </p>
     </>
   )
 }

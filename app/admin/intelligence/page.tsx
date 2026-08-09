@@ -18,7 +18,7 @@ export default function AdminIntelligence() {
   const { items: liveItems, live } = useIntelligence()
   const [items, setItems] = useState<IntelligenceItem[]>(liveItems)
   const [showForm, setShowForm] = useState(false)
-  const [draft, setDraft] = useState({ type: "development" as IntelType, title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "" })
+  const [draft, setDraft] = useState({ type: "development" as IntelType, title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "", image: "" })
   const [posted, setPosted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,6 +40,7 @@ export default function AdminIntelligence() {
       desc: draft.desc.trim(),
       change: draft.change,
       sourceLabel: draft.sourceLabel.trim() || "NestFund Research",
+      image: draft.image.trim(),
     }
     setError(null)
     try {
@@ -55,11 +56,11 @@ export default function AdminIntelligence() {
         desc: payload.desc,
         change: payload.change,
         timeAgo: "just now",
-        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
+        image: payload.image || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
         sourceLabel: payload.sourceLabel,
         sourceUrl: "#",
       }, ...prev])
-      setDraft({ type: "development", title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "" })
+      setDraft({ type: "development", title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "", image: "" })
       setShowForm(false)
       setPosted(true)
       setTimeout(() => setPosted(false), 4000)
@@ -135,6 +136,16 @@ export default function AdminIntelligence() {
             <label style={fieldLabel}>Details</label>
             <textarea style={{ ...fieldInput, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={draft.desc} onChange={e => setDraft(d => ({ ...d, desc: e.target.value }))} placeholder="What happened and what it means for property values..." />
           </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={fieldLabel}>Media — Cover Image URL</label>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <input style={{ ...fieldInput, flex: 1 }} value={draft.image} onChange={e => setDraft(d => ({ ...d, image: e.target.value }))} placeholder="Paste image URL — shown on the news card (file uploads come with storage)" />
+              {draft.image.trim() && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={draft.image.trim()} alt="Preview" style={{ width: 96, height: 60, borderRadius: 9, objectFit: "cover", border: "1.5px solid #e2e8f0", flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 200 }}>
               <label style={fieldLabel}>Source</label>
@@ -152,7 +163,9 @@ export default function AdminIntelligence() {
         {items.map((item, i) => {
           const meta = typeMeta[item.type]
           return (
-            <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderTop: i === 0 ? "none" : "1px solid #f4f6f9" }}>
+            <div key={item.id} className="admin-table-row" style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 20px", borderTop: i === 0 ? "none" : "1px solid #f4f6f9" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.image} alt="" style={{ width: 58, height: 42, borderRadius: 9, objectFit: "cover", flexShrink: 0, backgroundColor: "#f1f5f9" }} />
               <span style={{ fontSize: 9.5, fontWeight: 800, color: meta.color, backgroundColor: meta.bg, padding: "4px 10px", borderRadius: 99, letterSpacing: "0.04em", flexShrink: 0 }}>{item.category}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</p>
