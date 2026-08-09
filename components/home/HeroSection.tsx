@@ -51,36 +51,30 @@ export default function HeroSection() {
         <div>
           {/* Eyebrow label */}
           <p style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: "#7dd3fc",
-            letterSpacing: "0.12em",
+            fontSize: 12.5,
+            fontWeight: 500,
+            color: "rgba(255,255,255,0.55)",
+            letterSpacing: "0.1em",
             textTransform: "uppercase",
-            margin: "0 0 20px 0",
+            margin: "0 0 18px 0",
           }}>
             The Real Estate Investment Market
           </p>
 
-          {/* Headline */}
+          {/* Headline — clean, landing-page style */}
           <h1
             style={{
-              fontSize: "clamp(36px, 5vw, 58px)",
-              fontWeight: 850,
-              lineHeight: 1.06,
-              letterSpacing: "-1.8px",
-              color: "#fff",
+              fontSize: "clamp(34px, 4.6vw, 54px)",
+              fontWeight: 400,
+              lineHeight: 1.18,
+              letterSpacing: "-0.3px",
+              color: "rgba(255,255,255,0.88)",
               margin: "0 0 22px 0",
             }}
           >
             Own Real Estate.
             <br />
-            <span
-              style={{
-                background: "linear-gradient(100deg, #60a5fa 0%, #34d399 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
+            <span style={{ fontWeight: 700, color: "#fff" }}>
               Earn Every Month.
             </span>
           </h1>

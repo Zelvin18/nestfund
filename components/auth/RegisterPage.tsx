@@ -192,7 +192,7 @@ export default function RegisterPage() {
                 <button type="button" onClick={() => setStep(1)} style={{ flex: 1, height: 46, borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
                   Back
                 </button>
-                <Link href="/" style={{ flex: 2, display: "flex", alignItems: "center", justifyContent: "center", height: 46, borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 14px rgba(37,99,235,0.3)" }}>
+                <Link href="/onboarding" style={{ flex: 2, display: "flex", alignItems: "center", justifyContent: "center", height: 46, borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 14px rgba(37,99,235,0.3)" }}>
                   Create Account
                 </Link>
               </div>

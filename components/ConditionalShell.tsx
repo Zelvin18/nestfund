@@ -8,15 +8,23 @@ import MobileBottomNav from "@/components/MobileBottomNav"
 export default function ConditionalShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Landing page "/" gets its own nav/footer built-in
-  const isLanding = pathname === "/"
+  // Pages with their own chrome: landing has a built-in nav/footer,
+  // auth and onboarding are focused full-screen flows
+  const bare =
+    pathname === "/" ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/onboarding")
+
+  // Landing keeps the mobile bottom nav for quick access to the markets;
+  // auth/onboarding flows stay fully focused
+  const hideBottomNav = pathname.startsWith("/auth") || pathname.startsWith("/onboarding")
 
   return (
     <>
-      {!isLanding && <Navbar />}
+      {!bare && <Navbar />}
       {children}
-      {!isLanding && <Footer />}
-      <MobileBottomNav />
+      {!bare && <Footer />}
+      {!hideBottomNav && <MobileBottomNav />}
     </>
   )
 }

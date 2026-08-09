@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
@@ -12,11 +12,33 @@ import {
   ArrowTrendingUpIcon, ArrowTrendingDownIcon,
   CheckBadgeIcon, StarIcon,
 } from "@heroicons/react/24/solid"
-import { featuredProperties } from "@/lib/mockData"
+import { featuredProperties, generatePriceSeries } from "@/lib/mockData"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 
-const timeRanges = ["1W", "1M", "3M", "6M", "1Y", "ALL"]
+const timeRanges = ["1W", "1M", "3M", "6M", "1Y", "ALL"] as const
+type TimeRange = (typeof timeRanges)[number]
+
+/* Label helper — real calendar dates counting back from today */
+const dateLabel = (stepDays: number) => (i: number, points: number) => {
+  const d = new Date()
+  d.setDate(d.getDate() - Math.round((points - 1 - i) * stepDays))
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+}
+
+/* Each range: number of points, spacing in days, and how much of the
+   property's long-term growth story it covers */
+const rangeConfig: Record<TimeRange, { points: number; stepDays: number; driftShare: number }> = {
+  "1W":  { points: 8,  stepDays: 1,   driftShare: 0.04 },
+  "1M":  { points: 30, stepDays: 1,   driftShare: 0.12 },
+  "3M":  { points: 13, stepDays: 7,   driftShare: 0.3 },
+  "6M":  { points: 26, stepDays: 7,   driftShare: 0.55 },
+  "1Y":  { points: 12, stepDays: 30,  driftShare: 1 },
+  "ALL": { points: 24, stepDays: 30,  driftShare: 2 },
+}
+
+/* Long-term annual growth per story tier */
+const annualGrowthPct = { High: 16, Medium: 9, Low: 3.5 }
 
 const propertyExtras: Record<string, {
   beds: number; baths: number; sqm: number; parking: number; floors: number; yearBuilt: number
@@ -104,11 +126,23 @@ export default function PropertyDetailPage({ id }: { id: string }) {
   const property = featuredProperties.find(p => p.id === id)
   const extra = propertyExtras[id] || propertyExtras["sunrise-apartments"]
   const [shares, setShares] = useState(100)
-  const [range, setRange] = useState("1M")
+  const [range, setRange] = useState<TimeRange>("1M")
   const [saved, setSaved] = useState(false)
   const [tab, setTab] = useState<"overview"|"documents"|"calculator"|"activities"|"trades">("overview")
   const [docTab, setDocTab] = useState<"ownership"|"property"|"audit">("ownership")
   const [investment, setInvestment] = useState(500000)
+
+  // Story-driven price series — each range shows its slice of the property's
+  // long-term growth, always ending at the current share price
+  const chartSeries = useMemo(() => {
+    if (!property) return []
+    const cfg = rangeConfig[range]
+    const growth = annualGrowthPct[property.futureGrowth]
+    const drift = range === "1W"
+      ? property.priceChangePercent * 1.4
+      : growth * cfg.driftShare * (property.priceChangePercent < 0 ? 0.55 : 1)
+    return generatePriceSeries(`${property.id}-${range}`, property.pricePerShare, cfg.points, drift, dateLabel(cfg.stepDays))
+  }, [property, range])
 
   if (!property) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
@@ -237,15 +271,15 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={property.chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+                <AreaChart data={chartSeries} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
                   <defs>
                     <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={chartColor} stopOpacity={0.12} />
                       <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={4} />
-                  <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} />
+                  <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={Math.max(0, Math.ceil(chartSeries.length / 7) - 1)} />
+                  <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} domain={[(min: number) => Math.floor(min * 0.97), (max: number) => Math.ceil(max * 1.015)]} />
                   <Tooltip contentStyle={{ borderRadius: 9, border: "1px solid #f1f5f9", fontSize: 12 }} formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]} />
                   <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#ag)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
                 </AreaChart>
