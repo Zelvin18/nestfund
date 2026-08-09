@@ -37,12 +37,13 @@ export default function SharePriceChart({
   const fmt = (n: number) => n.toLocaleString()
 
   return (
-    <div style={{ position: "relative", height: height + 40 }}>
+    <div style={{ position: "relative", height: height + 40, width, maxWidth: "100%" }}>
       <svg
-        width={width}
+        width="100%"
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        style={{ overflow: "visible" }}
+        preserveAspectRatio="none"
+        style={{ display: "block" }}
       >
         {/* Solid line: start → current */}
         <line
@@ -98,7 +99,7 @@ export default function SharePriceChart({
       <div
         style={{
           position: "absolute",
-          left: x1 - 40,
+          left: `${((x1 - 40) / width) * 100}%`,
           top: y1 + 10,
           backgroundColor: "#0d9488",
           color: "#fff",
@@ -113,11 +114,11 @@ export default function SharePriceChart({
         <div style={{ fontSize: 9, fontWeight: 400, opacity: 0.85 }}>Price now</div>
       </div>
 
-      {/* End price tooltip */}
+      {/* End price tooltip — anchored to the right edge so it never overflows the card */}
       <div
         style={{
           position: "absolute",
-          left: x2 - 10,
+          right: 0,
           top: y2 - 48,
           backgroundColor: "#fff",
           border: "1.5px solid #e2e8f0",

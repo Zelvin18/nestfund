@@ -185,14 +185,14 @@ export default function IncomeMarketPage() {
           </p>
 
           {/* Stats */}
-          <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 28 }}>
+          <div className="stats-grid-3" style={{ marginBottom: 28 }}>
             <StatCard label="Total Properties" value="18" />
             <StatCard label="Total Value" value="UGX 4.2B" />
             <StatCard label="Avg. Annual Yield" value="10.4%" highlight />
           </div>
 
           {/* Filter tabs + sort */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="filter-sort-row">
             <div className="filter-tabs" style={{ display: "flex", gap: 0 }}>
               {filterTabs.map(tab => {
                 const isActive = activeFilter === tab.key
@@ -238,7 +238,7 @@ export default function IncomeMarketPage() {
         </p>
         <div
           className="property-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 22 }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))", gap: 22 }}
         >
           {filtered.map(property => (
             <PropertyCard key={`${property.id}-${property.name}`} property={property} />

@@ -61,10 +61,7 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div
-          className="steps-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, position: "relative" }}
-        >
+        <div className="steps-grid" style={{ position: "relative" }}>
           {/* Connector line */}
           <div
             className="steps-connector"

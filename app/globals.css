@@ -90,6 +90,16 @@ div, section, header, footer, nav, main, article, aside {
 @media (max-width: 860px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 420px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
 
+/* Stats — 3 tiles (Rental Market page) */
+.stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 860px) {
+  .stats-grid-3 { grid-template-columns: 1fr 1fr; }
+  .stats-grid-3 > :last-child { grid-column: 1 / -1; }
+}
+
+/* Filter tabs + sort dropdown row — let sort wrap below tabs on mobile */
+.filter-sort-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
 /* Property cards */
 .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
 @media (max-width: 640px)  { .property-grid { grid-template-columns: 1fr; } }
@@ -311,7 +321,7 @@ div, section, header, footer, nav, main, article, aside {
    AUTH
 ══════════════════════════════════════ */
 .auth-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
-@media (max-width: 768px) { .auth-grid { grid-template-columns: 1fr; } .auth-left { display: none; } }
+@media (max-width: 768px) { .auth-grid { grid-template-columns: 1fr; } .auth-left { display: none !important; } }
 
 /* ══════════════════════════════════════
    LANDING PAGE
@@ -332,6 +342,39 @@ div, section, header, footer, nav, main, article, aside {
 @media (max-width: 480px) {
   .trust-features-grid { grid-template-columns: 1fr; }
   .steps-grid          { grid-template-columns: 1fr; }
+}
+
+/* Landing hero — property cards strip (centered on desktop, scrollable from the left edge on mobile) */
+.hero-cards-strip {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.hero-cards-strip::-webkit-scrollbar { display: none; }
+@media (max-width: 760px) {
+  .hero-cards-strip { justify-content: flex-start; padding-bottom: 6px; }
+}
+
+/* Landing — featured property split card (image | details) */
+.featured-split {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid #f1f5f9;
+}
+.featured-split-img { height: 320px; overflow: hidden; }
+.featured-split-body { padding: 32px 36px; }
+@media (max-width: 800px) {
+  .featured-split { grid-template-columns: 1fr; gap: 0; }
+  .featured-split-img { height: 220px; }
+  .featured-split-body { padding: 24px 20px 28px; }
 }
 
 /* SharePrice chart overflow fix */

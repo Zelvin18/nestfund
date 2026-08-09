@@ -35,7 +35,7 @@ export default function MarketPage() {
           </p>
 
           {/* Tabs + Sort */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 0 }}>
+          <div className="filter-sort-row">
           <div className="filter-tabs" style={{ display: "flex", gap: 4 }}>
               {filterTabs.map(tab => (
                 <button
@@ -95,7 +95,7 @@ export default function MarketPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))",
             gap: 24,
           }}
           className="property-grid"

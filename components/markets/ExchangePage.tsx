@@ -183,15 +183,7 @@ export default function ExchangePage() {
           </p>
 
           {/* Stats grid */}
-          <div
-            className="stats-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 16,
-              marginBottom: 28,
-            }}
-          >
+          <div className="stats-grid" style={{ marginBottom: 28 }}>
             <StatCard label="Monthly Volume" value={exchangeStats.monthlyVolume} />
             <StatCard label="Avg. Sell Time" value={exchangeStats.avgSellTime} />
             <StatCard label="Market Participants" value={exchangeStats.participants.toLocaleString()} />
@@ -245,15 +237,7 @@ export default function ExchangePage() {
         className="container"
         style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 56px" }}
       >
-        <div
-          className="exchange-layout"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "260px 1fr",
-            gap: 24,
-            alignItems: "start",
-          }}
-        >
+        <div className="exchange-layout">
 
           {/* ── Sidebar: Market Stats ──────────────────────────────────── */}
           <aside className="exchange-sidebar">
@@ -354,7 +338,7 @@ export default function ExchangePage() {
               className="property-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(520px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(min(520px, 100%), 1fr))",
                 gap: 16,
               }}
             >

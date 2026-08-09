@@ -240,7 +240,7 @@ function HeroSection({ ticker }: { ticker: number }) {
         </div>
 
         {/* Property cards strip */}
-        <div style={{ display: "flex", gap: 14, justifyContent: "center", overflowX: "auto", paddingBottom: 0, WebkitOverflowScrolling: "touch" as const }}>
+        <div className="hero-cards-strip">
           {featuredCards.map((c, i) => (
             <Link key={i} href="/home" style={{ textDecoration: "none", flexShrink: 0 }}>
               <div style={{
@@ -294,10 +294,10 @@ function TrustNumbers() {
         <p style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", textAlign: "center", marginBottom: 32 }}>
           Results, Not Promises
         </p>
-        <div className="trust-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div className="trust-grid">
           {stats.map((s, i) => (
             <div key={i} style={{ backgroundColor: "#fff", borderRadius: 16, padding: "24px 20px", border: "1px solid #e8ecf0", textAlign: "center" }}>
-              <p style={{ fontSize: 34, fontWeight: 900, color: "#0f172a", letterSpacing: "-1px", margin: "0 0 6px 0" }}>{s.value}</p>
+              <p style={{ fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 900, color: "#0f172a", letterSpacing: "-1px", margin: "0 0 6px 0" }}>{s.value}</p>
               <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>{s.label}</p>
             </div>
           ))}
@@ -324,7 +324,7 @@ function MarketsSection() {
           </p>
         </div>
 
-        <div className="markets-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 22 }}>
+        <div className="markets-grid">
           {markets.map((m, i) => (
             <Link key={i} href={m.link} style={{ textDecoration: "none", display: "block" }}>
               <div style={{ backgroundColor: "#fff", borderRadius: 18, padding: "28px 24px", border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 0.2s", cursor: "pointer", height: "100%" }}
@@ -365,7 +365,7 @@ function HowItWorksSection() {
           </p>
         </div>
 
-        <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+        <div className="steps-grid">
           {howSteps.map((step, i) => (
             <div key={i} style={{ backgroundColor: "rgba(255,255,255,0.06)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "24px 20px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -406,7 +406,7 @@ function WhySection() {
           </p>
         </div>
 
-        <div className="trust-features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+        <div className="trust-features-grid">
           {trustPoints.map((t, i) => (
             <div key={i} style={{ backgroundColor: "#fff", borderRadius: 16, padding: "24px 20px", border: "1px solid #e8ecf0" }}>
               <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb", marginBottom: 16 }}>
@@ -419,11 +419,11 @@ function WhySection() {
         </div>
 
         {/* Featured property highlight */}
-        <div style={{ marginTop: 44, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "center", backgroundColor: "#fff", borderRadius: 20, overflow: "hidden", border: "1.5px solid #f1f5f9" }}>
-          <div style={{ height: 320, overflow: "hidden" }}>
+        <div className="featured-split">
+          <div className="featured-split-img">
             <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=700&q=80" alt="Property" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
-          <div style={{ padding: "32px 36px" }}>
+          <div className="featured-split-body">
             <span style={{ fontSize: 11, fontWeight: 700, color: "#0d9488", backgroundColor: "#f0fdfa", padding: "4px 10px", borderRadius: 99, display: "inline-block", marginBottom: 16 }}>FEATURED PROPERTY</span>
             <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: "0 0 6px 0" }}>Sunrise Apartments</h3>
             <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 20px 0" }}>Kiira, Wakiso · Verified Residential</p>
@@ -469,7 +469,7 @@ function TestimonialsSection() {
             What Our Investors Say
           </h2>
         </div>
-        <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 22 }}>
+        <div className="testimonials-grid">
           {testimonials.map((t, i) => (
             <div key={i} style={{ backgroundColor: "#f8fafc", borderRadius: 16, padding: "26px 22px", border: "1px solid #f1f5f9" }}>
               <div style={{ display: "flex", gap: 2, marginBottom: 14 }}>

@@ -62,7 +62,7 @@ export default function PortfolioPage() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 56px" }}>
 
         {/* Top 3-column cards */}
-        <div className="portfolio-top-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 28 }}>
+        <div className="portfolio-top-grid" style={{ marginBottom: 28 }}>
 
           {/* Card 1: Assets Net Value */}
           <div style={{ backgroundColor: "#fff", border: "1px solid #e8ecf0", borderRadius: 14, padding: "22px 22px 20px" }}>

@@ -27,7 +27,7 @@ export default function MarketOverview() {
           </p>
         </div>
 
-        <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        <div className="stats-grid">
           {stats.map((stat) => (
             <StatCard key={stat.label} {...stat} />
           ))}

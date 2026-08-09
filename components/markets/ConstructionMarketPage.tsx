@@ -192,7 +192,7 @@ export default function ConstructionMarketPage() {
           </p>
 
           {/* Stats */}
-          <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
+          <div className="stats-grid" style={{ marginBottom: 28 }}>
             <StatCard label="Total Projects" value="12" />
             <StatCard label="Total Capital Needed" value="UGX 28.5B" />
             <StatCard label="Avg. Projected ROI" value="34.8%" highlight />
@@ -200,7 +200,7 @@ export default function ConstructionMarketPage() {
           </div>
 
           {/* Filter tabs + sort */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="filter-sort-row">
             <div className="filter-tabs" style={{ display: "flex", gap: 0 }}>
               {filterTabs.map(tab => {
                 const isActive = activeFilter === tab.key
@@ -263,7 +263,7 @@ export default function ConstructionMarketPage() {
 
         <div
           className="property-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(640px, 1fr))", gap: 22 }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(640px, 100%), 1fr))", gap: 22 }}
         >
           {filtered.map(project => (
             <ProjectCard key={project.id} project={project} />

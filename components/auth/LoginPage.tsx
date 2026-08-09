@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
 
   return (
-    <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr" }} className="auth-grid">
+    <div className="auth-grid">
 
       {/* ── LEFT — Branding panel ── */}
       <div style={{ background: "linear-gradient(160deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)", padding: "48px 52px", display: "flex", flexDirection: "column", justifyContent: "space-between" }} className="auth-left">

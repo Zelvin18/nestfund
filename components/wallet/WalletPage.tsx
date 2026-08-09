@@ -97,7 +97,7 @@ export default function WalletPage() {
       </div>
 
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
-        <div className="wallet-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
+        <div className="wallet-grid">
 
           {/* Left */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

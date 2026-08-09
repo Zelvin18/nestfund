@@ -202,7 +202,7 @@ export default function IntelligencePage() {
 
       {/* Cards grid */}
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 56px" }}>
-        <div className="intel-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="intel-grid">
           {filtered.map(item => <IntelCard key={item.id} item={item} />)}
         </div>
       </div>

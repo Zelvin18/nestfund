@@ -77,14 +77,7 @@ export default function WhyNestFund() {
           </p>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 24,
-          }}
-          className="features-grid"
-        >
+        <div className="features-grid">
           {features.map((f, i) => (
             <div
               key={i}

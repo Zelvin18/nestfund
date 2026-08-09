@@ -132,14 +132,14 @@ export default function PropertyDetailPage({ id }: { id: string }) {
       {/* Breadcrumb */}
       <div style={{ backgroundColor: "#fff", borderBottom: "1px solid #e8ecf0" }}>
         <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 48, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Link href="/market" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, overflow: "hidden" }}>
+            <Link href="/market" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
               <ArrowLeftIcon style={{ width: 14, height: 14 }} />Rental Market
             </Link>
-            <span style={{ fontSize: 13, color: "#c4cad4" }}>/</span>
-            <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 600 }}>{property.name}</span>
+            <span style={{ fontSize: 13, color: "#c4cad4", flexShrink: 0 }}>/</span>
+            <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>{property.name}</span>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
             <button onClick={() => setSaved(!saved)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: `1.5px solid ${saved ? "#fecaca" : "#e2e8f0"}`, background: saved ? "#fef2f2" : "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: saved ? "#dc2626" : "#64748b" }}>
               <HeartIcon style={{ width: 14, height: 14 }} />{saved ? "Saved" : "Save"}
             </button>
