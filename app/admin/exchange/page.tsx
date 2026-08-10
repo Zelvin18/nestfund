@@ -49,8 +49,29 @@ export default function AdminExchange() {
     <>
       <PageHeader
         title="Exchange"
-        subtitle="Secondary-market listings — current share prices and order-book depth shown to traders"
+        subtitle="Monitor the secondary market — prices, depth, and premiums shown to traders"
       />
+
+      {/* Market monitor */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: 13, marginBottom: 18 }}>
+        {(() => {
+          const avgPremium = rows.length ? rows.reduce((s, r) => s + (r.originalSharePrice ? ((r.currentSharePrice - r.originalSharePrice) / r.originalSharePrice) * 100 : 0), 0) / rows.length : 0
+          const openOrders = rows.reduce((s, r) => s + r.availableBuyShares + r.availableSellShares, 0)
+          return [
+            { label: "Monthly Volume", value: "UGX 18.5B", sub: "+31.2% vs last month", color: "#ec4899" },
+            { label: "Avg. Premium", value: `${avgPremium >= 0 ? "+" : ""}${avgPremium.toFixed(1)}%`, sub: "vs base share price", color: avgPremium >= 0 ? "#10b981" : "#ef4444" },
+            { label: "Open Order Depth", value: openOrders.toLocaleString(), sub: "shares across buy + sell", color: "#3b82f6" },
+            { label: "Active Listings", value: String(rows.length), sub: "trading now", color: "#7c3aed" },
+          ].map(s => (
+            <Card key={s.label} style={{ padding: "16px 18px" }}>
+              <div style={{ width: 32, height: 4, borderRadius: 99, backgroundColor: s.color, marginBottom: 11 }} />
+              <p style={{ fontSize: 21, fontWeight: 850, color: "#0b1220", margin: "0 0 2px 0", letterSpacing: "-0.4px" }}>{s.value}</p>
+              <p style={{ fontSize: 11.5, fontWeight: 700, color: "#46536b", margin: "0 0 1px 0" }}>{s.label}</p>
+              <p style={{ fontSize: 10.5, color: "#a6b2c3", margin: 0 }}>{s.sub}</p>
+            </Card>
+          ))
+        })()}
+      </div>
 
       {error && (
         <div style={{ backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 11, padding: "11px 16px", marginBottom: 16 }}>

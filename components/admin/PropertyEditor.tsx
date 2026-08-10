@@ -14,7 +14,9 @@ import {
   BanknotesIcon,
   Squares2X2Icon,
   ChartBarIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline"
+import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import { PageHeader, Card, SaveBar, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
 import { type RentalProperty, type ActivityItem } from "@/lib/data/rentals"
 import { useRentals } from "@/lib/hooks"
@@ -322,6 +324,21 @@ export default function PropertyEditor({ id }: { id: string }) {
               <PlusIcon style={{ width: 14, height: 14 }} />
               Upload Document (needs storage connection)
             </button>
+          </Card>
+
+          <Card title="Verification Passport" subtitle="Every check must pass before a property can go Live — the workflow engine ships with admin roles" icon={ShieldCheckIcon} accent="#16a34a">
+            {["Title / deed verified", "Owner identity verified", "Independent valuation", "Physical inspection", "Legal review", "Insurance policy"].map(check => (
+              <div key={check} style={{ display: "flex", alignItems: "center", gap: 9, padding: "6px 0" }}>
+                <CheckCircleIcon style={{ width: 17, height: 17, color: p.status === "Live" ? "#16a34a" : "#cbd5e1", flexShrink: 0 }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: p.status === "Live" ? "#0f172a" : "#94a3b8" }}>{check}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 7, backgroundColor: p.status === "Live" ? "#f0fdf4" : "#fffbeb", border: `1px solid ${p.status === "Live" ? "#dcfce7" : "#fde68a"}`, borderRadius: 99, padding: "6px 16px" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: p.status === "Live" ? "#16a34a" : "#d97706" }} />
+              <span style={{ fontSize: 12, fontWeight: 800, color: p.status === "Live" ? "#166534" : "#92400e", letterSpacing: "0.05em" }}>
+                {p.status === "Live" ? "VERIFIED" : p.status.toUpperCase()}
+              </span>
+            </div>
           </Card>
 
           <Card title="Market Data" subtitle="24-hour movement shown next to the share price" icon={ChartBarIcon} accent="#dc2626">

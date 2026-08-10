@@ -111,8 +111,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           ))}
         </nav>
 
-        {/* Footer: connection state + view site */}
+        {/* Footer: profile + connection state + view site */}
         <div className="admin-side-footer" style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #0d9488, #10b981)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13, color: "#fff", flexShrink: 0 }}>A</div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 12.5, fontWeight: 750, color: "#e2e8f0", margin: 0, lineHeight: 1.25 }}>NestFund Admin</p>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#4c5c7a", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>Super Admin</p>
+            </div>
+          </div>
           <div style={{
             display: "flex", alignItems: "center", gap: 8, marginBottom: 12,
             backgroundColor: live ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)",

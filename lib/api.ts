@@ -358,6 +358,24 @@ export async function saveExchangeListing(dbId: string, fields: { currentSharePr
   if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
 }
 
+export async function updateIntelligence(id: string, fields: {
+  title: string; location: string; desc: string; change: number; affected: number; image: string; sourceLabel: string
+}): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb
+    .from("intelligence_items")
+    .update({
+      title: fields.title, location: fields.location, description: fields.desc,
+      change_percent: fields.change, affected_properties: fields.affected,
+      image: fields.image, source_label: fields.sourceLabel,
+    })
+    .eq("id", id)
+    .select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
 export async function deleteIntelligence(id: string): Promise<void> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")
