@@ -365,6 +365,107 @@ export async function deleteIntelligence(id: string): Promise<void> {
   if (error) throw new Error(error.message)
 }
 
+/* ── Developer project submissions ───────────────────────────── */
+
+export interface ProjectSubmissionInput {
+  submissionType: string
+  projectName: string
+  location: string
+  sizeDetails: string
+  estimatedValue: number
+  developmentStage: string
+  expectedCompletion: string
+  ownership: string
+  description: string
+  capitalSought: number
+  capitalUses: string[]
+  documentsAvailable: string[]
+  contactName: string
+  contactEmail: string
+  contactPhone: string
+  company: string
+}
+
+export interface ProjectSubmission extends ProjectSubmissionInput {
+  id: string
+  status: string
+  createdAt: string
+}
+
+export async function submitProject(input: ProjectSubmissionInput): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { error } = await sb.from("project_submissions").insert({
+    submission_type: input.submissionType,
+    project_name: input.projectName,
+    location: input.location,
+    size_details: input.sizeDetails,
+    estimated_value: input.estimatedValue,
+    development_stage: input.developmentStage,
+    expected_completion: input.expectedCompletion,
+    ownership: input.ownership,
+    description: input.description,
+    capital_sought: input.capitalSought,
+    capital_uses: input.capitalUses,
+    documents_available: input.documentsAvailable,
+    contact_name: input.contactName,
+    contact_email: input.contactEmail,
+    contact_phone: input.contactPhone,
+    company: input.company,
+  })
+  if (error) {
+    if (error.message.includes("does not exist") || error.message.includes("Could not find the table") || error.message.includes("schema cache")) {
+      throw new Error("The submissions table is missing — run supabase/developers-schema.sql in the Supabase SQL editor, then try again.")
+    }
+    throw new Error(error.message)
+  }
+}
+
+export async function fetchSubmissions(): Promise<ProjectSubmission[] | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb
+    .from("project_submissions")
+    .select("*")
+    .order("created_at", { ascending: false })
+  if (error || !data) return null
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  return data.map((row: any) => ({
+    id: row.id,
+    submissionType: row.submission_type,
+    projectName: row.project_name,
+    location: row.location,
+    sizeDetails: row.size_details ?? "",
+    estimatedValue: Number(row.estimated_value ?? 0),
+    developmentStage: row.development_stage ?? "",
+    expectedCompletion: row.expected_completion ?? "",
+    ownership: row.ownership ?? "",
+    description: row.description ?? "",
+    capitalSought: Number(row.capital_sought),
+    capitalUses: row.capital_uses ?? [],
+    documentsAvailable: row.documents_available ?? [],
+    contactName: row.contact_name,
+    contactEmail: row.contact_email,
+    contactPhone: row.contact_phone ?? "",
+    company: row.company ?? "",
+    status: row.status,
+    createdAt: row.created_at,
+  }))
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+export async function updateSubmissionStatus(id: string, status: string): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb
+    .from("project_submissions")
+    .update({ status, reviewed_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
 export async function saveSiteSetting(key: string, value: unknown): Promise<void> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")

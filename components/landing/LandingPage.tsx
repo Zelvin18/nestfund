@@ -112,6 +112,7 @@ function LandingNav() {
             { href: "/market", label: "Rental Market" },
             { href: "/construction-market", label: "Construction" },
             { href: "/exchange", label: "Exchange" },
+            { href: "/developers", label: "For Developers" },
             { href: "/home", label: "Dashboard" },
           ].map(l => (
             <Link key={l.href} href={l.href} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 500, color: "#4b5563", textDecoration: "none" }}>{l.label}</Link>
@@ -572,7 +573,7 @@ function LandingFooter() {
             <span style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>NestFund</span>
           </div>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-            {[["Rental Market","/market"],["Construction","/construction-market"],["Exchange","/exchange"],["Portfolio","/portfolio"],["Terms","/terms"],["Privacy","/privacy"]].map(([label, href]) => (
+            {[["Rental Market","/market"],["Construction","/construction-market"],["Exchange","/exchange"],["For Developers","/developers"],["Portfolio","/portfolio"],["Terms","/terms"],["Privacy","/privacy"]].map(([label, href]) => (
               <Link key={href} href={href} style={{ fontSize: 13, color: "#475569", textDecoration: "none" }}>{label}</Link>
             ))}
           </div>

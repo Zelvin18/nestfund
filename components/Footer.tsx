@@ -4,6 +4,7 @@ const footerLinks = {
   Platform: [
     { label: "Browse Market", href: "/market" },
     { label: "Portfolio", href: "/portfolio" },
+    { label: "For Developers", href: "/developers" },
     { label: "Market Intelligence", href: "/intelligence" },
     { label: "Wallet", href: "/wallet" },
     { label: "Watchlist", href: "/watchlist" },

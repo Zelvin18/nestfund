@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/exchange",            label: "Exchange",       sub: "Trade shares P2P" },
   { href: "/portfolio",           label: "Portfolio",      sub: "Track investments" },
   { href: "/wallet",              label: "Wallet",         sub: "Manage funds" },
+  { href: "/developers",          label: "For Developers", sub: "List your property" },
 ]
 
 export default function Navbar() {
