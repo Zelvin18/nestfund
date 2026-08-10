@@ -98,6 +98,7 @@ function mapProperty(row: any): RentalProperty {
     tradeHistory: trades.length ? trades : mock?.tradeHistory ?? [],
     chartData: generateChartData(pricePerShare, 30, Number(row.price_change_percent) >= 0 ? "up" : "down"),
     managerId: row.manager_id ?? null,
+    recommendedIds: row.recommended_ids ?? [],
   }
 }
 
@@ -259,24 +260,27 @@ const WRITE_BLOCKED =
 export async function savePropertyFields(id: string, p: RentalProperty): Promise<void> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")
-  const { data, error } = await sb
-    .from("properties")
-    .update({
-      name: p.name, location: p.location, type: p.type, status: p.status,
-      description: p.description ?? null,
-      image: p.images[0] ?? p.image,
-      current_price: p.currentPrice, price_per_share: p.pricePerShare,
-      total_shares: p.totalShares, available_shares: p.availableShares,
-      price_change: p.priceChange, price_change_percent: p.priceChangePercent,
-      rental_yield: p.rentalYield, area_score: p.areaScore,
-      future_growth: p.futureGrowth, occupancy: p.occupancy, investors: p.investors,
-      beds: p.beds, baths: p.baths, sqm: p.sqm,
-      parking: p.parking, floors: p.floors, year_built: p.yearBuilt,
-    })
-    .eq("id", id)
-    .select("id")
-  if (error) throw new Error(error.message)
-  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+  const base = {
+    name: p.name, location: p.location, type: p.type, status: p.status,
+    description: p.description ?? null,
+    image: p.images[0] ?? p.image,
+    current_price: p.currentPrice, price_per_share: p.pricePerShare,
+    total_shares: p.totalShares, available_shares: p.availableShares,
+    price_change: p.priceChange, price_change_percent: p.priceChangePercent,
+    rental_yield: p.rentalYield, area_score: p.areaScore,
+    future_growth: p.futureGrowth, occupancy: p.occupancy, investors: p.investors,
+    beds: p.beds, baths: p.baths, sqm: p.sqm,
+    parking: p.parking, floors: p.floors, year_built: p.yearBuilt,
+  }
+  let res = await sb.from("properties")
+    .update({ ...base, recommended_ids: p.recommendedIds ?? [] })
+    .eq("id", id).select("id")
+  // Older databases may not have the column yet — retry without it
+  if (res.error && res.error.message.includes("recommended_ids")) {
+    res = await sb.from("properties").update(base).eq("id", id).select("id")
+  }
+  if (res.error) throw new Error(res.error.message)
+  if (!res.data || res.data.length === 0) throw new Error(WRITE_BLOCKED)
 }
 
 /** Wholesale gallery replace keeps ordering simple */

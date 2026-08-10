@@ -15,7 +15,8 @@ import {
 import { generatePriceSeries } from "@/lib/mockData"
 import { useRentals } from "@/lib/hooks"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts"
+import ChartBox from "@/components/ui/ChartBox"
 
 const timeRanges = ["1W", "1M", "3M", "6M", "1Y", "ALL"] as const
 type TimeRange = (typeof timeRanges)[number]
@@ -62,6 +63,18 @@ export default function PropertyDetailPage({ id }: { id: string }) {
       : growth * cfg.driftShare * (property.priceChangePercent < 0 ? 0.55 : 1)
     return generatePriceSeries(`${property.id}-${range}`, property.pricePerShare, cfg.points, drift, dateLabel(cfg.stepDays))
   }, [property, range])
+
+  // Admin-curated picks first, then auto-fill with same type / top yield
+  const recommendations = useMemo(() => {
+    if (!property) return []
+    const manual = (property.recommendedIds ?? [])
+      .map(rid => rentals.find(r => r.id === rid))
+      .filter((r): r is NonNullable<typeof r> => !!r && r.id !== property.id)
+    const pool = rentals.filter(r => r.id !== property.id && !manual.some(m => m.id === r.id))
+    const sameType = pool.filter(r => r.type === property.type)
+    const rest = pool.filter(r => r.type !== property.type).sort((a, b) => b.rentalYield - a.rentalYield)
+    return [...manual, ...sameType, ...rest].slice(0, 3)
+  }, [rentals, property])
 
   if (!property) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
@@ -191,20 +204,22 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                   {timeRanges.map(r => <button key={r} onClick={() => setRange(r)} style={{ padding: "4px 9px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 600, backgroundColor: range === r ? "#fff" : "transparent", color: range === r ? "#0f172a" : "#94a3b8", boxShadow: range === r ? "0 1px 4px rgba(0,0,0,0.1)" : "none" }}>{r}</button>)}
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={chartSeries} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
-                  <defs>
-                    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={chartColor} stopOpacity={0.12} />
-                      <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={Math.max(0, Math.ceil(chartSeries.length / 7) - 1)} />
-                  <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} domain={[(min: number) => Math.floor(min * 0.97), (max: number) => Math.ceil(max * 1.015)]} />
-                  <Tooltip contentStyle={{ borderRadius: 9, border: "1px solid #f1f5f9", fontSize: 12 }} formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]} />
-                  <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#ag)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
-                </AreaChart>
-              </ResponsiveContainer>
+              <ChartBox height={220}>
+                {w => (
+                  <AreaChart width={w} height={220} data={chartSeries} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+                    <defs>
+                      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={chartColor} stopOpacity={0.12} />
+                        <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={Math.max(0, Math.ceil(chartSeries.length / 7) - 1)} />
+                    <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} domain={[(min: number) => Math.floor(min * 0.97), (max: number) => Math.ceil(max * 1.015)]} />
+                    <Tooltip contentStyle={{ borderRadius: 9, border: "1px solid #f1f5f9", fontSize: 12 }} formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]} />
+                    <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#ag)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
+                  </AreaChart>
+                )}
+              </ChartBox>
             </div>
 
             {/* Tabs */}
@@ -499,6 +514,40 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           </div>
 
         </div>
+
+        {/* ── Recommended properties ── */}
+        {recommendations.length > 0 && (
+          <div style={{ marginTop: 36 }}>
+            <div style={{ marginBottom: 18 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 5px 0" }}>You may also like</p>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.4px", margin: 0 }}>Recommended Properties</h2>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(280px, 100%), 1fr))", gap: 18 }}>
+              {recommendations.map(r => (
+                <Link key={r.id} href={`/property/${r.id}`} style={{ textDecoration: "none" }}>
+                  <div
+                    style={{ backgroundColor: "#fff", borderRadius: 14, border: "1px solid #e8ecf0", overflow: "hidden", transition: "box-shadow 0.2s, transform 0.2s", cursor: "pointer" }}
+                    onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "0 8px 24px rgba(15,23,42,0.1)"; el.style.transform = "translateY(-3px)" }}
+                    onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "none"; el.style.transform = "translateY(0)" }}
+                  >
+                    <div style={{ position: "relative", height: 150, overflow: "hidden" }}>
+                      <img src={r.image} alt={r.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <span style={{ position: "absolute", top: 10, left: 10, fontSize: 10, fontWeight: 700, color: "#0d9488", backgroundColor: "rgba(255,255,255,0.94)", padding: "3px 10px", borderRadius: 99 }}>{r.type}</span>
+                    </div>
+                    <div style={{ padding: "13px 15px 15px" }}>
+                      <p style={{ fontSize: 14.5, fontWeight: 700, color: "#0f172a", margin: "0 0 2px 0" }}>{r.name}</p>
+                      <p style={{ fontSize: 11.5, color: "#94a3b8", margin: "0 0 10px 0" }}>{r.location}</p>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>UGX {r.pricePerShare.toLocaleString()}<span style={{ fontSize: 11, fontWeight: 500, color: "#94a3b8" }}>/share</span></span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#0d9488" }}>{r.rentalYield}% yield</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

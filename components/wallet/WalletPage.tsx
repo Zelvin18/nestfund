@@ -24,7 +24,8 @@ import {
   ShieldCheckIcon,
 } from "@heroicons/react/24/solid"
 import { formatCurrency } from "@/lib/utils"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts"
+import ChartBox from "@/components/ui/ChartBox"
 
 import {
   walletTransactions as transactions,
@@ -182,18 +183,20 @@ export default function WalletPage() {
                   <p style={{ fontSize: 18, fontWeight: 800, color: "#10b981", margin: 0 }}>UGX 185,000</p>
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={incomeData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
-                  <YAxis hide />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 10, border: "1px solid #f1f5f9", fontSize: 12 }}
-                    formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Income"]}
-                    cursor={{ fill: "#f8fafc" }}
-                  />
-                  <Bar dataKey="income" fill="#2563eb" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <ChartBox height={180}>
+                {w => (
+                  <BarChart width={w} height={180} data={incomeData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
+                    <YAxis hide />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 10, border: "1px solid #f1f5f9", fontSize: 12 }}
+                      formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Income"]}
+                      cursor={{ fill: "#f8fafc" }}
+                    />
+                    <Bar dataKey="income" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                )}
+              </ChartBox>
             </div>
 
             {/* Transactions */}

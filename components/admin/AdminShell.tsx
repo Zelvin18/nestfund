@@ -13,6 +13,7 @@ import {
   ArrowTopRightOnSquareIcon,
   UsersIcon,
   InboxArrowDownIcon,
+  BriefcaseIcon,
 } from "@heroicons/react/24/outline"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
@@ -42,6 +43,7 @@ const navSections: Array<{ label: string; items: Array<{ href: string; label: st
   {
     label: "Platform",
     items: [
+      { href: "/admin/developers", label: "Developers", icon: BriefcaseIcon },
       { href: "/admin/managers", label: "Managers", icon: UserGroupIcon },
       { href: "/admin/investors", label: "Investors", icon: UsersIcon },
     ],

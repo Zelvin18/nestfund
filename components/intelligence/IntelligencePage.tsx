@@ -183,9 +183,11 @@ function IntelCard({ item, lookup }: { item: IntelligenceItem; lookup: Map<strin
           </span>
         </div>
 
-        {/* Title overlaid at bottom */}
+        {/* Title overlaid at bottom — links to the full story */}
         <div style={{ position: "absolute", bottom: 12, left: 14, right: 14 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.3 }}>{item.title}</h3>
+          <Link href={`/intelligence/${item.id}`} style={{ textDecoration: "none" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.3 }}>{item.title}</h3>
+          </Link>
         </div>
       </div>
 
@@ -240,15 +242,12 @@ function IntelCard({ item, lookup }: { item: IntelligenceItem; lookup: Map<strin
             {positive ? "+" : ""}{item.change}% expected impact
           </div>
 
-          <a
-            href={item.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600, color: "#2563eb", textDecoration: "none" }}
+          <Link
+            href={`/intelligence/${item.id}`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: "#2563eb", textDecoration: "none" }}
           >
-            <IconLink />
-            View source
-          </a>
+            Read full story →
+          </Link>
         </div>
 
         {/* Source attribution */}

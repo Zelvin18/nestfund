@@ -15,6 +15,7 @@ import {
   Squares2X2Icon,
   ChartBarIcon,
   ShieldCheckIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline"
 import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import { PageHeader, Card, SaveBar, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
@@ -324,6 +325,38 @@ export default function PropertyEditor({ id }: { id: string }) {
               <PlusIcon style={{ width: 14, height: 14 }} />
               Upload Document (needs storage connection)
             </button>
+          </Card>
+
+          <Card title="Recommended Properties" subtitle="Shown as 'You may also like' under this property on the site — pick up to 3" icon={SparklesIcon}>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+              {rentals.filter(r => r.id !== id).map(r => {
+                const selected = (p.recommendedIds ?? []).includes(r.id)
+                return (
+                  <button
+                    key={r.id}
+                    onClick={() => {
+                      const current = p.recommendedIds ?? []
+                      const next = selected
+                        ? current.filter(x => x !== r.id)
+                        : current.length >= 3 ? [...current.slice(1), r.id] : [...current, r.id]
+                      set("recommendedIds", next)
+                    }}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "7px 13px", borderRadius: 99, fontSize: 12, fontWeight: 650, cursor: "pointer",
+                      border: selected ? "1.5px solid #2563eb" : "1.5px solid #e8ecf0",
+                      backgroundColor: selected ? "#eff6ff" : "#fff",
+                      color: selected ? "#1d4ed8" : "#64748b",
+                    }}
+                  >
+                    {selected ? "✓ " : ""}{r.name}
+                  </button>
+                )
+              })}
+            </div>
+            <p style={{ fontSize: 11.5, color: "#b6c1cf", margin: "12px 0 0 0" }}>
+              {(p.recommendedIds ?? []).length}/3 selected — leave empty for automatic picks (same type, then top yield).
+            </p>
           </Card>
 
           <Card title="Verification Passport" subtitle="Every check must pass before a property can go Live — the workflow engine ships with admin roles" icon={ShieldCheckIcon} accent="#16a34a">

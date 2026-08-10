@@ -67,6 +67,8 @@ export interface RentalProperty {
   chartData: { time: string; value: number }[]
   /** Assigned property manager (managers table), when set */
   managerId?: string | null
+  /** Admin-curated "you may also like" links shown under the property page */
+  recommendedIds?: string[]
 }
 
 /* monthly rental income implied by valuation × yield */
