@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { ArrowPathIcon, MapPinIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/solid"
-import { useIntelligence } from "@/lib/hooks"
+import { useIntelligence, useRentals, useConstruction } from "@/lib/hooks"
 import { type IntelligenceItem } from "@/lib/data/intelligence"
 
 /* ── Inline SVG icon components ── */
@@ -48,6 +49,12 @@ const filters: { key: FilterKey; label: string }[] = [
 export default function IntelligencePage() {
   const [active, setActive] = useState<FilterKey>("all")
   const { items: allItems } = useIntelligence()
+  const { rentals } = useRentals()
+  const { projects } = useConstruction()
+  const lookup = new Map<string, { name: string; href: string }>([
+    ...rentals.map(p => [p.id, { name: p.name, href: `/property/${p.id}` }] as const),
+    ...projects.map(p => [p.id, { name: p.name, href: `/construction/${p.id}` }] as const),
+  ])
 
   const filtered = allItems.filter(item => {
     if (active === "all") return true
@@ -119,15 +126,16 @@ export default function IntelligencePage() {
       {/* Cards grid */}
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 56px" }}>
         <div className="intel-grid">
-          {filtered.map(item => <IntelCard key={item.id} item={item} />)}
+          {filtered.map(item => <IntelCard key={item.id} item={item} lookup={lookup} />)}
         </div>
       </div>
     </div>
   )
 }
 
-function IntelCard({ item }: { item: IntelligenceItem }) {
+function IntelCard({ item, lookup }: { item: IntelligenceItem; lookup: Map<string, { name: string; href: string }> }) {
   const positive = item.change >= 0
+  const affected = item.affectedPropertyIds.map(id => ({ id, ...lookup.get(id) })).filter((p): p is { id: string; name: string; href: string } => !!p.name)
 
   const typeConfig = {
     approval:    { Icon: IconCheckCircle, bg: "#f0fdf4", color: "#16a34a", ring: "#bbf7d0" },
@@ -194,6 +202,27 @@ function IntelCard({ item }: { item: IntelligenceItem }) {
 
         {/* Description */}
         <p style={{ fontSize: 13, color: "#475569", margin: 0, lineHeight: 1.65 }}>{item.desc}</p>
+
+        {/* Affected listed properties — click to open */}
+        {affected.length > 0 && (
+          <div>
+            <p style={{ fontSize: 10.5, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 6px 0" }}>
+              Listed properties affected
+            </p>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {affected.map(p => (
+                <Link key={p.id} href={p.href} style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  fontSize: 11.5, fontWeight: 650, color: "#1d4ed8",
+                  backgroundColor: "#eff6ff", border: "1px solid #dbeafe",
+                  borderRadius: 99, padding: "4px 11px", textDecoration: "none",
+                }}>
+                  {p.name} →
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Bottom row: impact badge + source link */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: "auto" }}>

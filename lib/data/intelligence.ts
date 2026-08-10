@@ -13,6 +13,8 @@ export interface IntelligenceItem {
   title: string
   location: string
   affectedProps: number
+  /** Listed properties/projects this news concerns — shown as chips investors can click */
+  affectedPropertyIds: string[]
   desc: string
   change: number
   timeAgo: string
@@ -29,6 +31,7 @@ export const intelligenceFeed: IntelligenceItem[] = [
     title: "Gov't Approves New Expressway",
     location: "Entebbe – Kampala",
     affectedProps: 312,
+    affectedPropertyIds: ["lake-view-residences","sunrise-apartments","ibis-residences-ii"],
     desc: "Properties along the 51km corridor expected to see significant value appreciation. New access roads open 3 untapped residential zones.",
     change: 11,
     timeAgo: "2h ago",
@@ -43,6 +46,7 @@ export const intelligenceFeed: IntelligenceItem[] = [
     title: "New Shopping Mall Approved",
     location: "Kira Town, Wakiso",
     affectedProps: 89,
+    affectedPropertyIds: ["sunrise-apartments","ibis-residences-ii"],
     desc: "Commercial activity boost expected within 6 months. Nearby residential properties historically increase 7–12% after mall construction.",
     change: 7,
     timeAgo: "5h ago",
@@ -57,6 +61,7 @@ export const intelligenceFeed: IntelligenceItem[] = [
     title: "Flooding Reported in Bwaise",
     location: "Bwaise, Kampala",
     affectedProps: 47,
+    affectedPropertyIds: [],
     desc: "High-risk flood zone alert. Properties in low-lying areas facing devaluation risk. Insurance premiums expected to rise.",
     change: -8,
     timeAgo: "7h ago",
@@ -71,6 +76,7 @@ export const intelligenceFeed: IntelligenceItem[] = [
     title: "New University Campus Planned",
     location: "Nansana, Wakiso",
     affectedProps: 134,
+    affectedPropertyIds: ["naalya-business-park","naalya-eco-park"],
     desc: "Student housing demand expected to surge. Purpose-built student accommodation currently under-supplied in this corridor.",
     change: 15,
     timeAgo: "12h ago",
@@ -85,6 +91,7 @@ export const intelligenceFeed: IntelligenceItem[] = [
     title: "Property Tax Increase in Kololo",
     location: "Kololo, Kampala",
     affectedProps: 28,
+    affectedPropertyIds: ["kololo-heights","kololo-towers-ii"],
     desc: "Local council approved 12% property tax increase. Net rental yields in the area may decrease by 0.5–1.2% for investors.",
     change: -4,
     timeAgo: "1d ago",
@@ -99,6 +106,7 @@ export const intelligenceFeed: IntelligenceItem[] = [
     title: "New Industrial Park Approved",
     location: "Namanve, Mukono",
     affectedProps: 201,
+    affectedPropertyIds: ["naalya-business-park"],
     desc: "20,000+ workers expected to relocate to the area. Worker housing demand rising. Strong buy signal for budget residential.",
     change: 9,
     timeAgo: "2d ago",

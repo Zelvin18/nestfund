@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { PlusIcon, TrashIcon, XMarkIcon, MapPinIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
 import { PageHeader, Card, fieldLabel, fieldInput } from "@/components/admin/AdminShell"
 import { type IntelligenceItem, type IntelType } from "@/lib/data/intelligence"
-import { useIntelligence } from "@/lib/hooks"
+import { useIntelligence, useRentals, useConstruction } from "@/lib/hooks"
 import { publishIntelligence, deleteIntelligence, updateIntelligence } from "@/lib/api"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
@@ -14,10 +14,43 @@ const typeMeta: Record<IntelType, { label: string; color: string; bg: string; ca
   decline:     { label: "Risk Alert",          color: "#dc2626", bg: "#fef2f2", category: "RISK ALERT" },
 }
 
-const emptyDraft = { type: "development" as IntelType, title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "", image: "" }
+const emptyDraft = { type: "development" as IntelType, title: "", location: "", desc: "", change: 0, affected: 0, sourceLabel: "", image: "", affectedPropertyIds: [] as string[] }
+
+/* Chip multi-select for linking news to listed properties */
+function PropertyPicker({ selected, onToggle, options }: {
+  selected: string[]
+  onToggle: (id: string) => void
+  options: { id: string; name: string; kind: string }[]
+}) {
+  return (
+    <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+      {options.map(o => {
+        const active = selected.includes(o.id)
+        return (
+          <button key={o.id} onClick={() => onToggle(o.id)} style={{
+            display: "inline-flex", alignItems: "center", gap: 5,
+            padding: "7px 13px", borderRadius: 99, fontSize: 12, fontWeight: 650, cursor: "pointer",
+            border: active ? "1.5px solid #2563eb" : "1.5px solid #e8ecf0",
+            backgroundColor: active ? "#eff6ff" : "#fff",
+            color: active ? "#1d4ed8" : "#64748b",
+          }}>
+            {active ? "✓ " : ""}{o.name}
+            <span style={{ fontSize: 9, fontWeight: 800, color: active ? "#60a5fa" : "#b6c1cf", textTransform: "uppercase" }}>{o.kind}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function AdminIntelligence() {
   const { items: liveItems, live } = useIntelligence()
+  const { rentals } = useRentals()
+  const { projects } = useConstruction()
+  const propertyOptions = [
+    ...rentals.map(p => ({ id: p.id, name: p.name, kind: "Rental" })),
+    ...projects.map(p => ({ id: p.id, name: p.name, kind: "Build" })),
+  ]
   const [items, setItems] = useState<IntelligenceItem[]>(liveItems)
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState(emptyDraft)
@@ -42,6 +75,7 @@ export default function AdminIntelligence() {
       desc: draft.desc.trim(), change: draft.change,
       sourceLabel: draft.sourceLabel.trim() || "NestFund Research",
       image: draft.image.trim(),
+      affectedPropertyIds: draft.affectedPropertyIds,
     }
     setError(null)
     setBusy(true)
@@ -51,6 +85,7 @@ export default function AdminIntelligence() {
       setItems(prev => [newItem ?? {
         id: String(Date.now()), type: payload.type, category: payload.category,
         title: payload.title, location: payload.location, affectedProps: payload.affected,
+        affectedPropertyIds: payload.affectedPropertyIds,
         desc: payload.desc, change: payload.change, timeAgo: "just now",
         image: payload.image || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
         sourceLabel: payload.sourceLabel, sourceUrl: "#",
@@ -72,6 +107,7 @@ export default function AdminIntelligence() {
         title: editing.title, location: editing.location, desc: editing.desc,
         change: editing.change, affected: editing.affectedProps,
         image: editing.image, sourceLabel: editing.sourceLabel,
+        affectedPropertyIds: editing.affectedPropertyIds,
       })
       setItems(prev => prev.map(x => x.id === editing.id ? editing : x))
       setEditing(null)
@@ -157,6 +193,14 @@ export default function AdminIntelligence() {
                 <img src={draft.image.trim()} alt="Preview" style={{ width: 96, height: 60, borderRadius: 9, objectFit: "cover", border: "1.5px solid #e2e8f0", flexShrink: 0 }} />
               )}
             </div>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={fieldLabel}>Affected Properties — shown to investors as clickable chips</label>
+            <PropertyPicker
+              selected={draft.affectedPropertyIds}
+              onToggle={id => setDraft(d => ({ ...d, affectedPropertyIds: d.affectedPropertyIds.includes(id) ? d.affectedPropertyIds.filter(x => x !== id) : [...d.affectedPropertyIds, id] }))}
+              options={propertyOptions}
+            />
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 200 }}>
@@ -245,7 +289,7 @@ export default function AdminIntelligence() {
                 <label style={fieldLabel}>Details</label>
                 <textarea style={{ ...fieldInput, minHeight: 84, resize: "vertical", fontFamily: "inherit", lineHeight: 1.6 }} value={editing.desc} onChange={e => setEditing(v => v ? { ...v, desc: e.target.value } : v)} />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 18 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 13 }}>
                 <div>
                   <label style={fieldLabel}>Cover Image URL</label>
                   <input style={fieldInput} value={editing.image} onChange={e => setEditing(v => v ? { ...v, image: e.target.value } : v)} />
@@ -254,6 +298,14 @@ export default function AdminIntelligence() {
                   <label style={fieldLabel}>Source</label>
                   <input style={fieldInput} value={editing.sourceLabel} onChange={e => setEditing(v => v ? { ...v, sourceLabel: e.target.value } : v)} />
                 </div>
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <label style={fieldLabel}>Affected Properties</label>
+                <PropertyPicker
+                  selected={editing.affectedPropertyIds}
+                  onToggle={id => setEditing(v => v ? { ...v, affectedPropertyIds: v.affectedPropertyIds.includes(id) ? v.affectedPropertyIds.filter(x => x !== id) : [...v.affectedPropertyIds, id] } : v)}
+                  options={propertyOptions}
+                />
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button onClick={saveEdit} disabled={busy} style={{ flex: 1, padding: "12px 0", borderRadius: 11, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #7c3aed, #6d28d9)", color: "#fff", fontSize: 14, fontWeight: 750, opacity: busy ? 0.7 : 1 }}>

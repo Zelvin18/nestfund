@@ -42,8 +42,8 @@ const navSections: Array<{ label: string; items: Array<{ href: string; label: st
   {
     label: "Platform",
     items: [
-      { href: "/admin/managers", label: "Managers", icon: UserGroupIcon, soon: true },
-      { href: "/admin/investors", label: "Investors", icon: UsersIcon, soon: true },
+      { href: "/admin/managers", label: "Managers", icon: UserGroupIcon },
+      { href: "/admin/investors", label: "Investors", icon: UsersIcon },
     ],
   },
 ]
@@ -164,9 +164,17 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   )
 }
 
-export function Card({ title, subtitle, icon: Icon, accent = "#2563eb", children, style }: {
+/* Uniform neutral icon tile — one calm grey across the whole console */
+export const iconTile: React.CSSProperties = {
+  width: 34, height: 34, borderRadius: 10,
+  backgroundColor: "#f1f5f9", border: "1px solid #e8edf4",
+  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+}
+
+export function Card({ title, subtitle, icon: Icon, children, style }: {
   title?: string; subtitle?: string
   icon?: React.ComponentType<{ style?: React.CSSProperties }>
+  /** kept for call-site compatibility; icons are uniformly grey now */
   accent?: string
   children: React.ReactNode; style?: React.CSSProperties
 }) {
@@ -179,8 +187,8 @@ export function Card({ title, subtitle, icon: Icon, accent = "#2563eb", children
       {title && (
         <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
           {Icon && (
-            <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${accent}14`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Icon style={{ width: 17, height: 17, color: accent }} />
+            <div style={iconTile}>
+              <Icon style={{ width: 17, height: 17, color: "#64748b" }} />
             </div>
           )}
           <div>

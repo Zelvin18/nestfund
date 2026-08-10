@@ -97,6 +97,7 @@ function mapProperty(row: any): RentalProperty {
     activityFeed: activities.length ? activities : mock?.activityFeed ?? [],
     tradeHistory: trades.length ? trades : mock?.tradeHistory ?? [],
     chartData: generateChartData(pricePerShare, 30, Number(row.price_change_percent) >= 0 ? "up" : "down"),
+    managerId: row.manager_id ?? null,
   }
 }
 
@@ -108,6 +109,7 @@ function mapIntelligence(row: any): IntelligenceItem {
     title: row.title,
     location: row.location ?? "",
     affectedProps: row.affected_properties ?? 0,
+    affectedPropertyIds: row.affected_property_ids ?? [],
     desc: row.description ?? "",
     change: Number(row.change_percent),
     timeAgo: timeAgo(row.published_at),
@@ -116,6 +118,9 @@ function mapIntelligence(row: any): IntelligenceItem {
     sourceUrl: row.source_url ?? "#",
   }
 }
+
+const isMissingAffectedColumn = (msg: string) =>
+  msg.includes("affected_property_ids")
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -298,22 +303,26 @@ export async function addPropertyActivity(id: string, a: { icon: string; title: 
 export async function publishIntelligence(item: {
   type: IntelType; category: string; title: string; location: string
   affected: number; desc: string; change: number; sourceLabel: string; image?: string
+  affectedPropertyIds?: string[]
 }): Promise<IntelligenceItem | null> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")
-  const { data, error } = await sb
-    .from("intelligence_items")
-    .insert({
-      type: item.type, category: item.category, title: item.title,
-      location: item.location, affected_properties: item.affected,
-      description: item.desc, change_percent: item.change,
-      source_label: item.sourceLabel, source_url: "#",
-      image: item.image?.trim() || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
-    })
-    .select()
-    .single()
-  if (error) throw new Error(error.message.includes("row-level security") ? WRITE_BLOCKED : error.message)
-  return data ? mapIntelligence(data) : null
+  const base = {
+    type: item.type, category: item.category, title: item.title,
+    location: item.location, affected_properties: item.affected,
+    description: item.desc, change_percent: item.change,
+    source_label: item.sourceLabel, source_url: "#",
+    image: item.image?.trim() || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70",
+  }
+  let res = await sb.from("intelligence_items")
+    .insert({ ...base, affected_property_ids: item.affectedPropertyIds ?? [] })
+    .select().single()
+  // Older databases may not have the column yet — retry without it
+  if (res.error && isMissingAffectedColumn(res.error.message)) {
+    res = await sb.from("intelligence_items").insert(base).select().single()
+  }
+  if (res.error) throw new Error(res.error.message.includes("row-level security") ? WRITE_BLOCKED : res.error.message)
+  return res.data ? mapIntelligence(res.data) : null
 }
 
 export async function saveConstructionFields(id: string, c: ConstructionProject): Promise<void> {
@@ -360,18 +369,80 @@ export async function saveExchangeListing(dbId: string, fields: { currentSharePr
 
 export async function updateIntelligence(id: string, fields: {
   title: string; location: string; desc: string; change: number; affected: number; image: string; sourceLabel: string
+  affectedPropertyIds?: string[]
 }): Promise<void> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")
-  const { data, error } = await sb
-    .from("intelligence_items")
-    .update({
-      title: fields.title, location: fields.location, description: fields.desc,
-      change_percent: fields.change, affected_properties: fields.affected,
-      image: fields.image, source_label: fields.sourceLabel,
-    })
-    .eq("id", id)
-    .select("id")
+  const base = {
+    title: fields.title, location: fields.location, description: fields.desc,
+    change_percent: fields.change, affected_properties: fields.affected,
+    image: fields.image, source_label: fields.sourceLabel,
+  }
+  let res = await sb.from("intelligence_items")
+    .update({ ...base, affected_property_ids: fields.affectedPropertyIds ?? [] })
+    .eq("id", id).select("id")
+  if (res.error && isMissingAffectedColumn(res.error.message)) {
+    res = await sb.from("intelligence_items").update(base).eq("id", id).select("id")
+  }
+  if (res.error) throw new Error(res.error.message)
+  if (!res.data || res.data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
+/* ── Managers ────────────────────────────────────────────────── */
+
+export interface Manager {
+  id: string
+  fullName: string
+  email: string
+  phone: string
+  company: string
+  isActive: boolean
+  createdAt: string
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const mapManager = (row: any): Manager => ({
+  id: row.id,
+  fullName: row.full_name,
+  email: row.email,
+  phone: row.phone ?? "",
+  company: row.company ?? "",
+  isActive: row.is_active,
+  createdAt: row.created_at,
+})
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+export async function fetchManagers(): Promise<Manager[] | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb.from("managers").select("*").order("created_at", { ascending: true })
+  if (error || !data) return null
+  return data.map(mapManager)
+}
+
+export async function createManager(m: { fullName: string; email: string; phone: string; company: string }): Promise<Manager> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb.from("managers")
+    .insert({ full_name: m.fullName, email: m.email, phone: m.phone || null, company: m.company || null })
+    .select().single()
+  if (error) throw new Error(error.message.includes("row-level security") ? WRITE_BLOCKED : error.message)
+  return mapManager(data)
+}
+
+export async function setManagerActive(id: string, isActive: boolean): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb.from("managers").update({ is_active: isActive }).eq("id", id).select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
+/** Assign or unassign (managerId = null) a rental property to a manager */
+export async function setPropertyManager(propertyId: string, managerId: string | null): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb.from("properties").update({ manager_id: managerId }).eq("id", propertyId).select("id")
   if (error) throw new Error(error.message)
   if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
 }

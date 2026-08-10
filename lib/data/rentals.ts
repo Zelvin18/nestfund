@@ -65,6 +65,8 @@ export interface RentalProperty {
   activityFeed: ActivityItem[]
   tradeHistory: TradeRecord[]
   chartData: { time: string; value: number }[]
+  /** Assigned property manager (managers table), when set */
+  managerId?: string | null
 }
 
 /* monthly rental income implied by valuation × yield */
