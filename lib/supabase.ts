@@ -18,8 +18,8 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 /* Fallbacks so deploys work without Vercel env config. The anon key is
    public by design (it ships in every browser request) — row-level
    security is the actual boundary. Env vars override when set. */
-const FALLBACK_URL = "https://cmrwksxoajukfxtbpgqh.supabase.co"
-const FALLBACK_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtcndrc3hvYWp1a2Z4dGJwZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNzc5MTksImV4cCI6MjEwMTg1MzkxOX0.EZpXxsiMF_1Pnm3G73eAZjEy4zT5AOECF6o_siqRupk"
+const FALLBACK_URL = "https://bdrcklmirjlsylauzmoc.supabase.co"
+const FALLBACK_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkcmNrbG1pcmpsc3lsYXV6bW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNTg4NTgsImV4cCI6MjEwMTkzNDg1OH0.-hdDkXNnsD5p67wyrNvvyLUbcWCBKkT1ICWw-kL196U"
 
 let client: SupabaseClient | null | undefined
 
