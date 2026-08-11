@@ -3,6 +3,7 @@ import Link from "next/link"
 const footerLinks = {
   Platform: [
     { label: "Browse Market", href: "/market" },
+    { label: "Coming Soon", href: "/coming-soon" },
     { label: "Portfolio", href: "/portfolio" },
     { label: "For Developers", href: "/developers" },
     { label: "Market Intelligence", href: "/intelligence" },

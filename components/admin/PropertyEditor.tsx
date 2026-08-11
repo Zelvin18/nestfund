@@ -165,9 +165,15 @@ export default function PropertyEditor({ id }: { id: string }) {
               <div>
                 <label style={fieldLabel}>Status</label>
                 <select style={{ ...fieldInput, cursor: "pointer" }} value={p.status} onChange={e => set("status", e.target.value)}>
-                  <option>Draft</option><option>Live</option><option>Paused</option><option>Sold</option>
+                  <option>Draft</option><option>Coming Soon</option><option>Live</option><option>Paused</option><option>Sold</option>
                 </select>
               </div>
+              {p.status === "Coming Soon" && (
+                <div>
+                  <label style={fieldLabel}>Interest Threshold (investors)</label>
+                  <input style={fieldInput} inputMode="numeric" value={String(p.interestThreshold ?? 100)} onChange={e => set("interestThreshold", num(e.target.value))} />
+                </div>
+              )}
               <div>
                 <label style={fieldLabel}>Growth Outlook</label>
                 <select style={{ ...fieldInput, cursor: "pointer" }} value={p.futureGrowth} onChange={e => set("futureGrowth", e.target.value as RentalProperty["futureGrowth"])}>

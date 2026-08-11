@@ -99,6 +99,7 @@ function mapProperty(row: any): RentalProperty {
     chartData: generateChartData(pricePerShare, 30, Number(row.price_change_percent) >= 0 ? "up" : "down"),
     managerId: row.manager_id ?? null,
     recommendedIds: row.recommended_ids ?? [],
+    interestThreshold: row.interest_threshold ?? mock?.interestThreshold ?? 100,
   }
 }
 
@@ -273,14 +274,66 @@ export async function savePropertyFields(id: string, p: RentalProperty): Promise
     parking: p.parking, floors: p.floors, year_built: p.yearBuilt,
   }
   let res = await sb.from("properties")
-    .update({ ...base, recommended_ids: p.recommendedIds ?? [] })
+    .update({ ...base, recommended_ids: p.recommendedIds ?? [], interest_threshold: p.interestThreshold ?? 100 })
     .eq("id", id).select("id")
-  // Older databases may not have the column yet — retry without it
-  if (res.error && res.error.message.includes("recommended_ids")) {
+  // Older databases may not have the columns yet — retry without them
+  if (res.error && (res.error.message.includes("recommended_ids") || res.error.message.includes("interest_threshold"))) {
     res = await sb.from("properties").update(base).eq("id", id).select("id")
   }
   if (res.error) throw new Error(res.error.message)
   if (!res.data || res.data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
+export async function setPropertyStatus(id: string, status: string): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb.from("properties").update({ status }).eq("id", id).select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
+/* ── Coming Soon: priority reservations ──────────────────────── */
+
+export interface InterestStats {
+  count: number
+  amount: number
+}
+
+export async function submitInterest(input: {
+  propertyId: string; fullName: string; email: string; phone: string; intendedAmount: number
+}): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { error } = await sb.from("property_interest").insert({
+    property_id: input.propertyId,
+    full_name: input.fullName,
+    email: input.email,
+    phone: input.phone || null,
+    intended_amount: input.intendedAmount,
+  })
+  if (error) {
+    if (error.code === "23505" || error.message.includes("duplicate")) {
+      throw new Error("You've already reserved priority access for this property — we have your details.")
+    }
+    if (error.message.includes("Could not find the table") || error.message.includes("schema cache")) {
+      throw new Error("Reservations aren't set up yet — run supabase/coming-soon.sql in the Supabase SQL editor.")
+    }
+    throw new Error(error.message)
+  }
+}
+
+export async function fetchInterestStats(): Promise<Record<string, InterestStats> | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb.from("property_interest").select("property_id, intended_amount")
+  if (error || !data) return null
+  const out: Record<string, InterestStats> = {}
+  for (const row of data as { property_id: string; intended_amount: number }[]) {
+    const s = out[row.property_id] ?? (out[row.property_id] = { count: 0, amount: 0 })
+    s.count += 1
+    s.amount += Number(row.intended_amount || 0)
+  }
+  return out
 }
 
 /** Wholesale gallery replace keeps ordering simple */

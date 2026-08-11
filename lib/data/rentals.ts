@@ -69,6 +69,8 @@ export interface RentalProperty {
   managerId?: string | null
   /** Admin-curated "you may also like" links shown under the property page */
   recommendedIds?: string[]
+  /** Reserved investors needed before the property opens to the market */
+  interestThreshold?: number
 }
 
 /* monthly rental income implied by valuation × yield */
@@ -301,6 +303,72 @@ export const rentalProperties: RentalProperty[] = [
     chartData: generateChartData(2400, 30, "up"),
   },
 ]
+
+/* ── Coming Soon pipeline (status: "Coming Soon") ─────────────
+   New listings gather priority reservations here; the first to hit
+   its interest threshold opens to the market first. */
+const comingSoonDefaults = {
+  totalShares: 5000, availableShares: 5000,
+  priceChange: 0, priceChangePercent: 0,
+  occupancy: 0, investors: 0,
+  status: "Coming Soon", lastActivity: "Opening soon",
+  activityFeed: [] as ActivityItem[], tradeHistory: [] as TradeRecord[],
+}
+
+export const comingSoonProperties: RentalProperty[] = [
+  {
+    ...comingSoonDefaults,
+    id: "bugolobi-sky-terraces",
+    name: "Bugolobi Sky Terraces",
+    location: "Bugolobi, Kampala",
+    type: "Residential",
+    image: "https://images.unsplash.com/photo-1515263487990-61b07816b324?w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1515263487990-61b07816b324?w=900&q=80"],
+    currentPrice: 380000000, pricePerShare: 1900,
+    rentalYield: 10.6, areaScore: 89, futureGrowth: "High",
+    beds: 3, baths: 2, sqm: 140, parking: 2, floors: 9, yearBuilt: 2024,
+    interestThreshold: 120,
+    chartData: generateChartData(1900, 30, "up"),
+  },
+  {
+    ...comingSoonDefaults,
+    id: "jinja-waterfront-suites",
+    name: "Jinja Waterfront Suites",
+    location: "Jinja City",
+    type: "Hotels",
+    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=900&q=80"],
+    currentPrice: 520000000, pricePerShare: 2600,
+    rentalYield: 12.1, areaScore: 85, futureGrowth: "High",
+    beds: 2, baths: 2, sqm: 88, parking: 1, floors: 6, yearBuilt: 2023,
+    interestThreshold: 150,
+    chartData: generateChartData(2600, 30, "up"),
+  },
+  {
+    ...comingSoonDefaults,
+    id: "mbarara-trade-centre",
+    name: "Mbarara Trade Centre",
+    location: "Mbarara City",
+    type: "Commercial",
+    image: "https://images.unsplash.com/photo-1554435493-93422e8220c8?w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1554435493-93422e8220c8?w=900&q=80"],
+    currentPrice: 290000000, pricePerShare: 1450,
+    rentalYield: 11.4, areaScore: 82, futureGrowth: "Medium",
+    beds: 0, baths: 4, sqm: 2600, parking: 40, floors: 5, yearBuilt: 2022,
+    interestThreshold: 100,
+    chartData: generateChartData(1450, 30, "up"),
+  },
+]
+
+/* Fallback reservation counts when the database is unreachable */
+export const mockInterestStats: Record<string, { count: number; amount: number }> = {
+  "bugolobi-sky-terraces": { count: 96, amount: 112000000 },
+  "jinja-waterfront-suites": { count: 47, amount: 64000000 },
+  "mbarara-trade-centre": { count: 22, amount: 19000000 },
+}
+
+// Coming-soon listings live in the same canonical pool
+rentalProperties.push(...comingSoonProperties)
 
 export const getRentalProperty = (id: string) => rentalProperties.find(p => p.id === id)
 

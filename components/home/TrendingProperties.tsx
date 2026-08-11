@@ -9,7 +9,8 @@ import { formatCurrency, formatPercentage } from "@/lib/utils"
 import Sparkline from "@/components/ui/Sparkline"
 
 export default function TrendingProperties() {
-  const { rentals: featuredProperties } = useRentals()
+  const { rentals } = useRentals()
+  const featuredProperties = rentals.filter(p => p.status === "Live")
   return (
     <section style={{ backgroundColor: "#fff", padding: "72px 0" }} className="section-pad">
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }} className="container">

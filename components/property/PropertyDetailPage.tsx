@@ -64,13 +64,14 @@ export default function PropertyDetailPage({ id }: { id: string }) {
     return generatePriceSeries(`${property.id}-${range}`, property.pricePerShare, cfg.points, drift, dateLabel(cfg.stepDays))
   }, [property, range])
 
-  // Admin-curated picks first, then auto-fill with same type / top yield
+  // Admin-curated picks first, then auto-fill with same type / top yield (open listings only)
   const recommendations = useMemo(() => {
     if (!property) return []
+    const open = rentals.filter(r => r.status === "Live")
     const manual = (property.recommendedIds ?? [])
-      .map(rid => rentals.find(r => r.id === rid))
+      .map(rid => open.find(r => r.id === rid))
       .filter((r): r is NonNullable<typeof r> => !!r && r.id !== property.id)
-    const pool = rentals.filter(r => r.id !== property.id && !manual.some(m => m.id === r.id))
+    const pool = open.filter(r => r.id !== property.id && !manual.some(m => m.id === r.id))
     const sameType = pool.filter(r => r.type === property.type)
     const rest = pool.filter(r => r.type !== property.type).sort((a, b) => b.rentalYield - a.rentalYield)
     return [...manual, ...sameType, ...rest].slice(0, 3)
@@ -97,6 +98,17 @@ export default function PropertyDetailPage({ id }: { id: string }) {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f6f8" }}>
+
+      {/* Coming Soon guard — not investable until it opens */}
+      {property.status === "Coming Soon" && (
+        <div style={{ backgroundColor: "#0f766e", padding: "11px 24px" }}>
+          <p style={{ maxWidth: 1280, margin: "0 auto", fontSize: 13, fontWeight: 650, color: "#fff", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, fontWeight: 800, backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 99, padding: "3px 10px", letterSpacing: "0.06em" }}>COMING SOON</span>
+            This property hasn&apos;t opened for investment yet — reserve priority access on the{" "}
+            <Link href="/coming-soon" style={{ color: "#99f6e4", fontWeight: 750, textDecoration: "underline" }}>Coming Soon page</Link>.
+          </p>
+        </div>
+      )}
 
       {/* Breadcrumb */}
       <div style={{ backgroundColor: "#fff", borderBottom: "1px solid #e8ecf0" }}>

@@ -231,7 +231,7 @@ function FundStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }
 /* ── Step 3: First investment ── */
 function InvestStep() {
   const { rentals } = useRentals()
-  const picks = rentals.slice(0, 3)
+  const picks = rentals.filter(p => p.status === "Live").slice(0, 3)
 
   return (
     <StepCard title="You're all set — pick your first property" subtitle="These verified properties are popular with first-time investors. One share is all it takes to start earning.">

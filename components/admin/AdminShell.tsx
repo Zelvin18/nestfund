@@ -14,6 +14,7 @@ import {
   UsersIcon,
   InboxArrowDownIcon,
   BriefcaseIcon,
+  RocketLaunchIcon,
 } from "@heroicons/react/24/outline"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
@@ -28,6 +29,7 @@ const navSections: Array<{ label: string; items: Array<{ href: string; label: st
     label: "Markets",
     items: [
       { href: "/admin/properties", label: "Properties", icon: BuildingOffice2Icon },
+      { href: "/admin/coming-soon", label: "Coming Soon", icon: RocketLaunchIcon },
       { href: "/admin/construction", label: "Construction", icon: WrenchScrewdriverIcon },
       { href: "/admin/exchange", label: "Exchange", icon: ArrowsRightLeftIcon },
       { href: "/admin/submissions", label: "Submissions", icon: InboxArrowDownIcon },

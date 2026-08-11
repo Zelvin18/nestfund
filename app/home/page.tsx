@@ -2,6 +2,7 @@ import HeroSection from "@/components/home/HeroSection"
 import LiveTicker from "@/components/home/LiveTicker"
 import MarketOverview from "@/components/home/MarketOverview"
 import TrendingProperties from "@/components/home/TrendingProperties"
+import { ComingSoonSection } from "@/components/comingsoon/ComingSoon"
 import MarketIntelligenceSection from "@/components/home/MarketIntelligence"
 import HowItWorks from "@/components/home/HowItWorks"
 import WhyNestFund from "@/components/home/WhyNestFund"
@@ -16,6 +17,7 @@ export default function AppHome() {
       <LiveTicker />
       <MarketOverview />
       <TrendingProperties />
+      <ComingSoonSection />
       <MarketIntelligenceSection />
       <HowItWorks />
       <WhyNestFund />

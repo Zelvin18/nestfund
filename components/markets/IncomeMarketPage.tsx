@@ -29,7 +29,7 @@ export default function IncomeMarketPage() {
   const [activeFilter, setActiveFilter] = useState<PropertyType>("All")
   const [sort, setSort] = useState<SortKey>("yield-high")
   const { rentals } = useRentals()
-  const incomeProperties = useMemo(() => rentals.map(toIncomeProperty), [rentals])
+  const incomeProperties = useMemo(() => rentals.filter(p => p.status === "Live").map(toIncomeProperty), [rentals])
 
   const filtered = incomeProperties
     .filter(p => activeFilter === "All" || p.type === activeFilter)

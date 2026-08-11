@@ -91,12 +91,14 @@ export interface TickerItem {
   img: string
 }
 
-export const tickerItems: TickerItem[] = rentalProperties.map(p => ({
-  name: p.name,
-  price: p.pricePerShare,
-  change: p.priceChangePercent,
-  img: p.image.replace("w=600", "w=56&h=56&fit=crop"),
-}))
+export const tickerItems: TickerItem[] = rentalProperties
+  .filter(p => p.status === "Live")
+  .map(p => ({
+    name: p.name,
+    price: p.pricePerShare,
+    change: p.priceChangePercent,
+    img: p.image.replace("w=600", "w=56&h=56&fit=crop"),
+  }))
 
 /* ── Recent-trades feed (Exchange sidebar) ── */
 export const traderNames = ["James K.", "Amina N.", "David O.", "Grace T.", "Peter M.", "Sarah L.", "Brian S.", "Joan A.", "Moses W.", "Diana R."]

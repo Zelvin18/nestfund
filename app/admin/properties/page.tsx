@@ -74,7 +74,12 @@ export default function AdminProperties() {
                   <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 12.5, color: "#64748b", whiteSpace: "nowrap" }}>UGX {(monthlyIncomeOf(p) / 1e6).toFixed(2)}M</td>
                   <td style={{ padding: "12px 16px", textAlign: "right", fontSize: 12.5, color: "#64748b" }}>{p.investors}</td>
                   <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                    <span style={{ fontSize: 10.5, fontWeight: 700, color: "#16a34a", backgroundColor: "#f0fdf4", border: "1px solid #dcfce7", padding: "3px 10px", borderRadius: 99 }}>{p.status}</span>
+                    <span style={{
+                      fontSize: 10.5, fontWeight: 700, padding: "3px 10px", borderRadius: 99, whiteSpace: "nowrap",
+                      color: p.status === "Live" ? "#16a34a" : p.status === "Coming Soon" ? "#92400e" : "#64748b",
+                      backgroundColor: p.status === "Live" ? "#f0fdf4" : p.status === "Coming Soon" ? "#fffbeb" : "#f8fafc",
+                      border: `1px solid ${p.status === "Live" ? "#dcfce7" : p.status === "Coming Soon" ? "#fde68a" : "#e2e8f0"}`,
+                    }}>{p.status}</span>
                   </td>
                   <td style={{ padding: "12px 16px", textAlign: "right" }}>
                     <Link href={`/admin/properties/${p.id}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, color: "#2563eb", textDecoration: "none", whiteSpace: "nowrap" }}>

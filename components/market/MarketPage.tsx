@@ -15,7 +15,8 @@ type Sort = "trending" | "price-low" | "price-high" | "yield"
 export default function MarketPage() {
   const [filter, setFilter] = useState<Filter>("all")
   const [sort, setSort] = useState<Sort>("trending")
-  const { rentals: featuredProperties } = useRentals()
+  const { rentals } = useRentals()
+  const featuredProperties = rentals.filter(p => p.status === "Live")
 
   const filterTabs: { key: Filter; label: string }[] = [
     { key: "all", label: "All Properties" },

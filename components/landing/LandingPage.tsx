@@ -6,6 +6,7 @@ import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ShieldCheckIcon, StarIcon } from "@heroicons/react/24/solid"
 import CountUp from "@/components/ui/CountUp"
 import { useLandingFeatured, usePlatformStats, useRentals, useConstruction } from "@/lib/hooks"
+import { ComingSoonSection } from "@/components/comingsoon/ComingSoon"
 
 /* ── Inline SVG icons (professional, no emoji) ── */
 const IconHome = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
@@ -71,6 +72,9 @@ export default function LandingPage() {
 
       {/* ══ MARKETS ══ */}
       <MarketsSection />
+
+      {/* ══ COMING SOON — reserve before launch ══ */}
+      <ComingSoonSection />
 
       {/* ══ HOW IT WORKS ══ */}
       <HowItWorksSection />
@@ -286,7 +290,7 @@ function TrustNumbers() {
   const { projects } = useConstruction()
   const stats = [
     { value: platform.marketVolume, label: "invested in real estate" },
-    { value: `${rentals.length + projects.length}+`, label: "verified properties" },
+    { value: `${rentals.filter(p => p.status === "Live").length + projects.length}+`, label: "verified properties" },
     { value: platform.distributedToInvestors, label: "distributed to investors" },
     { value: `${platform.totalInvestors.toLocaleString()}+`, label: "investors on the platform" },
   ]

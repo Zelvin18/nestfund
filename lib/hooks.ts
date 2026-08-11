@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import {
   fetchRentalProperties, fetchIntelligence, fetchPlatformStats,
   fetchConstructionProjects, fetchExchangeListings, fetchSiteSetting,
-  type PlatformStats,
+  fetchInterestStats, type PlatformStats, type InterestStats,
 } from "./api"
-import { rentalProperties as mockRentals, type RentalProperty } from "./data/rentals"
+import { rentalProperties as mockRentals, comingSoonProperties, mockInterestStats, type RentalProperty } from "./data/rentals"
 import { intelligenceFeed as mockIntel, marketStats as mockStats, type IntelligenceItem } from "./data/intelligence"
 import { constructionProjects as mockProjects, type ConstructionProject } from "./data/construction"
 import { exchangeListings as mockListings, type ExchangeListing } from "./data/exchange"
@@ -79,6 +79,36 @@ export function useExchange(): { listings: (ExchangeListing & { dbId?: string })
   return state
 }
 
+/** Coming Soon queue: unopened listings ranked by reservations (leader first) */
+export function useComingSoon(): {
+  queue: (RentalProperty & { interest: InterestStats; progress: number })[]
+  live: boolean
+} {
+  const { rentals, live } = useRentals()
+  const [stats, setStats] = useState<Record<string, InterestStats>>(mockInterestStats)
+  useEffect(() => {
+    let active = true
+    fetchInterestStats()
+      .then(d => { if (active && d) setStats(prev => ({ ...prev, ...d })) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  // If the database has no Coming Soon rows yet (coming-soon.sql not run),
+  // fall back to the built-in queue so the section never goes dark
+  const source = rentals.some(p => p.status === "Coming Soon")
+    ? rentals
+    : [...rentals, ...comingSoonProperties.filter(c => !rentals.some(r => r.id === c.id))]
+  const queue = source
+    .filter(p => p.status === "Coming Soon")
+    .map(p => {
+      const interest = stats[p.id] ?? { count: 0, amount: 0 }
+      const threshold = p.interestThreshold ?? 100
+      return { ...p, interest, progress: Math.min(100, Math.round((interest.count / threshold) * 100)) }
+    })
+    .sort((a, b) => b.progress - a.progress || b.interest.count - a.interest.count)
+  return { queue, live }
+}
+
 /** The admin-selected property for the /home hero card */
 export function useHomeHeroProperty(): RentalProperty {
   const { rentals } = useRentals()
@@ -90,7 +120,8 @@ export function useHomeHeroProperty(): RentalProperty {
       .catch(() => {})
     return () => { active = false }
   }, [])
-  return rentals.find(p => p.id === heroId) ?? rentals[0] ?? mockRentals[0]
+  const liveOnes = rentals.filter(p => p.status === "Live")
+  return liveOnes.find(p => p.id === heroId) ?? liveOnes[0] ?? mockRentals[0]
 }
 
 export interface FeaturedCard {
