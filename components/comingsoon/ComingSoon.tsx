@@ -153,7 +153,7 @@ export function ReserveModal({ property, onClose, onReserved }: {
   )
 }
 
-/* ═══ Card ═══ */
+/* ═══ Card — clicking anywhere opens the full property page ═══ */
 export function ComingSoonCard({ property, rank, onReserve }: {
   property: QueuedProperty
   rank: number
@@ -162,7 +162,8 @@ export function ComingSoonCard({ property, rank, onReserve }: {
   const threshold = property.interestThreshold ?? 100
   const ready = property.interest.count >= threshold
   return (
-    <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", display: "flex", flexDirection: "column", transition: "box-shadow 0.2s, transform 0.2s" }}
+    <Link href={`/property/${property.id}`} style={{ textDecoration: "none", display: "block" }}>
+    <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%", boxSizing: "border-box", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s" }}
       onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "0 12px 32px rgba(15,23,42,0.1)"; el.style.transform = "translateY(-3px)" }}
       onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "none"; el.style.transform = "translateY(0)" }}>
       {/* Image */}
@@ -204,17 +205,24 @@ export function ComingSoonCard({ property, rank, onReserve }: {
           <BanknotesIcon style={{ width: 12, height: 12 }} /> {fmtM(property.interest.amount)} in reserved interest
         </p>
 
-        <button onClick={() => onReserve(property)} style={{
-          marginTop: "auto", width: "100%", padding: "11px 0", borderRadius: 11, border: "none", cursor: "pointer",
-          background: ready ? "linear-gradient(135deg, #16a34a, #15803d)" : "linear-gradient(135deg, #0d9488, #0f766e)",
-          color: "#fff", fontSize: 13.5, fontWeight: 750,
-          display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
-        }}>
+        <button
+          onClick={e => { e.preventDefault(); e.stopPropagation(); onReserve(property) }}
+          style={{
+            marginTop: "auto", width: "100%", padding: "11px 0", borderRadius: 11, border: "none", cursor: "pointer",
+            background: ready ? "linear-gradient(135deg, #16a34a, #15803d)" : "linear-gradient(135deg, #0d9488, #0f766e)",
+            color: "#fff", fontSize: 13.5, fontWeight: 750,
+            display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+          }}
+        >
           {ready ? "Threshold reached — join the wave" : "Reserve Priority Access"}
           <ArrowRightIcon style={{ width: 14, height: 14 }} />
         </button>
+        <p style={{ fontSize: 11, color: "#b6c1cf", textAlign: "center", margin: "9px 0 0 0" }}>
+          Click the card for full details, photos &amp; potential
+        </p>
       </div>
     </div>
+    </Link>
   )
 }
 

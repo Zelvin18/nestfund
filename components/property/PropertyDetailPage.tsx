@@ -13,7 +13,9 @@ import {
   CheckBadgeIcon, StarIcon,
 } from "@heroicons/react/24/solid"
 import { generatePriceSeries } from "@/lib/mockData"
-import { useRentals } from "@/lib/hooks"
+import { useRentals, useComingSoon } from "@/lib/hooks"
+import { ReserveModal } from "@/components/comingsoon/ComingSoon"
+import { UsersIcon as UsersOutlineIcon, SparklesIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts"
 import ChartBox from "@/components/ui/ChartBox"
@@ -44,7 +46,10 @@ const annualGrowthPct = { High: 16, Medium: 9, Low: 3.5 }
 
 export default function PropertyDetailPage({ id }: { id: string }) {
   const { rentals } = useRentals()
-  const property = rentals.find(p => p.id === id)
+  const { queue } = useComingSoon()
+  const property = rentals.find(p => p.id === id) ?? queue.find(p => p.id === id)
+  const queued = queue.find(p => p.id === id)
+  const [showReserve, setShowReserve] = useState(false)
   const [shares, setShares] = useState(100)
   const [range, setRange] = useState<TimeRange>("1M")
   const [saved, setSaved] = useState(false)
@@ -85,6 +90,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
 
   // The canonical record carries specs, gallery, activities, and trades
   const extra = property
+  const isComingSoon = property.status === "Coming Soon"
   const isPositive = property.priceChangePercent >= 0
   const totalCost = shares * property.pricePerShare
   const monthlyIncome = (totalCost * (property.rentalYield / 100)) / 12
@@ -100,12 +106,11 @@ export default function PropertyDetailPage({ id }: { id: string }) {
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f6f8" }}>
 
       {/* Coming Soon guard — not investable until it opens */}
-      {property.status === "Coming Soon" && (
+      {isComingSoon && (
         <div style={{ backgroundColor: "#0f766e", padding: "11px 24px" }}>
           <p style={{ maxWidth: 1280, margin: "0 auto", fontSize: 13, fontWeight: 650, color: "#fff", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span style={{ fontSize: 10, fontWeight: 800, backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 99, padding: "3px 10px", letterSpacing: "0.06em" }}>COMING SOON</span>
-            This property hasn&apos;t opened for investment yet — reserve priority access on the{" "}
-            <Link href="/coming-soon" style={{ color: "#99f6e4", fontWeight: 750, textDecoration: "underline" }}>Coming Soon page</Link>.
+            This property hasn&apos;t opened for investment yet — explore its potential below and reserve priority access before launch.
           </p>
         </div>
       )}
@@ -202,42 +207,81 @@ export default function PropertyDetailPage({ id }: { id: string }) {
               ))}
             </div>
 
-            {/* Chart */}
-            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "18px 20px 12px", border: "1px solid #e8ecf0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
-                <div>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}<span style={{ fontSize: 13, fontWeight: 500, color: "#64748b" }}>/share</span></p>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: isPositive ? "#10b981" : "#ef4444" }}>
-                    {isPositive ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
-                    {formatPercentage(property.priceChangePercent)} (24h)
+            {/* Chart (live) or Launch Potential (coming soon) */}
+            {!isComingSoon ? (
+              <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "18px 20px 12px", border: "1px solid #e8ecf0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+                  <div>
+                    <p style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}<span style={{ fontSize: 13, fontWeight: 500, color: "#64748b" }}>/share</span></p>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: isPositive ? "#10b981" : "#ef4444" }}>
+                      {isPositive ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
+                      {formatPercentage(property.priceChangePercent)} (24h)
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 2, backgroundColor: "#f8f9fb", borderRadius: 9, padding: 3 }}>
+                    {timeRanges.map(r => <button key={r} onClick={() => setRange(r)} style={{ padding: "4px 9px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 600, backgroundColor: range === r ? "#fff" : "transparent", color: range === r ? "#0f172a" : "#94a3b8", boxShadow: range === r ? "0 1px 4px rgba(0,0,0,0.1)" : "none" }}>{r}</button>)}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 2, backgroundColor: "#f8f9fb", borderRadius: 9, padding: 3 }}>
-                  {timeRanges.map(r => <button key={r} onClick={() => setRange(r)} style={{ padding: "4px 9px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 600, backgroundColor: range === r ? "#fff" : "transparent", color: range === r ? "#0f172a" : "#94a3b8", boxShadow: range === r ? "0 1px 4px rgba(0,0,0,0.1)" : "none" }}>{r}</button>)}
-                </div>
+                <ChartBox height={220}>
+                  {w => (
+                    <AreaChart width={w} height={220} data={chartSeries} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+                      <defs>
+                        <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={chartColor} stopOpacity={0.12} />
+                          <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={Math.max(0, Math.ceil(chartSeries.length / 7) - 1)} />
+                      <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} domain={[(min: number) => Math.floor(min * 0.97), (max: number) => Math.ceil(max * 1.015)]} />
+                      <Tooltip contentStyle={{ borderRadius: 9, border: "1px solid #f1f5f9", fontSize: 12 }} formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]} />
+                      <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#ag)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
+                    </AreaChart>
+                  )}
+                </ChartBox>
               </div>
-              <ChartBox height={220}>
-                {w => (
-                  <AreaChart width={w} height={220} data={chartSeries} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
-                    <defs>
-                      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={chartColor} stopOpacity={0.12} />
-                        <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={Math.max(0, Math.ceil(chartSeries.length / 7) - 1)} />
-                    <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v.toLocaleString()} domain={[(min: number) => Math.floor(min * 0.97), (max: number) => Math.ceil(max * 1.015)]} />
-                    <Tooltip contentStyle={{ borderRadius: 9, border: "1px solid #f1f5f9", fontSize: 12 }} formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Price"]} />
-                    <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2.5} fill="url(#ag)" dot={false} activeDot={{ r: 5, fill: chartColor, stroke: "#fff", strokeWidth: 2 }} />
-                  </AreaChart>
+            ) : (
+              <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "20px 22px", border: "1px solid #e8ecf0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                  <SparklesIcon style={{ width: 17, height: 17, color: "#0d9488" }} />
+                  <h2 style={{ fontSize: 15, fontWeight: 750, color: "#0f172a", margin: 0 }}>Launch Potential</h2>
+                  <span style={{ marginLeft: "auto", fontSize: 10, fontWeight: 800, color: "#0f766e", backgroundColor: "#f0fdfa", border: "1px solid #ccfbf1", borderRadius: 99, padding: "3px 10px", letterSpacing: "0.05em" }}>PRE-LAUNCH</span>
+                </div>
+                <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px 0", lineHeight: 1.65 }}>
+                  Live price history begins the day this property opens for trading. Until then, here&apos;s what the numbers say about its potential:
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))", gap: 10 }}>
+                  {[
+                    { label: "Planned Share Price", value: `UGX ${formatCurrency(property.pricePerShare)}`, tone: "#0f172a" },
+                    { label: "Target Annual Yield", value: `${property.rentalYield}%`, tone: "#0d9488" },
+                    { label: "Area Score", value: `${property.areaScore}/100`, tone: "#2563eb" },
+                    { label: "Growth Outlook", value: property.futureGrowth, tone: property.futureGrowth === "High" ? "#16a34a" : "#d97706" },
+                  ].map(s => (
+                    <div key={s.label} style={{ backgroundColor: "#f8fafc", borderRadius: 11, padding: "12px 14px" }}>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px 0" }}>{s.label}</p>
+                      <p style={{ fontSize: 17, fontWeight: 800, color: s.tone, margin: 0, letterSpacing: "-0.3px" }}>{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+                {queued && (
+                  <div style={{ marginTop: 16, backgroundColor: "#f0fdfa", border: "1px solid #ccfbf1", borderRadius: 12, padding: "13px 16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#0f766e", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        <UsersOutlineIcon style={{ width: 13, height: 13 }} /> {queued.interest.count} of {property.interestThreshold ?? 100} investors reserved
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "#0f766e" }}>{queued.progress}%</span>
+                    </div>
+                    <div style={{ height: 7, borderRadius: 99, backgroundColor: "rgba(13,148,136,0.15)", overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${queued.progress}%`, borderRadius: 99, background: "linear-gradient(90deg, #0d9488, #10b981)" }} />
+                    </div>
+                  </div>
                 )}
-              </ChartBox>
-            </div>
+              </div>
+            )}
 
             {/* Tabs */}
             <div style={{ backgroundColor: "#fff", borderRadius: 14, border: "1px solid #e8ecf0", overflow: "hidden" }}>
               <div style={{ display: "flex", borderBottom: "1px solid #f1f4f8", overflowX: "auto" }}>
-                {(["overview","documents","calculator","activities","trades"] as const).map(t => (
+                {(isComingSoon ? (["overview","documents","calculator"] as const) : (["overview","documents","calculator","activities","trades"] as const)).map(t => (
                   <button key={t} onClick={() => setTab(t)} style={{ padding: "13px 18px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: tab === t ? "#2563eb" : "#64748b", borderBottom: `2px solid ${tab === t ? "#2563eb" : "transparent"}`, whiteSpace: "nowrap", textTransform: "capitalize", transition: "all 0.15s" }}>
                     {t === "activities" ? "Activities" : t === "trades" ? "Trade History" : t.charAt(0).toUpperCase() + t.slice(1)}
                   </button>
@@ -442,8 +486,70 @@ export default function PropertyDetailPage({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* ── RIGHT — Buy Widget ── */}
+          {/* ── RIGHT — Buy Widget (live) / Reserve Widget (coming soon) ── */}
           <div className="buy-widget-col" style={{ minWidth: 0 }}>
+            {isComingSoon ? (
+              <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+                {/* Header */}
+                <div style={{ position: "relative", overflow: "hidden", padding: "16px 20px" }}>
+                  <img src={property.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg, rgba(4,47,46,0.94) 0%, rgba(15,118,110,0.88) 55%, rgba(13,148,136,0.78) 100%)" }} />
+                  <div style={{ position: "relative" }}>
+                    <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px 0" }}>Planned Share Price</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <p style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.4px" }}>UGX {formatCurrency(property.pricePerShare)}</p>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 99, padding: "3px 10px", letterSpacing: "0.05em" }}>COMING SOON</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ padding: "18px 20px" }}>
+                  {/* Interest progress */}
+                  {queued && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Reserved investors</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>{queued.interest.count} of {property.interestThreshold ?? 100}</span>
+                      </div>
+                      <div style={{ height: 6, borderRadius: 99, backgroundColor: "#f1f5f9", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${queued.progress}%`, borderRadius: 99, background: "linear-gradient(90deg, #0d9488, #10b981)" }} />
+                      </div>
+                      <p style={{ fontSize: 11, color: "#94a3b8", margin: "4px 0 0 0" }}>
+                        UGX {(queued.interest.amount / 1e6).toFixed(1)}M in reserved interest — opens at {property.interestThreshold ?? 100} investors
+                      </p>
+                    </div>
+                  )}
+
+                  {/* What happens next */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+                    {[
+                      "Reserve free — no payment now",
+                      "First access to shares at launch",
+                      "We email you the moment it opens",
+                    ].map(line => (
+                      <div key={line} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <CheckBadgeIcon style={{ width: 15, height: 15, color: "#0d9488", flexShrink: 0 }} />
+                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "#374151" }}>{line}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setShowReserve(true)}
+                    style={{ width: "100%", padding: "13px 0", borderRadius: 11, background: "linear-gradient(135deg, #0d9488, #0f766e)", color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(13,148,136,0.3)", marginBottom: 9 }}
+                  >
+                    Reserve Priority Access
+                  </button>
+                  <Link href="/coming-soon" style={{ display: "block", textAlign: "center", width: "100%", padding: "10px 0", borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, textDecoration: "none", boxSizing: "border-box", marginBottom: 14 }}>
+                    View the Launch Queue
+                  </Link>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
+                    <ShieldCheckIcon style={{ width: 13, height: 13, color: "#16a34a" }} />
+                    <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>Non-binding · No payment · Verified before launch</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
               <div style={{ position: "relative", overflow: "hidden", padding: "16px 20px" }}>
                 {/* Property photo behind a deep blue overlay */}
@@ -523,9 +629,19 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                 </div>
               </div>
             </div>
+            )}
           </div>
 
         </div>
+
+        {/* Reserve modal (coming soon) */}
+        {showReserve && queued && (
+          <ReserveModal
+            property={queued}
+            onClose={() => setShowReserve(false)}
+            onReserved={() => {}}
+          />
+        )}
 
         {/* ── Recommended properties ── */}
         {recommendations.length > 0 && (
