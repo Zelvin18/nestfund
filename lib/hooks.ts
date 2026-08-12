@@ -1,11 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import type { User } from "@supabase/supabase-js"
 import {
   fetchRentalProperties, fetchIntelligence, fetchPlatformStats,
   fetchConstructionProjects, fetchExchangeListings, fetchSiteSetting,
   fetchInterestStats, type PlatformStats, type InterestStats,
 } from "./api"
+import { getCurrentUser, onAuthChange } from "./auth"
+import {
+  fetchWalletBalance, fetchLedgerTransactions, fetchHoldings,
+  LEDGER_EVENT, type LedgerHolding,
+} from "./ledger"
+import type { WalletTransaction } from "./data/portfolio"
 import { rentalProperties as mockRentals, comingSoonProperties, mockInterestStats, type RentalProperty } from "./data/rentals"
 import { intelligenceFeed as mockIntel, marketStats as mockStats, type IntelligenceItem } from "./data/intelligence"
 import { constructionProjects as mockProjects, type ConstructionProject } from "./data/construction"
@@ -122,6 +129,75 @@ export function useHomeHeroProperty(): RentalProperty {
   }, [])
   const liveOnes = rentals.filter(p => p.status === "Live")
   return liveOnes.find(p => p.id === heroId) ?? liveOnes[0] ?? mockRentals[0]
+}
+
+/* ── Phase 1: session + ledger hooks ─────────────────────────── */
+
+/** The signed-in Supabase user, kept in sync with auth state changes. */
+export function useSession(): { user: User | null; loading: boolean } {
+  const [state, setState] = useState<{ user: User | null; loading: boolean }>({ user: null, loading: true })
+  useEffect(() => {
+    let active = true
+    getCurrentUser()
+      .then(u => { if (active) setState({ user: u, loading: false }) })
+      .catch(() => { if (active) setState({ user: null, loading: false }) })
+    const off = onAuthChange(u => { if (active) setState({ user: u, loading: false }) })
+    return () => { active = false; off() }
+  }, [])
+  return state
+}
+
+/**
+ * Real wallet data from the ledger for a signed-in user.
+ * `live` stays false (mock numbers keep showing) until the ledger
+ * tables answer. Re-fetches whenever a ledger write announces itself.
+ */
+export function useWallet(user: User | null): {
+  balance: number | null
+  transactions: WalletTransaction[] | null
+  live: boolean
+  refresh: () => void
+} {
+  const [state, setState] = useState<{ balance: number | null; transactions: WalletTransaction[] | null; live: boolean }>({ balance: null, transactions: null, live: false })
+  const refresh = useCallback(() => {
+    if (!user) {
+      // Deferred so the sign-out reset never sets state synchronously inside an effect
+      Promise.resolve().then(() => setState({ balance: null, transactions: null, live: false }))
+      return
+    }
+    Promise.all([fetchWalletBalance(user.id), fetchLedgerTransactions(user.id)])
+      .then(([balance, transactions]) => {
+        if (balance !== null) setState({ balance, transactions, live: true })
+      })
+      .catch(() => {})
+  }, [user])
+  useEffect(() => {
+    refresh()
+    window.addEventListener(LEDGER_EVENT, refresh)
+    return () => window.removeEventListener(LEDGER_EVENT, refresh)
+  }, [refresh])
+  return { ...state, refresh }
+}
+
+/** Real holdings for a signed-in user; null until the tables answer. */
+export function useLedgerHoldings(user: User | null): { holdings: LedgerHolding[] | null; live: boolean } {
+  const [state, setState] = useState<{ holdings: LedgerHolding[] | null; live: boolean }>({ holdings: null, live: false })
+  const refresh = useCallback(() => {
+    if (!user) {
+      // Deferred so the sign-out reset never sets state synchronously inside an effect
+      Promise.resolve().then(() => setState({ holdings: null, live: false }))
+      return
+    }
+    fetchHoldings(user.id)
+      .then(h => { if (h !== null) setState({ holdings: h, live: true }) })
+      .catch(() => {})
+  }, [user])
+  useEffect(() => {
+    refresh()
+    window.addEventListener(LEDGER_EVENT, refresh)
+    return () => window.removeEventListener(LEDGER_EVENT, refresh)
+  }, [refresh])
+  return state
 }
 
 export interface FeaturedCard {

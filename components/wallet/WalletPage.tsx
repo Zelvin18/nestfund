@@ -28,12 +28,14 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts"
 import ChartBox from "@/components/ui/ChartBox"
 
 import {
-  walletTransactions as transactions,
+  walletTransactions as mockTransactions,
   walletIncomeSeries as incomeData,
   initialPayMethods,
   type MethodKind,
   type PayMethod,
 } from "@/lib/data/portfolio"
+import { useSession, useWallet, useLedgerHoldings } from "@/lib/hooks"
+import { demoTopUp, demoWithdraw } from "@/lib/ledger"
 
 /* Payment method branding — UI concern, stays with the component */
 const methodBrand: Record<MethodKind, { name: string; short: string; color: string; bg: string; text: string; icon: typeof DevicePhoneMobileIcon }> = {
@@ -52,6 +54,21 @@ export default function WalletPage() {
   const [modal, setModal] = useState<"deposit" | "withdraw" | "add-method" | null>(null)
   const [methods, setMethods] = useState<PayMethod[]>(initialPayMethods)
   const [balanceHidden, setBalanceHidden] = useState(false)
+
+  // Real ledger data for a signed-in user; mock showcase otherwise
+  const { user } = useSession()
+  const { balance, transactions: liveTx, live } = useWallet(user)
+  const { holdings } = useLedgerHoldings(user)
+
+  const cash = live && balance !== null ? balance : 2450000
+  const invested = live && holdings
+    ? holdings.reduce((sum, h) => sum + h.units * h.avgCost, 0)
+    : 2023500
+  const propertyCount = live && holdings ? holdings.length : 3
+  const earnings = live && liveTx
+    ? liveTx.filter(t => t.type === "income" && t.amount > 0).reduce((s, t) => s + t.amount, 0)
+    : 184000
+  const transactions = live && liveTx ? liveTx : mockTransactions
 
   const filtered = activeTab === "all" ? transactions : transactions.filter(t => t.type === activeTab)
 
@@ -101,7 +118,7 @@ export default function WalletPage() {
                 </button>
               </div>
               <p style={{ fontSize: "clamp(34px, 5vw, 46px)", fontWeight: 900, color: "#fff", margin: "0 0 8px 0", letterSpacing: "-1.5px", lineHeight: 1 }}>
-                {balanceHidden ? "UGX ••••••••" : "UGX 2,450,000"}
+                {balanceHidden ? "UGX ••••••••" : `UGX ${cash.toLocaleString()}`}
               </p>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 5, backgroundColor: "rgba(16,185,129,0.14)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 99, padding: "4px 12px" }}>
                 <ArrowTrendingUpIcon style={{ width: 13, height: 13, color: "#6ee7b7" }} />
@@ -156,9 +173,9 @@ export default function WalletPage() {
             {/* Account breakdown tiles */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))", gap: 14 }}>
               {[
-                { label: "Cash Wallet",    value: 2450000, note: "Available to invest",     color: "#2563eb" },
-                { label: "Invested Value", value: 2023500, note: "Across 3 properties",     color: "#7c3aed" },
-                { label: "Total Earnings", value: 184000,  note: "All-time rental income",  color: "#10b981" },
+                { label: "Cash Wallet",    value: cash,     note: "Available to invest",     color: "#2563eb" },
+                { label: "Invested Value", value: invested, note: `Across ${propertyCount} ${propertyCount === 1 ? "property" : "properties"}`, color: "#7c3aed" },
+                { label: "Total Earnings", value: earnings, note: "All-time rental income",  color: "#10b981" },
               ].map(a => (
                 <div key={a.label} style={{ backgroundColor: "#fff", borderRadius: 14, padding: "16px 18px", border: "1px solid #e8ecf0" }}>
                   <div style={{ width: 34, height: 4, borderRadius: 99, backgroundColor: a.color, marginBottom: 12 }} />
@@ -223,6 +240,14 @@ export default function WalletPage() {
               </div>
 
               <div style={{ padding: "8px 0" }}>
+                {filtered.length === 0 && (
+                  <div style={{ padding: "36px 20px", textAlign: "center" }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 4px 0" }}>No transactions yet</p>
+                    <p style={{ fontSize: 12.5, color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>
+                      Deposit demo funds to start investing — every movement lands here.
+                    </p>
+                  </div>
+                )}
                 {filtered.map((tx, i) => {
                   const positive = tx.amount > 0
                   const typeConfig = {
@@ -356,8 +381,14 @@ export default function WalletPage() {
       </div>
 
       {/* ── Modals ── */}
-      {modal === "deposit" && <MoveMoneyModal mode="deposit" methods={methods} onClose={() => setModal(null)} />}
-      {modal === "withdraw" && <MoveMoneyModal mode="withdraw" methods={methods} onClose={() => setModal(null)} />}
+      {modal === "deposit" && (
+        <MoveMoneyModal mode="deposit" methods={methods} onClose={() => setModal(null)}
+          onMove={user ? a => demoTopUp(user.id, a) : undefined} />
+      )}
+      {modal === "withdraw" && (
+        <MoveMoneyModal mode="withdraw" methods={methods} onClose={() => setModal(null)} available={cash}
+          onMove={user ? a => demoWithdraw(user.id, a) : undefined} />
+      )}
       {modal === "add-method" && <AddMethodModal onClose={() => setModal(null)} onAdd={m => { addMethod(m); setModal(null) }} />}
     </div>
   )
@@ -403,15 +434,34 @@ function ModalShell({ title, subtitle, onClose, children }: {
 
 /* ── Deposit / Withdraw modal ─────────────────────────────── */
 
-function MoveMoneyModal({ mode, methods, onClose }: {
+function MoveMoneyModal({ mode, methods, onClose, onMove, available }: {
   mode: "deposit" | "withdraw"; methods: PayMethod[]; onClose: () => void
+  /** When signed in, writes a real ledger entry (simulated beta funds) */
+  onMove?: (amount: number) => Promise<void>
+  available?: number
 }) {
   const [amount, setAmount] = useState(250000)
   const [methodId, setMethodId] = useState(methods.find(m => m.isDefault)?.id ?? methods[0]?.id)
   const [done, setDone] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const isDeposit = mode === "deposit"
   const selected = methods.find(m => m.id === methodId)
+
+  const confirm = async () => {
+    if (amount <= 0 || busy) return
+    if (!onMove) { setDone(true); return }
+    setBusy(true)
+    setError(null)
+    try {
+      await onMove(amount)
+      setDone(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong — please try again.")
+    }
+    setBusy(false)
+  }
 
   if (done) {
     return (
@@ -426,7 +476,9 @@ function MoveMoneyModal({ mode, methods, onClose }: {
             UGX {amount.toLocaleString()}
           </p>
           <p style={{ fontSize: 13.5, color: "#64748b", margin: "0 0 22px 0", lineHeight: 1.6 }}>
-            {isDeposit
+            {onMove
+              ? <>{isDeposit ? "Your wallet has been credited" : "Your wallet has been debited"} — this is <strong>simulated beta money</strong>, recorded on your real transaction ledger.</>
+              : isDeposit
               ? <>A prompt has been sent to <strong>{selected?.detail}</strong>. Approve it to complete your deposit.</>
               : <>Your withdrawal to <strong>{selected?.label}</strong> is being processed. Funds typically arrive within 30 minutes.</>}
           </p>
@@ -441,7 +493,7 @@ function MoveMoneyModal({ mode, methods, onClose }: {
   return (
     <ModalShell
       title={isDeposit ? "Deposit Funds" : "Withdraw Funds"}
-      subtitle={isDeposit ? "Top up your wallet to invest" : "Available balance: UGX 2,450,000"}
+      subtitle={isDeposit ? "Top up your wallet to invest" : `Available balance: UGX ${(available ?? 2450000).toLocaleString()}`}
       onClose={onClose}
     >
       {/* Amount */}
@@ -517,19 +569,24 @@ function MoveMoneyModal({ mode, methods, onClose }: {
         ))}
       </div>
 
+      {error && (
+        <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", margin: "0 0 14px 0", lineHeight: 1.55 }}>
+          {error}
+        </p>
+      )}
+
       <button
-        onClick={() => amount > 0 && setDone(true)}
-        disabled={amount <= 0 || !selected}
+        onClick={confirm}
+        disabled={amount <= 0 || !selected || busy}
         style={{
           width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
-          background: amount > 0 ? "linear-gradient(135deg, #2563eb, #4f46e5)" : "#e2e8f0",
-          color: amount > 0 ? "#fff" : "#94a3b8",
-          fontSize: 15, fontWeight: 700, cursor: amount > 0 ? "pointer" : "not-allowed",
+          background: amount > 0 && !busy ? "linear-gradient(135deg, #2563eb, #4f46e5)" : "#e2e8f0",
+          color: amount > 0 && !busy ? "#fff" : "#94a3b8",
+          fontSize: 15, fontWeight: 700, cursor: amount > 0 && !busy ? "pointer" : "not-allowed",
           display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
         }}
       >
-        {isDeposit ? "Deposit" : "Withdraw"} UGX {amount.toLocaleString()}
-        <ChevronRightIcon style={{ width: 16, height: 16 }} />
+        {busy ? "Processing..." : <>{isDeposit ? "Deposit" : "Withdraw"} UGX {amount.toLocaleString()}<ChevronRightIcon style={{ width: 16, height: 16 }} /></>}
       </button>
     </ModalShell>
   )

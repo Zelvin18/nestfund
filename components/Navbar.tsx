@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { MagnifyingGlassIcon, BellIcon, XMarkIcon, Bars3Icon } from "@heroicons/react/24/outline"
+import { usePathname, useRouter } from "next/navigation"
+import { MagnifyingGlassIcon, BellIcon, XMarkIcon, Bars3Icon, ArrowRightStartOnRectangleIcon, ChartPieIcon, Cog6ToothIcon } from "@heroicons/react/24/outline"
 import { WalletIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
+import { useSession, useWallet } from "@/lib/hooks"
+import { signOut } from "@/lib/auth"
 
 const navLinks = [
   { href: "/market",              label: "Rental Market",  sub: "Income-producing properties" },
@@ -17,7 +19,34 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+  const { user } = useSession()
+  const { balance, live: walletLive } = useWallet(user)
+
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0] || "Investor"
+  const initials = displayName
+    .split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() ?? "").join("") || "N"
+
+  // Close the account menu on outside click
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
+    }
+    document.addEventListener("mousedown", onDown)
+    return () => document.removeEventListener("mousedown", onDown)
+  }, [userMenuOpen])
+
+  const handleSignOut = async () => {
+    setUserMenuOpen(false)
+    setMenuOpen(false)
+    await signOut()
+    router.push("/")
+  }
 
   return (
     <>
@@ -126,19 +155,67 @@ export default function Navbar() {
               }}
             >
               <WalletIcon style={{ width: 15, height: 15, color: "#2563eb" }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>UGX 0</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>
+                UGX {walletLive && balance !== null ? balance.toLocaleString() : "0"}
+              </span>
             </Link>
 
-            <Link
-              className="nav-sign-in"
-              href="/auth/register"
-              style={{
-                padding: "7px 18px", borderRadius: 9,
-                background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
-                color: "#fff", fontSize: 13, fontWeight: 600,
-                textDecoration: "none", whiteSpace: "nowrap",
-              }}
-            >Sign In</Link>
+            {user ? (
+              /* Signed in: initials avatar + account menu */
+              <div ref={userMenuRef} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setUserMenuOpen(o => !o)}
+                  aria-label="Account menu"
+                  style={{
+                    width: 36, height: 36, borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                    color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: userMenuOpen ? "0 0 0 3px rgba(37,99,235,0.25)" : "none",
+                  }}
+                >{initials}</button>
+
+                {userMenuOpen && (
+                  <div style={{
+                    position: "absolute", right: 0, top: 46, width: 230, backgroundColor: "#fff",
+                    borderRadius: 14, border: "1px solid #e8ecf0", boxShadow: "0 16px 48px rgba(0,0,0,0.14)",
+                    overflow: "hidden", zIndex: 60, animation: "fade-up 0.18s ease-out",
+                  }}>
+                    <div style={{ padding: "13px 16px", borderBottom: "1px solid #f1f5f9" }}>
+                      <p style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</p>
+                      <p style={{ fontSize: 11.5, color: "#94a3b8", margin: "2px 0 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email}</p>
+                    </div>
+                    <div style={{ padding: 6 }}>
+                      {[
+                        { href: "/portfolio", label: "My Portfolio", icon: ChartPieIcon },
+                        { href: "/wallet", label: "Wallet", icon: WalletIcon },
+                        { href: "/onboarding", label: "Account Setup", icon: Cog6ToothIcon },
+                      ].map(item => (
+                        <Link key={item.href} href={item.href} onClick={() => setUserMenuOpen(false)}
+                          style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 11px", borderRadius: 9, textDecoration: "none", fontSize: 13.5, fontWeight: 600, color: "#374151" }}>
+                          <item.icon style={{ width: 16, height: 16, color: "#94a3b8" }} />{item.label}
+                        </Link>
+                      ))}
+                      <button onClick={handleSignOut}
+                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 11px", borderRadius: 9, border: "none", background: "none", cursor: "pointer", fontSize: 13.5, fontWeight: 600, color: "#dc2626", width: "100%", textAlign: "left" }}>
+                        <ArrowRightStartOnRectangleIcon style={{ width: 16, height: 16 }} />Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                className="nav-sign-in"
+                href="/auth/register"
+                style={{
+                  padding: "7px 18px", borderRadius: 9,
+                  background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                  color: "#fff", fontSize: 13, fontWeight: 600,
+                  textDecoration: "none", whiteSpace: "nowrap",
+                }}
+              >Sign In</Link>
+            )}
 
             {/* Mobile hamburger */}
             <button
@@ -243,25 +320,45 @@ export default function Navbar() {
             </nav>
 
             {/* Bottom CTA */}
-            <div style={{ padding: "12px 20px 20px", borderTop: "1px solid #f1f5f9", display: "flex", gap: 10 }}>
-              <Link
-                href="/auth/login"
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10,
-                  border: "1.5px solid #e2e8f0", color: "#374151", fontSize: 14,
-                  fontWeight: 600, textDecoration: "none",
-                }}
-              >Log In</Link>
-              <Link
-                href="/auth/register"
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10,
-                  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-                  color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none",
-                }}
-              >Get Started</Link>            </div>
+            {user ? (
+              <div style={{ padding: "12px 20px 20px", borderTop: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+                  background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                  color: "#fff", fontSize: 14, fontWeight: 800,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>{initials}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</p>
+                  <p style={{ fontSize: 11.5, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email}</p>
+                </div>
+                <button onClick={handleSignOut}
+                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 10, border: "1.5px solid #fecaca", background: "#fef2f2", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#dc2626", flexShrink: 0 }}>
+                  <ArrowRightStartOnRectangleIcon style={{ width: 15, height: 15 }} />Sign Out
+                </button>
+              </div>
+            ) : (
+              <div style={{ padding: "12px 20px 20px", borderTop: "1px solid #f1f5f9", display: "flex", gap: 10 }}>
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10,
+                    border: "1.5px solid #e2e8f0", color: "#374151", fontSize: 14,
+                    fontWeight: 600, textDecoration: "none",
+                  }}
+                >Log In</Link>
+                <Link
+                  href="/auth/register"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10,
+                    background: "linear-gradient(135deg, #2563eb, #4f46e5)",
+                    color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none",
+                  }}
+                >Get Started</Link>
+              </div>
+            )}
           </div>
         </div>
       )}

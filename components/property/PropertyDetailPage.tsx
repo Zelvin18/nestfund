@@ -12,8 +12,10 @@ import {
   ArrowTrendingUpIcon, ArrowTrendingDownIcon,
   CheckBadgeIcon, StarIcon,
 } from "@heroicons/react/24/solid"
+import { useRouter } from "next/navigation"
 import { generatePriceSeries } from "@/lib/mockData"
-import { useRentals, useComingSoon } from "@/lib/hooks"
+import { useRentals, useComingSoon, useSession } from "@/lib/hooks"
+import { purchaseShares } from "@/lib/ledger"
 import { ReserveModal } from "@/components/comingsoon/ComingSoon"
 import StickyBuyBar from "@/components/property/StickyBuyBar"
 import { UsersIcon as UsersOutlineIcon, SparklesIcon } from "@heroicons/react/24/outline"
@@ -58,6 +60,28 @@ export default function PropertyDetailPage({ id }: { id: string }) {
   const [tab, setTab] = useState<"overview"|"documents"|"calculator"|"activities"|"trades">("overview")
   const [docTab, setDocTab] = useState<"ownership"|"property"|"audit">("ownership")
   const [investment, setInvestment] = useState(500000)
+  const router = useRouter()
+  const { user } = useSession()
+  const [buyState, setBuyState] = useState<{ phase: "idle" | "busy" | "done"; message?: string; error?: string }>({ phase: "idle" })
+
+  const handleBuy = async () => {
+    if (!property || buyState.phase === "busy") return
+    if (!user) { router.push("/auth/login"); return }
+    setBuyState({ phase: "busy" })
+    try {
+      const { ref } = await purchaseShares({
+        userId: user.id,
+        propertyId: property.id,
+        propertyName: property.name,
+        units: shares,
+        pricePerShare: property.pricePerShare,
+      })
+      setBuyState({ phase: "done", message: `You now own ${shares.toLocaleString()} more shares of ${property.name}. Receipt ${ref}.` })
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "Purchase failed — please try again."
+      setBuyState({ phase: "idle", error: raw.replace(/^INSUFFICIENT_FUNDS:/, "") })
+    }
+  }
 
   // Story-driven price series — each range shows its slice of the property's
   // long-term growth, always ending at the current share price
@@ -624,12 +648,34 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                   <p style={{ fontSize: 18, fontWeight: 800, color: "#15803d", margin: 0 }}>UGX {formatCurrency(monthlyIncome)}</p>
                 </div>
 
-                <button style={{ width: "100%", padding: "13px 0", borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginBottom: 9 }}>
-                  Buy {shares} Shares
-                </button>
-                <button style={{ width: "100%", padding: "10px 0", borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}>
-                  Preview Order
-                </button>
+                {buyState.phase === "done" ? (
+                  <div style={{ background: "linear-gradient(135deg, #f0fdf4, #dcfce7)", border: "1.5px solid #86efac", borderRadius: 11, padding: "13px 14px", marginBottom: 9, animation: "fade-up 0.3s ease-out" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+                      <CheckBadgeIcon style={{ width: 17, height: 17, color: "#16a34a", flexShrink: 0 }} />
+                      <p style={{ fontSize: 13, fontWeight: 800, color: "#15803d", margin: 0 }}>Purchase complete</p>
+                    </div>
+                    <p style={{ fontSize: 12, color: "#166534", margin: "0 0 10px 0", lineHeight: 1.55 }}>{buyState.message}</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Link href="/portfolio" style={{ flex: 1, textAlign: "center", padding: "9px 0", borderRadius: 9, background: "#16a34a", color: "#fff", fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>View Portfolio</Link>
+                      <button onClick={() => setBuyState({ phase: "idle" })} style={{ flex: 1, padding: "9px 0", borderRadius: 9, border: "1.5px solid #bbf7d0", background: "#fff", color: "#15803d", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Buy More</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {buyState.error && (
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "#b45309", backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "9px 12px", margin: "0 0 10px 0", lineHeight: 1.55 }}>
+                        {buyState.error}{buyState.error.includes("Wallet") && <>{" "}<Link href="/wallet" style={{ color: "#b45309", fontWeight: 800 }}>Open Wallet</Link></>}
+                      </p>
+                    )}
+                    <button onClick={handleBuy} disabled={buyState.phase === "busy"}
+                      style={{ width: "100%", padding: "13px 0", borderRadius: 11, background: buyState.phase === "busy" ? "#93c5fd" : "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: buyState.phase === "busy" ? "wait" : "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginBottom: 9 }}>
+                      {buyState.phase === "busy" ? "Processing..." : user ? `Buy ${shares} Shares` : `Sign In to Buy ${shares} Shares`}
+                    </button>
+                    <button style={{ width: "100%", padding: "10px 0", borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}>
+                      Preview Order
+                    </button>
+                  </>
+                )}
                 <div style={{ display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
                   <ShieldCheckIcon style={{ width: 13, height: 13, color: "#16a34a" }} />
                   <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>Regulated · Secure · Verified</p>

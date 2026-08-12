@@ -5,7 +5,7 @@ import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { mockPortfolio } from "@/lib/mockData"
-import { useRentals } from "@/lib/hooks"
+import { useRentals, useConstruction, useSession, useWallet, useLedgerHoldings } from "@/lib/hooks"
 import Sparkline from "@/components/ui/Sparkline"
 
 type AssetTab = "All Assets" | "Rental" | "Construction"
@@ -14,12 +14,41 @@ const assetFilterTabs: AssetTab[] = ["All Assets", "Rental", "Construction"]
 
 export default function PortfolioPage() {
   const { rentals: featuredProperties } = useRentals()
-  const totalValue = mockPortfolio.reduce((s, p) => s + p.currentValue, 0)
-  const totalInvested = mockPortfolio.reduce((s, p) => s + p.invested, 0)
+  const { projects: constructionProjects } = useConstruction()
+
+  // Resolve any asset id (rental or construction) to display info
+  const assetInfo = (id: string) => {
+    const r = featuredProperties.find(f => f.id === id)
+    if (r) return { name: r.name, location: r.location, image: r.image, price: r.pricePerShare, spark: r.chartData.slice(-20).map((d: { value: number }) => d.value), href: `/property/${r.id}`, kind: "Rental" as const }
+    const c = constructionProjects.find(p => p.id === id)
+    if (c) return { name: c.name, location: c.location, image: c.image, price: c.sharePrice, spark: [c.sharePriceStart, c.sharePrice], href: `/construction/${c.id}`, kind: "Construction" as const }
+    return null
+  }
+
+  // Signed in with the ledger answering → real positions; otherwise mock showcase
+  const { user } = useSession()
+  const { balance, live: walletLive } = useWallet(user)
+  const { holdings: ledgerHoldings, live: holdingsLive } = useLedgerHoldings(user)
+
+  const portfolio = holdingsLive && ledgerHoldings
+    ? ledgerHoldings.map(h => {
+        const price = assetInfo(h.propertyId)?.price ?? h.avgCost
+        return {
+          propertyId: h.propertyId,
+          shares: h.units,
+          invested: h.units * h.avgCost,
+          currentValue: h.units * price,
+        }
+      })
+    : mockPortfolio
+
+  const cashBalance = walletLive && balance !== null ? balance : 0
+  const totalValue = portfolio.reduce((s, p) => s + p.currentValue, 0)
+  const totalInvested = portfolio.reduce((s, p) => s + p.invested, 0)
   const totalGain = totalValue - totalInvested
-  const totalGainPct = (totalGain / totalInvested) * 100
-  const rentalValue = mockPortfolio
-    .filter(p => p.propertyId === "sunrise-apartments" || p.propertyId === "acacia-office-park")
+  const totalGainPct = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0
+  const rentalValue = portfolio
+    .filter(p => assetInfo(p.propertyId)?.kind !== "Construction")
     .reduce((s, p) => s + p.currentValue, 0)
   const constructionValue = totalValue - rentalValue
 
@@ -77,13 +106,13 @@ export default function PortfolioPage() {
 
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
               <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Available balance</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>UGX 0</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>UGX {cashBalance.toLocaleString()}</span>
             </div>
 
             <div style={{ backgroundColor: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 9, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div>
                 <p style={{ fontSize: 11, color: "#0d9488", fontWeight: 600, margin: "0 0 2px 0" }}>Claimable rental income</p>
-                <p style={{ fontSize: 16, fontWeight: 800, color: "#0d9488", margin: 0 }}>UGX 185,000</p>
+                <p style={{ fontSize: 16, fontWeight: 800, color: "#0d9488", margin: 0 }}>UGX {holdingsLive ? "0" : "185,000"}</p>
               </div>
               <button style={{ padding: "7px 16px", borderRadius: 8, backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer" }}>
                 Claim
@@ -177,7 +206,7 @@ export default function PortfolioPage() {
           <div style={{ padding: "20px 24px 0", borderBottom: "1px solid #f1f4f8" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0 }}>Owned Assets</h2>
-              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>{mockPortfolio.length} positions</span>
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>{portfolio.length} positions</span>
             </div>
             <AssetFilterTabs />
           </div>
@@ -203,14 +232,27 @@ export default function PortfolioPage() {
                 </tr>
               </thead>
               <tbody>
-                {mockPortfolio.map((holding, idx) => {
-                  const prop = featuredProperties.find(f => f.id === holding.propertyId)
+                {portfolio.length === 0 && (
+                  <tr>
+                    <td colSpan={7} style={{ padding: "44px 24px", textAlign: "center" }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 5px 0" }}>You don&apos;t own any shares yet</p>
+                      <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 18px 0", lineHeight: 1.6 }}>
+                        Top up your wallet with demo funds, then buy shares in any live property — your positions appear here.
+                      </p>
+                      <Link href="/market" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 22px", borderRadius: 10, backgroundColor: "#2563eb", color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                        Browse the Rental Market
+                      </Link>
+                    </td>
+                  </tr>
+                )}
+                {portfolio.map((holding, idx) => {
+                  const prop = assetInfo(holding.propertyId)
                   if (!prop) return null
                   const gain = holding.currentValue - holding.invested
-                  const gainPct = (gain / holding.invested) * 100
+                  const gainPct = holding.invested > 0 ? (gain / holding.invested) * 100 : 0
                   const positive = gain >= 0
-                  const portfolioShare = ((holding.currentValue / totalValue) * 100).toFixed(1)
-                  const sparkData = prop.chartData.slice(-20).map((d: { value: number }) => d.value)
+                  const portfolioShare = totalValue > 0 ? ((holding.currentValue / totalValue) * 100).toFixed(1) : "0"
+                  const sparkData = prop.spark
                   const avgPrice = holding.invested / holding.shares
 
                   return (
@@ -262,7 +304,7 @@ export default function PortfolioPage() {
                             <div style={{ width: `${portfolioShare}%`, height: "100%", backgroundColor: "#2563eb", borderRadius: 99 }} />
                           </div>
                           <div style={{ display: "flex", gap: 6 }}>
-                            <Link href={`/property/${prop.id}`} style={{ padding: "5px 10px", borderRadius: 7, backgroundColor: "#eff6ff", color: "#2563eb", fontSize: 11, fontWeight: 600, textDecoration: "none" }}>
+                            <Link href={prop.href} style={{ padding: "5px 10px", borderRadius: 7, backgroundColor: "#eff6ff", color: "#2563eb", fontSize: 11, fontWeight: 600, textDecoration: "none" }}>
                               Buy More
                             </Link>
                             <button style={{ padding: "5px 10px", borderRadius: 7, backgroundColor: "#f8f9fb", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>

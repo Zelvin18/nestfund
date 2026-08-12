@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
   DocumentTextIcon, ArrowTopRightOnSquareIcon, ClipboardDocumentIcon,
@@ -17,7 +18,8 @@ import {
   constructionTradeHistory as tradeHistory,
   constructionActivityFeed as activityFeed,
 } from "@/lib/data/construction"
-import { useConstruction } from "@/lib/hooks"
+import { useConstruction, useSession } from "@/lib/hooks"
+import { purchaseShares } from "@/lib/ledger"
 
 function fmtUGX(v: number) {
   if (v >= 1_000_000_000) return `UGX ${(v / 1_000_000_000).toFixed(1)}B`
@@ -37,6 +39,10 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
   const [docTab, setDocTab] = useState<"ownership"|"property"|"audit">("ownership")
   const [investment, setInvestment] = useState(1000000)
   const [page, setPage] = useState(1)
+  const [buyUnits, setBuyUnits] = useState(100)
+  const router = useRouter()
+  const { user } = useSession()
+  const [buyState, setBuyState] = useState<{ phase: "idle" | "busy" | "done"; message?: string; error?: string }>({ phase: "idle" })
   const tradesPerPage = 4
 
   if (!project) return (
@@ -430,13 +436,58 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                   ))}
                 </div>
 
-                {/* Buy button */}
-                <button style={{ width: "100%", padding: "13px 0", borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginBottom: 10 }}>
-                  Buy Shares — UGX {fmtPrice(project.sharePrice)}/share
-                </button>
-                <button style={{ width: "100%", padding: "10px 0", borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                  Preview Order
-                </button>
+                {/* Shares stepper */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Number of Shares</label>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }}>UGX {fmtPrice(buyUnits * project.sharePrice)}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 7 }}>
+                    <button onClick={() => setBuyUnits(u => Math.max(1, u - 10))} style={{ width: 36, height: 42, borderRadius: 9, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontSize: 16, cursor: "pointer", color: "#374151" }}>−</button>
+                    <input type="number" value={buyUnits} onChange={e => setBuyUnits(Math.max(1, parseInt(e.target.value) || 1))} style={{ flex: 1, height: 42, borderRadius: 9, border: "1.5px solid #e2e8f0", textAlign: "center", fontSize: 16, fontWeight: 700, color: "#0f172a", outline: "none", minWidth: 0 }} />
+                    <button onClick={() => setBuyUnits(u => u + 10)} style={{ width: 36, height: 42, borderRadius: 9, border: "1.5px solid #bfdbfe", background: "#eff6ff", fontSize: 16, cursor: "pointer", color: "#2563eb" }}>+</button>
+                  </div>
+                </div>
+
+                {/* Buy button + live flow */}
+                {buyState.phase === "done" ? (
+                  <div style={{ background: "linear-gradient(135deg, #f0fdf4, #dcfce7)", border: "1.5px solid #86efac", borderRadius: 11, padding: "13px 14px", animation: "fade-up 0.3s ease-out" }}>
+                    <p style={{ fontSize: 13, fontWeight: 800, color: "#15803d", margin: "0 0 4px 0" }}>Investment complete</p>
+                    <p style={{ fontSize: 12, color: "#166534", margin: "0 0 10px 0", lineHeight: 1.55 }}>{buyState.message}</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Link href="/portfolio" style={{ flex: 1, textAlign: "center", padding: "9px 0", borderRadius: 9, background: "#16a34a", color: "#fff", fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>View Portfolio</Link>
+                      <button onClick={() => setBuyState({ phase: "idle" })} style={{ flex: 1, padding: "9px 0", borderRadius: 9, border: "1.5px solid #bbf7d0", background: "#fff", color: "#15803d", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Invest More</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {buyState.error && (
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "#b45309", backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "9px 12px", margin: "0 0 10px 0", lineHeight: 1.55 }}>
+                        {buyState.error}{buyState.error.includes("Wallet") && <>{" "}<Link href="/wallet" style={{ color: "#b45309", fontWeight: 800 }}>Open Wallet</Link></>}
+                      </p>
+                    )}
+                    <button
+                      onClick={async () => {
+                        if (buyState.phase === "busy") return
+                        if (!user) { router.push("/auth/login"); return }
+                        setBuyState({ phase: "busy" })
+                        try {
+                          const { ref } = await purchaseShares({ userId: user.id, propertyId: project.id, propertyName: project.name, units: buyUnits, pricePerShare: project.sharePrice })
+                          setBuyState({ phase: "done", message: `You now hold ${buyUnits.toLocaleString()} more shares of ${project.name}. Receipt ${ref}.` })
+                        } catch (err) {
+                          const raw = err instanceof Error ? err.message : "Purchase failed — please try again."
+                          setBuyState({ phase: "idle", error: raw.replace(/^INSUFFICIENT_FUNDS:/, "") })
+                        }
+                      }}
+                      disabled={buyState.phase === "busy"}
+                      style={{ width: "100%", padding: "13px 0", borderRadius: 11, background: buyState.phase === "busy" ? "#93c5fd" : "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: buyState.phase === "busy" ? "wait" : "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginBottom: 10 }}>
+                      {buyState.phase === "busy" ? "Processing..." : user ? `Buy ${buyUnits} Shares` : "Sign In to Invest"}
+                    </button>
+                    <button style={{ width: "100%", padding: "10px 0", borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                      Preview Order
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             </div>

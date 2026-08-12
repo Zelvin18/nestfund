@@ -58,7 +58,8 @@ create table if not exists ledger_transactions (
   )),
   amount          bigint not null,                            -- UGX, signed from user's perspective
   currency        text not null default 'UGX',
-  property_id     text references properties(id),
+  -- no FK: may point at properties OR construction_projects (asset id namespace)
+  property_id     text,
   units           bigint,                                     -- share units moved, when applicable
   status          text not null default 'pending'
                   check (status in ('pending','completed','failed','reversed')),
@@ -82,7 +83,8 @@ create policy "dev anon write" on ledger_transactions for insert with check (tru
 -- ── Holdings (current position; derived from the ledger) ──────
 create table if not exists holdings (
   user_id     uuid not null references auth.users(id) on delete cascade,
-  property_id text not null references properties(id) on delete cascade,
+  -- no FK: may point at properties OR construction_projects (asset id namespace)
+  property_id text not null,
   units       bigint not null default 0 check (units >= 0),
   avg_cost    bigint not null default 0,                      -- per unit, UGX
   updated_at  timestamptz not null default now(),
