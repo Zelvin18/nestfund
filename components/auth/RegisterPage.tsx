@@ -2,213 +2,188 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import {
-  EnvelopeIcon, LockClosedIcon, UserIcon,
-  EyeIcon, EyeSlashIcon, PhoneIcon, ShieldCheckIcon,
-} from "@heroicons/react/24/outline"
-import { CheckBadgeIcon, ArrowTrendingUpIcon } from "@heroicons/react/24/solid"
+import { useRouter } from "next/navigation"
+import { EyeIcon, EyeSlashIcon, ArrowRightIcon, EnvelopeOpenIcon } from "@heroicons/react/24/outline"
+import { CheckCircleIcon } from "@heroicons/react/24/solid"
+import AuthPanel from "@/components/auth/AuthPanel"
+import { signUp } from "@/lib/auth"
 
-const benefits = [
-  "Buy shares from UGX 50,000",
-  "Earn monthly rental income",
-  "Real-time property pricing",
-  "No hidden fees — ever",
-  "Withdraw anytime",
+const inputStyle: React.CSSProperties = {
+  width: "100%", boxSizing: "border-box", border: "1.5px solid #e2e8f0", borderRadius: 12,
+  padding: "13px 16px", fontSize: 14.5, fontWeight: 500, color: "#0f172a", outline: "none",
+}
+const labelStyle: React.CSSProperties = {
+  fontSize: 12.5, fontWeight: 700, color: "#374151", display: "block", marginBottom: 7,
+}
+
+const perks = [
+  "Start investing from UGX 50,000",
+  "Monthly rental income to your wallet",
+  "Sell shares anytime on the Exchange",
 ]
 
 export default function RegisterPage() {
-  const [show, setShow] = useState(false)
-  const [step, setStep] = useState(1)
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" })
+  const router = useRouter()
+  const [form, setForm] = useState({ fullName: "", email: "", phone: "", password: "" })
+  const [showPw, setShowPw] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [confirmSent, setConfirmSent] = useState(false)
 
-  const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+  const set = (key: keyof typeof form, value: string) => {
+    setForm(f => ({ ...f, [key]: value }))
+    setError(null)
+  }
+
+  const canSubmit =
+    form.fullName.trim().length >= 3 &&
+    /\S+@\S+\.\S+/.test(form.email) &&
+    form.password.length >= 6
+
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (!canSubmit || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      const { needsConfirmation } = await signUp({
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        password: form.password,
+      })
+      if (needsConfirmation) {
+        setConfirmSent(true)
+        setBusy(false)
+      } else {
+        router.push("/onboarding")
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign up failed — please try again.")
+      setBusy(false)
+    }
+  }
 
   return (
     <div className="auth-grid">
+      <AuthPanel />
 
-      {/* ── LEFT — Benefits panel ── */}
-      <div style={{ background: "linear-gradient(160deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)", padding: "48px 52px", display: "flex", flexDirection: "column", justifyContent: "space-between" }} className="auth-left">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18, color: "#fff" }}>N</div>
-          <span style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>NestFund</span>
-        </div>
+      {/* ── Form side ── */}
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "40px 24px", backgroundColor: "#fff", minHeight: "100vh" }}>
+        <div style={{ width: "100%", maxWidth: 400 }}>
 
-        <div>
-          <p style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 16px 0" }}>
-            Join 14,250+ investors
-          </p>
-          <h2 style={{ fontSize: 36, fontWeight: 900, color: "#fff", lineHeight: 1.1, letterSpacing: "-0.8px", margin: "0 0 20px 0" }}>
-            Start investing in
-            <br />
-            <span style={{ color: "#93c5fd" }}>real estate today.</span>
-          </h2>
-          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, margin: "0 0 32px 0" }}>
-            No millions required. Own a piece of premium property from UGX 50,000.
-          </p>
-
-          {/* Benefits list */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {benefits.map((b, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 22, height: 22, borderRadius: "50%", backgroundColor: "rgba(16,185,129,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <CheckBadgeIcon style={{ width: 13, height: 13, color: "#6ee7b7" }} />
-                </div>
-                <span style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>{b}</span>
+          {confirmSent ? (
+            <div style={{ textAlign: "center", animation: "fade-up 0.35s ease-out" }}>
+              <div style={{ width: 66, height: 66, borderRadius: "50%", backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
+                <EnvelopeOpenIcon style={{ width: 30, height: 30, color: "#2563eb" }} />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Sample return card */}
-        <div style={{ backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 14, padding: "16px 18px", border: "1px solid rgba(255,255,255,0.12)" }}>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 6px 0", textTransform: "uppercase", letterSpacing: "0.07em" }}>Example: 100 shares in Sunrise Apartments</p>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 2px 0" }}>Investment</p>
-              <p style={{ fontSize: 16, fontWeight: 700, color: "#fff", margin: 0 }}>UGX 125,000</p>
+              <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", margin: "0 0 10px 0" }}>Check your inbox</h1>
+              <p style={{ fontSize: 14.5, color: "#64748b", lineHeight: 1.7, margin: "0 0 6px 0" }}>
+                We sent a confirmation link to <strong style={{ color: "#0f172a" }}>{form.email}</strong>.
+              </p>
+              <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 26px 0" }}>
+                Click it to activate your account, then log in.
+              </p>
+              <Link href="/auth/login" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "13px 28px", borderRadius: 12, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14.5, fontWeight: 700, textDecoration: "none" }}>
+                Go to Log In
+                <ArrowRightIcon style={{ width: 15, height: 15 }} />
+              </Link>
             </div>
-            <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 2px 0" }}>Monthly income</p>
-              <p style={{ fontSize: 16, fontWeight: 700, color: "#6ee7b7", margin: 0 }}>UGX 1,167</p>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 2px 0" }}>Annual yield</p>
-              <div style={{ display: "flex", alignItems: "center", gap: 3, justifyContent: "flex-end" }}>
-                <ArrowTrendingUpIcon style={{ width: 13, height: 13, color: "#6ee7b7" }} />
-                <p style={{ fontSize: 16, fontWeight: 700, color: "#6ee7b7", margin: 0 }}>11.2%</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── RIGHT — Register form ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 24px", backgroundColor: "#fff", overflowY: "auto" }}>
-        <div style={{ width: "100%", maxWidth: 420 }}>
-
-          {/* Step indicator */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28 }}>
-            {[1, 2].map(s => (
-              <div key={s} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: step >= s ? "#2563eb" : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {step > s
-                    ? <CheckBadgeIcon style={{ width: 16, height: 16, color: "#fff" }} />
-                    : <span style={{ fontSize: 12, fontWeight: 700, color: step === s ? "#fff" : "#94a3b8" }}>{s}</span>
-                  }
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: step >= s ? "#0f172a" : "#94a3b8" }}>
-                  {s === 1 ? "Your Details" : "Verify & Secure"}
-                </span>
-                {s < 2 && <div style={{ width: 32, height: 1, backgroundColor: step > s ? "#2563eb" : "#f1f5f9", marginRight: 0 }} />}
-              </div>
-            ))}
-          </div>
-
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 4px 0" }}>
-            {step === 1 ? "Create your account" : "Secure your account"}
-          </h1>
-          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 28px 0" }}>
-            {step === 1 ? "Free to join. No credit card needed." : "Your details are protected with 256-bit encryption."}
-          </p>
-
-          {step === 1 && (
+          ) : (
             <>
-              {/* Social */}
-              <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                {["Google", "Apple"].map(s => (
-                  <button key={s} style={{ flex: 1, height: 42, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#374151" }}>
-                    Continue with {s}
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-                <div style={{ flex: 1, height: 1, backgroundColor: "#f1f5f9" }} />
-                <span style={{ fontSize: 12, color: "#94a3b8" }}>or with email</span>
-                <div style={{ flex: 1, height: 1, backgroundColor: "#f1f5f9" }} />
+              {/* Mobile logo */}
+              <div className="auth-mobile-logo" style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 26 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg, #2563eb, #4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, color: "#fff" }}>N</div>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>NestFund</span>
               </div>
 
-              <form style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {[
-                  { key: "name",  label: "Full Name",     type: "text",  Icon: UserIcon,     placeholder: "Kelvin Magumise" },
-                  { key: "email", label: "Email Address", type: "email", Icon: EnvelopeIcon, placeholder: "you@example.com" },
-                  { key: "phone", label: "Phone Number",  type: "tel",   Icon: PhoneIcon,    placeholder: "+256 7XX XXX XXX" },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 7 }}>{f.label}</label>
-                    <div style={{ position: "relative" }}>
-                      <f.Icon style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af" }} />
-                      <input
-                        type={f.type}
-                        value={form[f.key as keyof typeof form]}
-                        onChange={e => update(f.key, e.target.value)}
-                        placeholder={f.placeholder}
-                        style={{ width: "100%", height: 44, paddingLeft: 40, paddingRight: 16, borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", boxSizing: "border-box" }}
-                      />
-                    </div>
+              <h1 style={{ fontSize: 27, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
+                Start owning property
+              </h1>
+              <p style={{ fontSize: 14.5, color: "#64748b", margin: "0 0 18px 0", lineHeight: 1.6 }}>
+                Create your free account in under a minute.
+              </p>
+
+              {/* Perks */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 22 }}>
+                {perks.map(p => (
+                  <div key={p} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircleIcon style={{ width: 16, height: 16, color: "#10b981", flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>{p}</span>
                   </div>
                 ))}
+              </div>
+
+              <form onSubmit={submit}>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>Full Name</label>
+                  <input style={inputStyle} autoComplete="name" value={form.fullName} onChange={e => set("fullName", e.target.value)} placeholder="Your full name" />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <label style={labelStyle}>Email</label>
+                    <input style={inputStyle} type="email" autoComplete="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="you@email.com" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Phone</label>
+                    <input style={inputStyle} inputMode="tel" autoComplete="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="+256 7XX XXX XXX" />
+                  </div>
+                </div>
+                <div style={{ marginBottom: 18 }}>
+                  <label style={labelStyle}>Password</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      style={{ ...inputStyle, paddingRight: 46 }}
+                      type={showPw ? "text" : "password"}
+                      autoComplete="new-password"
+                      value={form.password}
+                      onChange={e => set("password", e.target.value)}
+                      placeholder="At least 6 characters"
+                    />
+                    <button type="button" onClick={() => setShowPw(s => !s)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+                      {showPw ? <EyeSlashIcon style={{ width: 17, height: 17, color: "#94a3b8" }} /> : <EyeIcon style={{ width: 17, height: 17, color: "#94a3b8" }} />}
+                    </button>
+                  </div>
+                </div>
+
+                {error && (
+                  <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", margin: "0 0 16px 0", lineHeight: 1.55 }}>
+                    {error}
+                  </p>
+                )}
 
                 <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  style={{ height: 46, borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(37,99,235,0.3)", marginTop: 6 }}
+                  type="submit"
+                  disabled={!canSubmit || busy}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                    padding: "14px 0", borderRadius: 12, border: "none",
+                    cursor: canSubmit && !busy ? "pointer" : "not-allowed",
+                    background: canSubmit ? "linear-gradient(135deg, #2563eb, #4f46e5)" : "#e2e8f0",
+                    color: canSubmit ? "#fff" : "#94a3b8",
+                    fontSize: 15, fontWeight: 700,
+                    boxShadow: canSubmit ? "0 4px 14px rgba(37,99,235,0.3)" : "none",
+                  }}
                 >
-                  Continue
+                  {busy ? "Creating account..." : "Create Free Account"}
+                  {!busy && <ArrowRightIcon style={{ width: 16, height: 16 }} />}
                 </button>
               </form>
+
+              <p style={{ fontSize: 13.5, color: "#64748b", textAlign: "center", marginTop: 22 }}>
+                Already have an account?{" "}
+                <Link href="/auth/login" style={{ color: "#2563eb", fontWeight: 700, textDecoration: "none" }}>
+                  Sign in
+                </Link>
+              </p>
+
+              <p style={{ fontSize: 11.5, color: "#b6c1cf", textAlign: "center", marginTop: 18, lineHeight: 1.6 }}>
+                By creating an account you agree to our{" "}
+                <Link href="/terms" style={{ color: "#94a3b8", textDecoration: "none" }}>Terms</Link> &{" "}
+                <Link href="/privacy" style={{ color: "#94a3b8", textDecoration: "none" }}>Privacy Policy</Link>
+              </p>
             </>
           )}
-
-          {step === 2 && (
-            <form style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Create Password</label>
-                </div>
-                <div style={{ position: "relative" }}>
-                  <LockClosedIcon style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af" }} />
-                  <input
-                    type={show ? "text" : "password"}
-                    value={form.password}
-                    onChange={e => update("password", e.target.value)}
-                    placeholder="Minimum 8 characters"
-                    style={{ width: "100%", height: 44, paddingLeft: 40, paddingRight: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", boxSizing: "border-box" }}
-                  />
-                  <button type="button" onClick={() => setShow(!show)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer" }}>
-                    {show ? <EyeSlashIcon style={{ width: 16, height: 16, color: "#9ca3af" }} /> : <EyeIcon style={{ width: 16, height: 16, color: "#9ca3af" }} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Security note */}
-              <div style={{ backgroundColor: "#f0fdf4", borderRadius: 10, padding: "12px 14px", border: "1px solid #bbf7d0", display: "flex", gap: 8 }}>
-                <ShieldCheckIcon style={{ width: 16, height: 16, color: "#16a34a", flexShrink: 0, marginTop: 1 }} />
-                <p style={{ fontSize: 12, color: "#15803d", margin: 0, lineHeight: 1.6 }}>
-                  Your data is encrypted with 256-bit SSL. We never share your information.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                <button type="button" onClick={() => setStep(1)} style={{ flex: 1, height: 46, borderRadius: 11, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                  Back
-                </button>
-                <Link href="/onboarding" style={{ flex: 2, display: "flex", alignItems: "center", justifyContent: "center", height: 46, borderRadius: 11, background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 14px rgba(37,99,235,0.3)" }}>
-                  Create Account
-                </Link>
-              </div>
-            </form>
-          )}
-
-          <p style={{ fontSize: 12, color: "#94a3b8", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
-            By creating an account you agree to our{" "}
-            <Link href="/terms" style={{ color: "#2563eb", textDecoration: "none" }}>Terms</Link>{" & "}
-            <Link href="/privacy" style={{ color: "#2563eb", textDecoration: "none" }}>Privacy Policy</Link>
-          </p>
-
-          <p style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginTop: 12 }}>
-            Already have an account?{" "}
-            <Link href="/auth/login" style={{ color: "#2563eb", fontWeight: 600, textDecoration: "none" }}>Sign in</Link>
-          </p>
         </div>
       </div>
     </div>

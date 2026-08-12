@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
@@ -12,6 +12,7 @@ import {
   BuildingOffice2Icon,
 } from "@heroicons/react/24/solid"
 import SharePriceChart from "@/components/ui/SharePriceChart"
+import StickyBuyBar from "@/components/property/StickyBuyBar"
 import {
   constructionTradeHistory as tradeHistory,
   constructionActivityFeed as activityFeed,
@@ -30,6 +31,7 @@ type TabKey = "overview" | "documents" | "calculator" | "activities" | "trades"
 export default function ConstructionDetailPage({ id }: { id: string }) {
   const { projects: constructionProjects } = useConstruction()
   const project = constructionProjects.find(p => p.id === id)
+  const widgetRef = useRef<HTMLDivElement>(null)
   const [saved, setSaved] = useState(false)
   const [tab, setTab] = useState<TabKey>("overview")
   const [docTab, setDocTab] = useState<"ownership"|"property"|"audit">("ownership")
@@ -80,8 +82,8 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 48px" }}>
         <div className="property-detail-grid">
 
-          {/* ── LEFT ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* ── GALLERY (mobile: widget slots right under this) ── */}
+          <div className="pd-gallery">
 
             {/* Image gallery — CSS-driven responsive */}
             <div className="property-gallery-row">
@@ -107,6 +109,10 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* ── CONTENT (mobile: appears after the invest widget) ── */}
+          <div className="pd-content">
 
             {/* Title + badges */}
             <div>
@@ -379,7 +385,8 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
           </div>
 
           {/* ── RIGHT — Buy widget ── */}
-          <div className="buy-widget-col" style={{ minWidth: 0 }}>
+          <div className="buy-widget-col" style={{ minWidth: 0 }} ref={widgetRef}>
+            <div className="buy-widget-sticky">
             <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
 
               {/* Header — project photo behind a deep blue overlay */}
@@ -432,9 +439,20 @@ export default function ConstructionDetailPage({ id }: { id: string }) {
                 </button>
               </div>
             </div>
+            </div>
           </div>
 
         </div>
+
+        {/* Sticky mini invest-bar (mobile) */}
+        <StickyBuyBar
+          targetRef={widgetRef}
+          price={`UGX ${fmtPrice(project.sharePrice)}`}
+          sub={`per share · ${project.fundingProgress}% funded`}
+          cta="Invest Now"
+          tone="amber"
+          onClick={() => widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        />
       </div>
     </div>
   )

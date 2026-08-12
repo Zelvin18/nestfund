@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
 import Link from "next/link"
 import {
   ArrowLeftIcon, MapPinIcon, HeartIcon, ShareIcon,
@@ -15,6 +15,7 @@ import {
 import { generatePriceSeries } from "@/lib/mockData"
 import { useRentals, useComingSoon } from "@/lib/hooks"
 import { ReserveModal } from "@/components/comingsoon/ComingSoon"
+import StickyBuyBar from "@/components/property/StickyBuyBar"
 import { UsersIcon as UsersOutlineIcon, SparklesIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts"
@@ -49,6 +50,7 @@ export default function PropertyDetailPage({ id }: { id: string }) {
   const { queue } = useComingSoon()
   const property = rentals.find(p => p.id === id) ?? queue.find(p => p.id === id)
   const queued = queue.find(p => p.id === id)
+  const widgetRef = useRef<HTMLDivElement>(null)
   const [showReserve, setShowReserve] = useState(false)
   const [shares, setShares] = useState(100)
   const [range, setRange] = useState<TimeRange>("1M")
@@ -139,8 +141,8 @@ export default function PropertyDetailPage({ id }: { id: string }) {
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 48px" }}>
         <div className="property-detail-grid">
 
-          {/* ── LEFT ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
+          {/* ── GALLERY (mobile: widget slots right under this) ── */}
+          <div className="pd-gallery">
 
             {/* Image gallery — CSS-driven responsive layout */}
             <div className="property-gallery-row">
@@ -171,6 +173,10 @@ export default function PropertyDetailPage({ id }: { id: string }) {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* ── CONTENT (mobile: appears after the buy widget) ── */}
+          <div className="pd-content">
 
             {/* Title */}
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
@@ -487,7 +493,8 @@ export default function PropertyDetailPage({ id }: { id: string }) {
           </div>
 
           {/* ── RIGHT — Buy Widget (live) / Reserve Widget (coming soon) ── */}
-          <div className="buy-widget-col" style={{ minWidth: 0 }}>
+          <div className="buy-widget-col" style={{ minWidth: 0 }} ref={widgetRef}>
+            <div className="buy-widget-sticky">
             {isComingSoon ? (
               <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
                 {/* Header */}
@@ -630,9 +637,23 @@ export default function PropertyDetailPage({ id }: { id: string }) {
               </div>
             </div>
             )}
+            </div>
           </div>
 
         </div>
+
+        {/* Sticky mini buy-bar (mobile) — appears after scrolling past the widget */}
+        <StickyBuyBar
+          targetRef={widgetRef}
+          price={`UGX ${property.pricePerShare.toLocaleString()}`}
+          sub={isComingSoon ? "per share · planned" : "per share"}
+          cta={isComingSoon ? "Reserve Access" : "Buy Shares"}
+          tone={isComingSoon ? "teal" : "blue"}
+          onClick={() => {
+            if (isComingSoon) setShowReserve(true)
+            else widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }}
+        />
 
         {/* Reserve modal (coming soon) */}
         {showReserve && queued && (

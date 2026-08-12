@@ -137,36 +137,52 @@ div, section, header, footer, nav, main, article, aside {
    PROPERTY DETAIL — THE CRITICAL ONE
 ══════════════════════════════════════ */
 
-/* Main 2-col grid */
+/* Main grid: gallery + content stack in col 1, widget spans both rows in col 2.
+   DOM order is gallery → widget → content; placement is CSS-driven. */
 .property-detail-grid {
   display: grid !important;
   grid-template-columns: 1fr 340px !important;
+  grid-template-rows: auto 1fr;
   gap: 24px !important;
   align-items: start !important;
   width: 100% !important;
 }
+.pd-gallery { grid-column: 1; grid-row: 1; min-width: 0; }
+.pd-content { grid-column: 1; grid-row: 2; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 
-/* Left column: content — order 1 */
-.property-detail-grid > div:first-child {
-  order: 1;
-}
-
-/* Right column: buy widget — order 2 on desktop, order 2 on mobile (after content) */
+/* Widget column stretches the full height so the inner card can stick while scrolling */
 .buy-widget-col {
-  order: 2;
-  position: sticky !important;
-  top: 84px !important;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: stretch !important;
   min-width: 0 !important;
+}
+.buy-widget-sticky {
+  position: sticky;
+  top: 84px;
 }
 
 @media (max-width: 1024px) {
-  .property-detail-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .buy-widget-col {
-    position: static !important;
-    order: 2 !important;
-  }
+  .property-detail-grid { grid-template-columns: 1fr !important; grid-template-rows: none; }
+  /* Mobile order: images → buy/reserve widget → everything else */
+  .pd-gallery    { order: 1; grid-row: auto; }
+  .buy-widget-col{ order: 2; grid-column: 1 !important; grid-row: auto !important; align-self: auto !important; }
+  .pd-content    { order: 3; grid-row: auto; }
+  .buy-widget-sticky { position: static; }
+}
+
+/* Sticky mini buy-bar — mobile only, floats above the bottom nav */
+.sticky-buy-bar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 76px;
+  z-index: 60;
+  display: none;
+  animation: fade-up 0.25s ease-out;
+}
+@media (max-width: 768px) {
+  .sticky-buy-bar { display: block; }
 }
 
 /* Gallery: desktop = flex row (main + thumbs right), mobile = column (main + thumbs below) */
@@ -255,9 +271,6 @@ div, section, header, footer, nav, main, article, aside {
   .prop-features-row::-webkit-scrollbar { display: none; }
 }
 
-/* Buy widget */
-.buy-widget-col { position: sticky; top: 84px; }
-@media (max-width: 1024px) { .buy-widget-col { position: static; } }
 
 /* ══════════════════════════════════════
    CONSTRUCTION CARDS — horizontal on desktop, vertical on mobile
@@ -326,7 +339,12 @@ div, section, header, footer, nav, main, article, aside {
    AUTH
 ══════════════════════════════════════ */
 .auth-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
-@media (max-width: 768px) { .auth-grid { grid-template-columns: 1fr; } .auth-left { display: none !important; } }
+.auth-mobile-logo { display: none !important; }
+@media (max-width: 768px) {
+  .auth-grid { grid-template-columns: 1fr; }
+  .auth-left { display: none !important; }
+  .auth-mobile-logo { display: flex !important; }
+}
 
 /* ══════════════════════════════════════
    LANDING PAGE
