@@ -13,7 +13,9 @@ html {
 html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  /* clip (not hidden): hidden on both html AND body turns body into its own
+     clip box, which silently disables position:sticky everywhere inside it */
+  overflow-x: clip;
   width: 100%;
   max-width: 100%;
   background: #ffffff;
@@ -176,8 +178,10 @@ div, section, header, footer, nav, main, article, aside {
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: 76px;
-  z-index: 60;
+  /* Bottom nav is 60px tall + safe-area inset (home-indicator phones), so
+     clear both — otherwise the bar slides underneath the nav on iPhones */
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
   display: none;
   animation: fade-up 0.25s ease-out;
 }

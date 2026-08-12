@@ -33,35 +33,41 @@ export default function StickyBuyBar({ targetRef, price, sub, cta, tone = "blue"
     return () => io.disconnect()
   }, [targetRef])
 
-  const grad =
-    tone === "teal" ? "linear-gradient(135deg, #0d9488, #0f766e)" :
-    tone === "amber" ? "linear-gradient(135deg, #d97706, #b45309)" :
-    "linear-gradient(135deg, #2563eb, #4f46e5)"
+  // Same gradient family as the widget's SHARE PRICE header, per market tone
+  const palette =
+    tone === "teal"
+      ? { grad: "linear-gradient(120deg, #0f766e 0%, #0d9488 55%, #14b8a6 100%)", btnText: "#0f766e", glow: "rgba(13,148,136,0.45)" }
+      : tone === "amber"
+      ? { grad: "linear-gradient(120deg, #b45309 0%, #d97706 55%, #f59e0b 100%)", btnText: "#b45309", glow: "rgba(217,119,6,0.45)" }
+      : { grad: "linear-gradient(120deg, #1d4ed8 0%, #2563eb 55%, #4f46e5 100%)", btnText: "#2563eb", glow: "rgba(37,99,235,0.45)" }
 
   if (!visible) return null
 
   return (
     <div className="sticky-buy-bar">
       <div style={{
+        position: "relative", overflow: "hidden",
         display: "flex", alignItems: "center", gap: 12,
-        backgroundColor: "rgba(10, 17, 32, 0.94)",
-        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.1)",
-        borderRadius: 16, padding: "10px 10px 10px 16px",
-        boxShadow: "0 12px 32px rgba(0,0,0,0.35)",
+        background: palette.grad,
+        border: "1px solid rgba(255,255,255,0.22)",
+        borderRadius: 16, padding: "11px 11px 11px 16px",
+        boxShadow: `0 10px 30px ${palette.glow}, 0 4px 12px rgba(0,0,0,0.18)`,
       }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.3px", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{price}</p>
-          <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.55)", margin: 0, whiteSpace: "nowrap" }}>{sub}</p>
+        {/* soft highlight for depth, echoing the widget header sheen */}
+        <div style={{ position: "absolute", top: -46, right: 60, width: 130, height: 130, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%)", pointerEvents: "none" }} />
+        <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+          <p style={{ fontSize: 15.5, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.3px", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{price}</p>
+          <p style={{ fontSize: 10.5, fontWeight: 600, color: "rgba(255,255,255,0.75)", margin: 0, whiteSpace: "nowrap" }}>{sub}</p>
         </div>
         <button
           onClick={onClick}
           style={{
+            position: "relative",
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "11px 20px", borderRadius: 12, border: "none", cursor: "pointer",
-            background: grad, color: "#fff", fontSize: 13.5, fontWeight: 750,
+            background: "#fff", color: palette.btnText, fontSize: 13.5, fontWeight: 800,
             whiteSpace: "nowrap", flexShrink: 0,
-            boxShadow: "0 4px 14px rgba(0,0,0,0.25)",
+            boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
           }}
         >
           {cta}

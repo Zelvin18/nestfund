@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { EyeIcon, EyeSlashIcon, ArrowRightIcon, EnvelopeOpenIcon } from "@heroicons/react/24/outline"
 import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import AuthPanel from "@/components/auth/AuthPanel"
+import SocialAuth from "@/components/auth/SocialAuth"
 import { signUp } from "@/lib/auth"
 
 const inputStyle: React.CSSProperties = {
@@ -105,7 +106,7 @@ export default function RegisterPage() {
               </p>
 
               {/* Perks */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 22 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 20 }}>
                 {perks.map(p => (
                   <div key={p} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <CheckCircleIcon style={{ width: 16, height: 16, color: "#10b981", flexShrink: 0 }} />
@@ -113,6 +114,8 @@ export default function RegisterPage() {
                   </div>
                 ))}
               </div>
+
+              <SocialAuth onError={setError} />
 
               <form onSubmit={submit}>
                 <div style={{ marginBottom: 14 }}>

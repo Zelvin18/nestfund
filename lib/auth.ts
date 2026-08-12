@@ -49,6 +49,22 @@ export async function signUp(input: { fullName: string; email: string; phone: st
   return { needsConfirmation: !data.session }
 }
 
+export async function signInWithProvider(provider: "google" | "apple"): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Accounts aren't available right now — the database isn't connected.")
+  const { error } = await sb.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: `${window.location.origin}/home` },
+  })
+  if (error) {
+    if (error.message.toLowerCase().includes("not enabled") || error.message.toLowerCase().includes("unsupported provider")) {
+      const name = provider === "google" ? "Google" : "Apple"
+      throw new Error(`${name} sign-in isn't switched on yet — please use your email and password for now.`)
+    }
+    throw new Error(error.message)
+  }
+}
+
 export async function signOut(): Promise<void> {
   const sb = getSupabase()
   if (sb) await sb.auth.signOut()

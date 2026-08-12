@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { EyeIcon, EyeSlashIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 import AuthPanel from "@/components/auth/AuthPanel"
+import SocialAuth from "@/components/auth/SocialAuth"
 import { signIn } from "@/lib/auth"
 
 const inputStyle: React.CSSProperties = {
@@ -57,9 +58,11 @@ export default function LoginPage() {
           <h1 style={{ fontSize: 27, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
             Welcome back
           </h1>
-          <p style={{ fontSize: 14.5, color: "#64748b", margin: "0 0 28px 0", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14.5, color: "#64748b", margin: "0 0 24px 0", lineHeight: 1.6 }}>
             Log in to see your portfolio, income, and the market.
           </p>
+
+          <SocialAuth onError={setError} />
 
           <form onSubmit={submit}>
             <div style={{ marginBottom: 16 }}>
