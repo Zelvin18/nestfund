@@ -96,10 +96,10 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav links */}
+          {/* Desktop nav links — pushed right: the flexible space sits after the logo */}
           <nav
             className="nav-links"
-            style={{ display: "flex", alignItems: "center", gap: 2 }}
+            style={{ display: "flex", alignItems: "center", gap: 2, marginLeft: "auto" }}
           >
             {navLinks.map(({ href, label }) => {
               const active = pathname === href || pathname.startsWith(href + "/")
@@ -119,8 +119,8 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Desktop search — fills the space between the links and the right actions */}
-          <div className="nav-search" style={{ flex: 1, minWidth: 140 }}>
+          {/* Desktop search — fixed width, clustered with the links beside Sign In */}
+          <div className="nav-search" style={{ width: 260, flexShrink: 0 }}>
             <div style={{ position: "relative" }}>
               <MagnifyingGlassIcon style={{
                 position: "absolute", left: 12, top: "50%",
@@ -139,7 +139,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop right actions */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {/* Bell + wallet pill are personal — hidden until signed in */}
             {user && (
               <>
