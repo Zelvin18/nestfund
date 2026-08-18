@@ -1,8 +1,8 @@
 import LandingPage from "@/components/landing/LandingPage"
 
 export const metadata = {
-  title: "NestFund — Own Real Estate. Earn Monthly. Trade Anytime.",
-  description: "Buy shares of verified properties in Uganda from UGX 50,000. Earn monthly rental income. Trade shares anytime. NestFund is the real estate investment market.",
+  title: "NestFund — Put Your Money to Work",
+  description: "Invest from UGX 50,000 in verified opportunities across contracts, businesses, productive assets and real estate. NestFund is the investment marketplace for East Africa.",
 }
 
 export default function Landing() {

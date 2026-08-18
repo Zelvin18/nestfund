@@ -8,7 +8,7 @@ import HowItWorks from "@/components/home/HowItWorks"
 import WhyNestFund from "@/components/home/WhyNestFund"
 import CTASection from "@/components/home/CTASection"
 
-export const metadata = { title: "NestFund — Live Property Market" }
+export const metadata = { title: "NestFund — Live Market" }
 
 export default function AppHome() {
   return (
