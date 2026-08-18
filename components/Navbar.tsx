@@ -8,13 +8,17 @@ import { WalletIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
 import { useSession, useWallet } from "@/lib/hooks"
 import { signOut } from "@/lib/auth"
 
-const navLinks = [
+const publicLinks = [
   { href: "/opportunities", label: "Opportunities",  sub: "The investment marketplace" },
   { href: "/market",        label: "Property",       sub: "Rental & construction" },
   { href: "/exchange",      label: "Exchange",       sub: "Sell your shares P2P" },
+  { href: "/developers",    label: "For Businesses", sub: "Apply for funding" },
+]
+
+/* Personal pages — only in the nav once someone is signed in */
+const memberLinks = [
   { href: "/portfolio",     label: "Portfolio",      sub: "Track investments" },
   { href: "/wallet",        label: "Wallet",         sub: "Manage funds" },
-  { href: "/developers",    label: "For Businesses", sub: "Apply for funding" },
 ]
 
 export default function Navbar() {
@@ -47,6 +51,9 @@ export default function Navbar() {
     await signOut()
     router.push("/")
   }
+
+  // Portfolio and Wallet are personal — they appear only when signed in
+  const navLinks = user ? [...publicLinks.slice(0, 3), ...memberLinks, publicLinks[3]] : publicLinks
 
   return (
     <>
@@ -133,32 +140,37 @@ export default function Navbar() {
 
           {/* Desktop right actions */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto", flexShrink: 0 }}>
-            <button
-              className="nav-bell"
-              style={{
-                width: 36, height: 36, borderRadius: 8,
-                border: "1.5px solid #e5e7eb", background: "#fff",
-                display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-              }}
-            >
-              <BellIcon style={{ width: 18, height: 18, color: "#4b5563" }} />
-            </button>
+            {/* Bell + wallet pill are personal — hidden until signed in */}
+            {user && (
+              <>
+                <button
+                  className="nav-bell"
+                  style={{
+                    width: 36, height: 36, borderRadius: 8,
+                    border: "1.5px solid #e5e7eb", background: "#fff",
+                    display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+                  }}
+                >
+                  <BellIcon style={{ width: 18, height: 18, color: "#4b5563" }} />
+                </button>
 
-            <Link
-              href="/wallet"
-              className="nav-wallet"
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "6px 12px", border: "1.5px solid #e5e7eb",
-                borderRadius: 9, background: "#fff", cursor: "pointer",
-                textDecoration: "none",
-              }}
-            >
-              <WalletIcon style={{ width: 15, height: 15, color: "#2563eb" }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>
-                UGX {walletLive && balance !== null ? balance.toLocaleString() : "0"}
-              </span>
-            </Link>
+                <Link
+                  href="/wallet"
+                  className="nav-wallet"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "6px 12px", border: "1.5px solid #e5e7eb",
+                    borderRadius: 9, background: "#fff", cursor: "pointer",
+                    textDecoration: "none",
+                  }}
+                >
+                  <WalletIcon style={{ width: 15, height: 15, color: "#2563eb" }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>
+                    UGX {walletLive && balance !== null ? balance.toLocaleString() : "0"}
+                  </span>
+                </Link>
+              </>
+            )}
 
             {user ? (
               /* Signed in: initials avatar + account menu */

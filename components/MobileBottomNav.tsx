@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSession } from "@/lib/hooks"
 
 const navItems = [
   {
@@ -64,11 +65,29 @@ const navItems = [
   },
 ]
 
+/* Signed-out replacement for the personal tabs */
+const signInItem = {
+  href: "/auth/login",
+  label: "Sign In",
+  icon: (active: boolean) => (
+    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={active ? "#2563eb" : "#94a3b8"} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  ),
+}
+
 export default function MobileBottomNav() {
   const pathname = usePathname()
+  const { user } = useSession()
 
   // Hide on landing page
   if (pathname === "/") return null
+
+  // Portfolio & Wallet are personal — signed-out visitors get Sign In instead
+  const items = user
+    ? navItems
+    : [...navItems.filter(i => i.href !== "/portfolio" && i.href !== "/wallet"), signInItem]
 
   return (
     <nav
@@ -94,7 +113,7 @@ export default function MobileBottomNav() {
           height: 60,
         }}
       >
-        {navItems.map((item) => {
+        {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/")
           return (
             <Link
