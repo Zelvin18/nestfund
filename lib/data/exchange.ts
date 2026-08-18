@@ -83,6 +83,33 @@ export const exchangeListings: ExchangeListing[] = listingBook.map(book => {
   }
 })
 
+/* ── P2P sell offers — individual investors' listings ─────────
+   Demo records give the order book depth until real listings
+   exist in the database (supabase/exchange-v2.sql). */
+
+export interface ShareOffer {
+  id: string
+  assetId: string
+  sellerId?: string        // real user id when the listing is live in the DB
+  sellerName: string
+  units: number
+  pricePerShare: number
+  listedAgo: string
+  demo?: boolean
+}
+
+export const demoSellOffers: ShareOffer[] = [
+  { id: "offer-sunrise-1",  assetId: "sunrise-apartments",   sellerName: "James K.",  units: 180, pricePerShare: 1290, listedAgo: "14 min ago", demo: true },
+  { id: "offer-sunrise-2",  assetId: "sunrise-apartments",   sellerName: "Amina N.",  units: 92,  pricePerShare: 1275, listedAgo: "1 h ago",    demo: true },
+  { id: "offer-sunrise-3",  assetId: "sunrise-apartments",   sellerName: "Peter M.",  units: 70,  pricePerShare: 1305, listedAgo: "3 h ago",    demo: true },
+  { id: "offer-kololo-1",   assetId: "kololo-towers-ii",     sellerName: "Grace T.",  units: 60,  pricePerShare: 5450, listedAgo: "25 min ago", demo: true },
+  { id: "offer-kololo-2",   assetId: "kololo-towers-ii",     sellerName: "David O.",  units: 96,  pricePerShare: 5420, listedAgo: "2 h ago",    demo: true },
+  { id: "offer-acacia-1",   assetId: "acacia-office-park",   sellerName: "Sarah L.",  units: 140, pricePerShare: 2140, listedAgo: "8 min ago",  demo: true },
+  { id: "offer-acacia-2",   assetId: "acacia-office-park",   sellerName: "Brian S.",  units: 61,  pricePerShare: 2120, listedAgo: "5 h ago",    demo: true },
+  { id: "offer-naalya-1",   assetId: "naalya-business-park", sellerName: "Joan A.",   units: 250, pricePerShare: 2455, listedAgo: "42 min ago", demo: true },
+  { id: "offer-naalya-2",   assetId: "naalya-business-park", sellerName: "Moses W.",  units: 200, pricePerShare: 2430, listedAgo: "1 d ago",    demo: true },
+]
+
 /* ── Live ticker (homepage) — derived from canonical rentals ── */
 export interface TickerItem {
   name: string

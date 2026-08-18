@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import RecentTrades from "@/components/markets/RecentTrades"
 import { exchangeStats, type ExchangeListing } from "@/lib/data/exchange"
-import { useExchange } from "@/lib/hooks"
+import { useExchange, useSession, useLedgerHoldings } from "@/lib/hooks"
+import SellSharesModal from "@/components/exchange/SellSharesModal"
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -34,6 +36,12 @@ const filterTabs: { key: FilterKey; label: string }[] = [
 export default function ExchangePage() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All")
   const { listings: exchangeListings } = useExchange()
+  const { user } = useSession()
+  const { holdings } = useLedgerHoldings(user)
+  const [sellModal, setSellModal] = useState<{ open: boolean; presetAssetId?: string }>({ open: false })
+
+  const ownsAsset = (assetId: string) =>
+    (holdings ?? []).some(h => h.propertyId === assetId && h.units > 0)
 
   const filtered = exchangeListings.filter(listing => {
     if (activeFilter === "All") return true
@@ -65,21 +73,36 @@ export default function ExchangePage() {
             <span style={{ fontSize: 13, color: "#2563eb", fontWeight: 600 }}>Exchange</span>
           </div>
 
-          {/* Title + subtitle */}
-          <h1
-            style={{
-              fontSize: 30,
-              fontWeight: 800,
-              color: "#0f172a",
-              margin: "0 0 6px 0",
-              letterSpacing: "-0.6px",
-            }}
-          >
-            Exchange
-          </h1>
-          <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 24px 0" }}>
-            Trade property shares with other investors in a live marketplace.
-          </p>
+          {/* Title + subtitle + sell CTA */}
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
+            <div>
+              <h1
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  margin: "0 0 6px 0",
+                  letterSpacing: "-0.6px",
+                }}
+              >
+                Exchange
+              </h1>
+              <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 24px 0" }}>
+                Trade shares with other investors in a live marketplace.
+              </p>
+            </div>
+            <button
+              onClick={() => setSellModal({ open: true })}
+              style={{
+                padding: "11px 24px", borderRadius: 11, border: "none", cursor: "pointer",
+                background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff",
+                fontSize: 14, fontWeight: 750, boxShadow: "0 4px 14px rgba(37,99,235,0.3)",
+                flexShrink: 0,
+              }}
+            >
+              {user ? "Sell Your Shares" : "Sign In to Sell"}
+            </button>
+          </div>
 
           {/* Stats grid */}
           <div className="stats-grid" style={{ marginBottom: 28 }}>
@@ -244,12 +267,25 @@ export default function ExchangePage() {
               }}
             >
               {filtered.map(listing => (
-                <ListingCard key={listing.id} listing={listing} />
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  canSell={ownsAsset(listing.id)}
+                  signedIn={!!user}
+                  onSell={() => setSellModal({ open: true, presetAssetId: listing.id })}
+                />
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      {sellModal.open && (
+        <SellSharesModal
+          presetAssetId={sellModal.presetAssetId}
+          onClose={() => setSellModal({ open: false })}
+        />
+      )}
     </div>
   )
 }
@@ -343,7 +379,16 @@ function SidebarStat({
 
 // ─── Listing Card (Binaryx-style horizontal) ──────────────────────────────────
 
-function ListingCard({ listing }: { listing: ExchangeListing }) {
+function ListingCard({ listing, canSell, signedIn, onSell }: {
+  listing: ExchangeListing
+  canSell: boolean
+  signedIn: boolean
+  onSell: () => void
+}) {
+  const router = useRouter()
+  // Sell is possible signed-out only in the sense that the modal explains sign-in;
+  // signed-in users without shares of THIS asset get a disabled button
+  const sellDisabled = signedIn && !canSell
   return (
     <div
       className="exchange-card-row"
@@ -550,60 +595,62 @@ function ListingCard({ listing }: { listing: ExchangeListing }) {
           </strong>
         </p>
 
-        {/* Action buttons */}
+        {/* Action buttons — Buy opens the trade floor; Sell knows your position */}
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          <Link href={`/property/${listing.id}`} style={{ flex: 1, textDecoration: "none" }}>
-            <button
-              style={{
-                width: "100%",
-                padding: "9px 0",
-                borderRadius: 9,
-                backgroundColor: "#2563eb",
-                color: "#fff",
-                fontSize: 13,
-                fontWeight: 700,
-                border: "none",
-                cursor: "pointer",
-                transition: "background 0.15s",
-              }}
-              onMouseEnter={e =>
-                ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1d4ed8")
-              }
-              onMouseLeave={e =>
-                ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2563eb")
-              }
-            >
-              Buy
-            </button>
-          </Link>
-          <Link href={`/property/${listing.id}`} style={{ flex: 1, textDecoration: "none" }}>
-            <button
-              style={{
-                width: "100%",
-                padding: "9px 0",
-                borderRadius: 9,
-                backgroundColor: "#fff",
-                color: "#374151",
-                fontSize: 13,
-                fontWeight: 600,
-                border: "1.5px solid #d1d5db",
-                cursor: "pointer",
-                transition: "background 0.15s, border-color 0.15s",
-              }}
-              onMouseEnter={e => {
-                const btn = e.currentTarget as HTMLButtonElement
-                btn.style.backgroundColor = "#f8f9fb"
-                btn.style.borderColor = "#9ca3af"
-              }}
-              onMouseLeave={e => {
-                const btn = e.currentTarget as HTMLButtonElement
-                btn.style.backgroundColor = "#fff"
-                btn.style.borderColor = "#d1d5db"
-              }}
-            >
-              Sell
-            </button>
-          </Link>
+          <button
+            onClick={() => router.push(`/exchange/${listing.id}`)}
+            style={{
+              flex: 1,
+              padding: "9px 0",
+              borderRadius: 9,
+              backgroundColor: "#2563eb",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 700,
+              border: "none",
+              cursor: "pointer",
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={e =>
+              ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1d4ed8")
+            }
+            onMouseLeave={e =>
+              ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2563eb")
+            }
+          >
+            Buy Shares
+          </button>
+          <button
+            onClick={() => !sellDisabled && onSell()}
+            disabled={sellDisabled}
+            title={sellDisabled ? "You don't own shares of this asset" : undefined}
+            style={{
+              flex: 1,
+              padding: "9px 0",
+              borderRadius: 9,
+              backgroundColor: sellDisabled ? "#f1f5f9" : "#fff",
+              color: sellDisabled ? "#b0b9c6" : "#374151",
+              fontSize: 13,
+              fontWeight: 600,
+              border: sellDisabled ? "1.5px solid #eef1f5" : "1.5px solid #d1d5db",
+              cursor: sellDisabled ? "not-allowed" : "pointer",
+              transition: "background 0.15s, border-color 0.15s",
+            }}
+            onMouseEnter={e => {
+              if (sellDisabled) return
+              const btn = e.currentTarget as HTMLButtonElement
+              btn.style.backgroundColor = "#f8f9fb"
+              btn.style.borderColor = "#9ca3af"
+            }}
+            onMouseLeave={e => {
+              if (sellDisabled) return
+              const btn = e.currentTarget as HTMLButtonElement
+              btn.style.backgroundColor = "#fff"
+              btn.style.borderColor = "#d1d5db"
+            }}
+          >
+            {sellDisabled ? "No Shares to Sell" : "Sell"}
+          </button>
         </div>
 
         {/* Separator */}

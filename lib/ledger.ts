@@ -1,5 +1,6 @@
 import { getSupabase } from "./supabase"
 import type { WalletTransaction } from "./data/portfolio"
+import type { ShareOffer } from "./data/exchange"
 
 /* ═══════════════════════════════════════════════════════════════
    LEDGER — Phase 1 simulated-money engine.
@@ -104,6 +105,189 @@ export async function demoTopUp(userId: string, amount: number): Promise<void> {
   }
   if (!data || data.length === 0) throw new Error(FOUNDATION_HINT)
   announceLedgerChange()
+}
+
+/* ── Exchange: P2P share listings + trade settlement ─────────── */
+
+const EXCHANGE_HINT =
+  "The exchange tables aren't set up yet — run supabase/exchange-v2.sql in the Supabase SQL editor."
+
+const timeAgoLabel = (iso: string) => {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
+  if (s < 90) return "just now"
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`
+  return `${Math.floor(s / 86400)} d ago`
+}
+
+/** Open sell offers from the database; null keeps the demo order book showing. */
+export async function fetchShareListings(): Promise<ShareOffer[] | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb
+    .from("share_listings")
+    .select("id, seller_id, seller_name, asset_id, units, price_per_share, created_at")
+    .eq("status", "Open")
+    .order("created_at", { ascending: false })
+  if (error || !data) return null
+  return data.map(r => ({
+    id: r.id,
+    assetId: r.asset_id,
+    sellerId: r.seller_id ?? undefined,
+    sellerName: r.seller_name,
+    units: Number(r.units),
+    pricePerShare: Number(r.price_per_share),
+    listedAgo: timeAgoLabel(r.created_at),
+  }))
+}
+
+/** Publish a sell offer — only for shares the seller actually holds. */
+export async function createShareListing(input: {
+  userId: string
+  sellerName: string
+  assetId: string
+  units: number
+  pricePerShare: number
+}): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("The database isn't connected.")
+  const holdings = await fetchHoldings(input.userId)
+  if (holdings === null) throw new Error(FOUNDATION_HINT)
+  const position = holdings.find(h => h.propertyId === input.assetId)
+  if (!position || position.units < input.units) {
+    throw new Error(
+      `You hold ${(position?.units ?? 0).toLocaleString()} shares of this asset — you can't list ${input.units.toLocaleString()}.`
+    )
+  }
+  const { data, error } = await sb.from("share_listings").insert({
+    seller_id: input.userId,
+    seller_name: input.sellerName,
+    asset_id: input.assetId,
+    units: input.units,
+    price_per_share: input.pricePerShare,
+    status: "Open",
+  }).select("id")
+  if (error) {
+    if (isMissingTable(error.message)) throw new Error(EXCHANGE_HINT)
+    throw new Error(error.message)
+  }
+  if (!data || data.length === 0) throw new Error(EXCHANGE_HINT)
+  announceLedgerChange()
+}
+
+/**
+ * Buy shares from another investor's listing. Settlement:
+ * 1. buyer balance check
+ * 2. buyer: TRADE_SETTLEMENT (−total) + holdings up
+ * 3. seller (real listings): TRADE_SETTLEMENT (+total) + holdings down
+ * 4. listing decremented / closed; audit event
+ * Demo offers settle the buyer side only (no real counterparty).
+ */
+export async function buyFromListing(input: {
+  buyerId: string
+  offer: ShareOffer
+  units: number
+  assetName: string
+}): Promise<{ ref: string; total: number }> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("The database isn't connected.")
+  const { offer } = input
+  const units = Math.min(input.units, offer.units)
+  const total = units * offer.pricePerShare
+
+  const balance = await fetchWalletBalance(input.buyerId)
+  if (balance === null) throw new Error(FOUNDATION_HINT)
+  if (balance < total) {
+    throw new Error(
+      `INSUFFICIENT_FUNDS:Your wallet has UGX ${balance.toLocaleString()} but this trade needs UGX ${total.toLocaleString()}. Top up in your Wallet first.`
+    )
+  }
+
+  // Buyer leg
+  const ref = newTxRef()
+  const { data, error } = await sb.from("ledger_transactions").insert({
+    ref,
+    user_id: input.buyerId,
+    type: "TRADE_SETTLEMENT",
+    amount: -total,
+    property_id: offer.assetId,
+    units,
+    status: "completed",
+    memo: `Bought ${units.toLocaleString()} shares of ${input.assetName} from ${offer.sellerName} (Exchange)`,
+    idempotency_key: crypto.randomUUID(),
+  }).select("id")
+  if (error) {
+    if (isMissingTable(error.message)) throw new Error(FOUNDATION_HINT)
+    throw new Error(error.message)
+  }
+  if (!data || data.length === 0) throw new Error(FOUNDATION_HINT)
+
+  // Buyer position
+  const { data: existing } = await sb
+    .from("holdings")
+    .select("units, avg_cost")
+    .eq("user_id", input.buyerId)
+    .eq("property_id", offer.assetId)
+    .maybeSingle()
+  const oldUnits = existing ? Number(existing.units) : 0
+  const oldCost = existing ? Number(existing.avg_cost) : 0
+  const newUnits = oldUnits + units
+  const newAvg = Math.round((oldUnits * oldCost + total) / newUnits)
+  await sb.from("holdings").upsert({
+    user_id: input.buyerId,
+    property_id: offer.assetId,
+    units: newUnits,
+    avg_cost: newAvg,
+    updated_at: new Date().toISOString(),
+  })
+
+  // Seller leg — only for real listings with a real counterparty
+  if (offer.sellerId && !offer.demo) {
+    await sb.from("ledger_transactions").insert({
+      ref: newTxRef(),
+      user_id: offer.sellerId,
+      type: "TRADE_SETTLEMENT",
+      amount: total,
+      property_id: offer.assetId,
+      units: -units,
+      status: "completed",
+      memo: `Sold ${units.toLocaleString()} shares of ${input.assetName} on the Exchange`,
+      idempotency_key: crypto.randomUUID(),
+    })
+    const { data: sellerPos } = await sb
+      .from("holdings")
+      .select("units, avg_cost")
+      .eq("user_id", offer.sellerId)
+      .eq("property_id", offer.assetId)
+      .maybeSingle()
+    if (sellerPos) {
+      await sb.from("holdings").upsert({
+        user_id: offer.sellerId,
+        property_id: offer.assetId,
+        units: Math.max(0, Number(sellerPos.units) - units),
+        avg_cost: Number(sellerPos.avg_cost),
+        updated_at: new Date().toISOString(),
+      })
+    }
+    // Decrement or close the listing
+    const remaining = offer.units - units
+    await sb.from("share_listings").update({
+      units: Math.max(0, remaining),
+      status: remaining <= 0 ? "Sold" : "Open",
+      updated_at: new Date().toISOString(),
+    }).eq("id", offer.id)
+  }
+
+  await sb.from("platform_events").insert({
+    type: "TRADE_EXECUTED",
+    actor: input.buyerId,
+    entity_type: "share_listing",
+    entity_id: offer.id,
+    after: { assetId: offer.assetId, units, total, ref, seller: offer.sellerName },
+  })
+
+  announceLedgerChange()
+  return { ref, total }
 }
 
 /** Simulated withdrawal — balance-checked, recorded as a real WITHDRAWAL entry. */

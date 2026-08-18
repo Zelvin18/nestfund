@@ -14,9 +14,10 @@ import {
 } from "./data/opportunities"
 import { getCurrentUser, onAuthChange } from "./auth"
 import {
-  fetchWalletBalance, fetchLedgerTransactions, fetchHoldings,
+  fetchWalletBalance, fetchLedgerTransactions, fetchHoldings, fetchShareListings,
   LEDGER_EVENT, type LedgerHolding,
 } from "./ledger"
+import { demoSellOffers, type ShareOffer } from "./data/exchange"
 import type { WalletTransaction } from "./data/portfolio"
 import { rentalProperties as mockRentals, comingSoonProperties, mockInterestStats, type RentalProperty } from "./data/rentals"
 import { intelligenceFeed as mockIntel, marketStats as mockStats, type IntelligenceItem } from "./data/intelligence"
@@ -160,6 +161,24 @@ export function useOpportunities(): { opportunities: Opportunity[]; live: boolea
     ...projects.map(constructionToOpportunity),
   ]
   return { opportunities: [...nonProperty.items, ...propertyOpps], live: nonProperty.live }
+}
+
+/* ── Exchange: P2P sell offers (demo order book + real listings) ── */
+
+export function useShareOffers(): { offers: ShareOffer[]; refresh: () => void } {
+  const [dbOffers, setDbOffers] = useState<ShareOffer[] | null>(null)
+  const refresh = useCallback(() => {
+    fetchShareListings()
+      .then(d => { if (d !== null) setDbOffers(d) })
+      .catch(() => {})
+  }, [])
+  useEffect(() => {
+    refresh()
+    window.addEventListener(LEDGER_EVENT, refresh)
+    return () => window.removeEventListener(LEDGER_EVENT, refresh)
+  }, [refresh])
+  // Real listings first, demo depth behind them
+  return { offers: [...(dbOffers ?? []), ...demoSellOffers], refresh }
 }
 
 /* ── Phase 1: session + ledger hooks ─────────────────────────── */
