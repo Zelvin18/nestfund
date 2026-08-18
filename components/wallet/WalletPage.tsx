@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import {
   ArrowDownTrayIcon,
   ArrowUpTrayIcon,
@@ -28,8 +29,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts"
 import ChartBox from "@/components/ui/ChartBox"
 
 import {
-  walletTransactions as mockTransactions,
-  walletIncomeSeries as incomeData,
   initialPayMethods,
   type MethodKind,
   type PayMethod,
@@ -55,20 +54,19 @@ export default function WalletPage() {
   const [methods, setMethods] = useState<PayMethod[]>(initialPayMethods)
   const [balanceHidden, setBalanceHidden] = useState(false)
 
-  // Real ledger data for a signed-in user; mock showcase otherwise
+  // This page renders behind SignInGate — always the signed-in user's REAL
+  // ledger figures (virtual beta money), never mock showcase data
   const { user } = useSession()
-  const { balance, transactions: liveTx, live } = useWallet(user)
+  const { balance, transactions: liveTx } = useWallet(user)
   const { holdings } = useLedgerHoldings(user)
 
-  const cash = live && balance !== null ? balance : 2450000
-  const invested = live && holdings
-    ? holdings.reduce((sum, h) => sum + h.units * h.avgCost, 0)
-    : 2023500
-  const propertyCount = live && holdings ? holdings.length : 3
-  const earnings = live && liveTx
-    ? liveTx.filter(t => t.type === "income" && t.amount > 0).reduce((s, t) => s + t.amount, 0)
-    : 184000
-  const transactions = live && liveTx ? liveTx : mockTransactions
+  const cash = balance ?? 0
+  const invested = (holdings ?? []).reduce((sum, h) => sum + h.units * h.avgCost, 0)
+  const propertyCount = holdings?.length ?? 0
+  const earnings = (liveTx ?? [])
+    .filter(t => t.type === "income" && t.amount > 0)
+    .reduce((s, t) => s + t.amount, 0)
+  const transactions = liveTx ?? []
 
   const filtered = activeTab === "all" ? transactions : transactions.filter(t => t.type === activeTab)
 
@@ -122,7 +120,9 @@ export default function WalletPage() {
               </p>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 5, backgroundColor: "rgba(16,185,129,0.14)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 99, padding: "4px 12px" }}>
                 <ArrowTrendingUpIcon style={{ width: 13, height: 13, color: "#6ee7b7" }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#6ee7b7" }}>+UGX 185,000 income this month</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#6ee7b7" }}>
+                  {earnings > 0 ? `+UGX ${earnings.toLocaleString()} income received` : "Simulated beta funds — every movement is on your ledger"}
+                </span>
               </div>
             </div>
 
@@ -188,32 +188,41 @@ export default function WalletPage() {
               ))}
             </div>
 
-            {/* Income chart */}
+            {/* Income chart — real distributions only */}
             <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "22px 20px", border: "1px solid #e8ecf0" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
                 <div>
-                  <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>Monthly Rental Income</h2>
-                  <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>Distributions from all properties, last 6 months</p>
+                  <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>Income Received</h2>
+                  <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>Distributions from your investments</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px 0" }}>This Month</p>
-                  <p style={{ fontSize: 18, fontWeight: 800, color: "#10b981", margin: 0 }}>UGX 185,000</p>
+                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px 0" }}>All Time</p>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: "#10b981", margin: 0 }}>UGX {formatCurrency(earnings)}</p>
                 </div>
               </div>
-              <ChartBox height={180}>
-                {w => (
-                  <BarChart width={w} height={180} data={incomeData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
-                    <YAxis hide />
-                    <Tooltip
-                      contentStyle={{ borderRadius: 10, border: "1px solid #f1f5f9", fontSize: 12 }}
-                      formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Income"]}
-                      cursor={{ fill: "#f8fafc" }}
-                    />
-                    <Bar dataKey="income" fill="#2563eb" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                )}
-              </ChartBox>
+              {earnings > 0 ? (
+                <ChartBox height={180}>
+                  {w => (
+                    <BarChart width={w} height={180} data={transactions.filter(t => t.type === "income").map(t => ({ month: t.date, income: t.amount })).reverse()} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
+                      <YAxis hide />
+                      <Tooltip
+                        contentStyle={{ borderRadius: 10, border: "1px solid #f1f5f9", fontSize: 12 }}
+                        formatter={(v: unknown) => [`UGX ${formatCurrency(Number(v))}`, "Income"]}
+                        cursor={{ fill: "#f8fafc" }}
+                      />
+                      <Bar dataKey="income" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  )}
+                </ChartBox>
+              ) : (
+                <div style={{ height: 120, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "#f8fafc", borderRadius: 12 }}>
+                  <p style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>No income received yet</p>
+                  <p style={{ fontSize: 12, color: "#94a3b8", margin: 0, textAlign: "center", padding: "0 16px", lineHeight: 1.6 }}>
+                    Distributions from your investments will chart here as they arrive.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Transactions */}
@@ -362,20 +371,31 @@ export default function WalletPage() {
               </div>
             </div>
 
-            {/* Next payout card */}
-            <div style={{ background: "linear-gradient(135deg, #0d9488, #0f766e)", borderRadius: 16, padding: "20px", color: "#fff" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
-                Next Rental Payout
-              </p>
-              <p style={{ fontSize: 28, fontWeight: 900, margin: "0 0 4px 0", letterSpacing: "-0.5px" }}>≈ UGX 185,000</p>
-              <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", margin: "0 0 16px 0" }}>
-                Expected Feb 5, 2026 · paid to your default account
-              </p>
-              <div style={{ backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 99, height: 7, overflow: "hidden", marginBottom: 6 }}>
-                <div style={{ width: "78%", height: "100%", backgroundColor: "#fff", borderRadius: 99 }} />
+            {/* Next payout card — only meaningful once the investor holds positions */}
+            {propertyCount > 0 ? (
+              <div style={{ background: "linear-gradient(135deg, #0d9488, #0f766e)", borderRadius: 16, padding: "20px", color: "#fff" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
+                  Distributions
+                </p>
+                <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 4px 0", letterSpacing: "-0.5px" }}>{propertyCount} active {propertyCount === 1 ? "position" : "positions"}</p>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", margin: 0, lineHeight: 1.6 }}>
+                  Proceeds are paid to your wallet as your opportunities generate income or repay at exit.
+                </p>
               </div>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", margin: 0 }}>22 days into the current cycle</p>
-            </div>
+            ) : (
+              <div style={{ background: "linear-gradient(135deg, #0d9488, #0f766e)", borderRadius: 16, padding: "20px", color: "#fff" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
+                  Start Earning
+                </p>
+                <p style={{ fontSize: 20, fontWeight: 900, margin: "0 0 4px 0", letterSpacing: "-0.4px" }}>Put your balance to work</p>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", margin: "0 0 14px 0", lineHeight: 1.6 }}>
+                  Deposit demo funds, then invest in any open opportunity — income lands right here.
+                </p>
+                <Link href="/opportunities" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, backgroundColor: "#fff", color: "#0f766e", fontSize: 13, fontWeight: 750, textDecoration: "none" }}>
+                  Explore Opportunities
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

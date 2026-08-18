@@ -4,7 +4,6 @@ import Link from "next/link"
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/solid"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
-import { mockPortfolio } from "@/lib/mockData"
 import { useRentals, useConstruction, useOpportunities, useSession, useWallet, useLedgerHoldings } from "@/lib/hooks"
 import { categoryMeta } from "@/lib/data/opportunities"
 import Sparkline from "@/components/ui/Sparkline"
@@ -29,24 +28,29 @@ export default function PortfolioPage() {
     return null
   }
 
-  // Signed in with the ledger answering → real positions; otherwise mock showcase
+  // This page renders behind SignInGate — always the signed-in user's REAL
+  // ledger positions (virtual beta money), never mock showcase data
   const { user } = useSession()
   const { balance, live: walletLive } = useWallet(user)
-  const { holdings: ledgerHoldings, live: holdingsLive } = useLedgerHoldings(user)
+  const { holdings: ledgerHoldings } = useLedgerHoldings(user)
 
-  const portfolio = holdingsLive && ledgerHoldings
-    ? ledgerHoldings.map(h => {
-        const price = assetInfo(h.propertyId)?.price ?? h.avgCost
-        return {
-          propertyId: h.propertyId,
-          shares: h.units,
-          invested: h.units * h.avgCost,
-          currentValue: h.units * price,
-        }
-      })
-    : mockPortfolio
+  const portfolio = (ledgerHoldings ?? []).map(h => {
+    const price = assetInfo(h.propertyId)?.price ?? h.avgCost
+    return {
+      propertyId: h.propertyId,
+      shares: h.units,
+      invested: h.units * h.avgCost,
+      currentValue: h.units * price,
+    }
+  })
 
   const cashBalance = walletLive && balance !== null ? balance : 0
+  // Weighted average rental yield across property positions (0 when none)
+  const yieldWeighted = portfolio.reduce((acc, p) => {
+    const r = featuredProperties.find(f => f.id === p.propertyId)
+    return r ? { sum: acc.sum + r.rentalYield * p.currentValue, weight: acc.weight + p.currentValue } : acc
+  }, { sum: 0, weight: 0 })
+  const portfolioYield = yieldWeighted.weight > 0 ? (yieldWeighted.sum / yieldWeighted.weight).toFixed(1) : "0"
   const totalValue = portfolio.reduce((s, p) => s + p.currentValue, 0)
   const totalInvested = portfolio.reduce((s, p) => s + p.invested, 0)
   const totalGain = totalValue - totalInvested
@@ -116,7 +120,7 @@ export default function PortfolioPage() {
             <div style={{ backgroundColor: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 9, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div>
                 <p style={{ fontSize: 11, color: "#0d9488", fontWeight: 600, margin: "0 0 2px 0" }}>Claimable rental income</p>
-                <p style={{ fontSize: 16, fontWeight: 800, color: "#0d9488", margin: 0 }}>UGX {holdingsLive ? "0" : "185,000"}</p>
+                <p style={{ fontSize: 16, fontWeight: 800, color: "#0d9488", margin: 0 }}>UGX 0</p>
               </div>
               <button style={{ padding: "7px 16px", borderRadius: 8, backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer" }}>
                 Claim
@@ -135,7 +139,7 @@ export default function PortfolioPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
               <div style={{ backgroundColor: "#f8f9fb", borderRadius: 10, padding: "12px 14px" }}>
                 <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, margin: "0 0 4px 0" }}>Portfolio Yield</p>
-                <p style={{ fontSize: 22, fontWeight: 800, color: "#0d9488", margin: 0, letterSpacing: "-0.5px" }}>10.4%</p>
+                <p style={{ fontSize: 22, fontWeight: 800, color: "#0d9488", margin: 0, letterSpacing: "-0.5px" }}>{portfolioYield}%</p>
               </div>
               <div style={{ backgroundColor: "#f8f9fb", borderRadius: 10, padding: "12px 14px" }}>
                 <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, margin: "0 0 4px 0" }}>Avg Total Gain</p>
