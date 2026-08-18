@@ -96,26 +96,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop search — grows to fill, so links sit flush against the right actions */}
-          <div className="nav-search" style={{ flex: 1, minWidth: 160 }}>
-            <div style={{ position: "relative", maxWidth: 520 }}>
-              <MagnifyingGlassIcon style={{
-                position: "absolute", left: 12, top: "50%",
-                transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af",
-              }} />
-              <input
-                type="text"
-                placeholder="Search opportunities, locations..."
-                style={{
-                  width: "100%", height: 38, paddingLeft: 38, paddingRight: 16,
-                  fontSize: 13, border: "1.5px solid #e5e7eb", borderRadius: 9,
-                  backgroundColor: "#f9fafb", color: "#111827", outline: "none",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Desktop nav links — right-aligned next to the actions */}
+          {/* Desktop nav links */}
           <nav
             className="nav-links"
             style={{ display: "flex", alignItems: "center", gap: 2 }}
@@ -137,6 +118,25 @@ export default function Navbar() {
               )
             })}
           </nav>
+
+          {/* Desktop search — fills the space between the links and the right actions */}
+          <div className="nav-search" style={{ flex: 1, minWidth: 140 }}>
+            <div style={{ position: "relative" }}>
+              <MagnifyingGlassIcon style={{
+                position: "absolute", left: 12, top: "50%",
+                transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af",
+              }} />
+              <input
+                type="text"
+                placeholder="Search opportunities, locations..."
+                style={{
+                  width: "100%", height: 38, paddingLeft: 38, paddingRight: 16,
+                  fontSize: 13, border: "1.5px solid #e5e7eb", borderRadius: 9,
+                  backgroundColor: "#f9fafb", color: "#111827", outline: "none",
+                }}
+              />
+            </div>
+          </div>
 
           {/* Desktop right actions */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto", flexShrink: 0 }}>
