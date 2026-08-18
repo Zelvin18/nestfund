@@ -27,13 +27,13 @@ export default function AuthPanel() {
       {/* Middle: pitch + floating property card */}
       <div style={{ position: "relative" }}>
         <h2 style={{ fontSize: "clamp(26px, 2.6vw, 36px)", fontWeight: 400, color: "rgba(255,255,255,0.88)", lineHeight: 1.25, letterSpacing: "-0.4px", margin: "0 0 4px 0" }}>
-          Own real estate.
+          Your money shouldn&apos;t sit idle.
         </h2>
         <h2 style={{ fontSize: "clamp(26px, 2.6vw, 36px)", fontWeight: 700, color: "#fff", lineHeight: 1.25, letterSpacing: "-0.4px", margin: "0 0 16px 0" }}>
-          Earn every month.
+          Put it to work.
         </h2>
         <p style={{ fontSize: 14.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.75, maxWidth: 380, margin: "0 0 28px 0" }}>
-          Buy shares of verified Ugandan properties from UGX 50,000, collect rental income monthly, and trade anytime on the Exchange.
+          Invest from UGX 50,000 in verified opportunities — contracts, trade, productive assets and real estate — and track every shilling as it works.
         </p>
 
         {/* Mini property card */}
@@ -73,7 +73,7 @@ export default function AuthPanel() {
           ))}
         </div>
         <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", margin: 0 }}>
-          Regulated by the Capital Markets Authority of Uganda · Every property independently verified
+          Every opportunity independently verified · Investments carry risk
         </p>
       </div>
     </div>

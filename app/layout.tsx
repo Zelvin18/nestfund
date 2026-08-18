@@ -6,9 +6,9 @@ import ConditionalShell from "@/components/ConditionalShell"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "NestFund — Own Real Estate. Earn Monthly. Trade Anytime.",
+  title: "NestFund — Put Your Money to Work",
   description:
-    "Buy shares of verified properties from UGX 50,000. Earn monthly rental income. Trade anytime. NestFund is the real estate investment market for East Africa.",
+    "Invest from UGX 50,000 in verified opportunities across contracts, businesses, productive assets and real estate. NestFund is the investment marketplace for East Africa.",
 }
 
 export default function RootLayout({

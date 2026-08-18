@@ -5,7 +5,8 @@ import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { formatCurrency, formatPercentage } from "@/lib/utils"
 import { mockPortfolio } from "@/lib/mockData"
-import { useRentals, useConstruction, useSession, useWallet, useLedgerHoldings } from "@/lib/hooks"
+import { useRentals, useConstruction, useOpportunities, useSession, useWallet, useLedgerHoldings } from "@/lib/hooks"
+import { categoryMeta } from "@/lib/data/opportunities"
 import Sparkline from "@/components/ui/Sparkline"
 
 type AssetTab = "All Assets" | "Rental" | "Construction"
@@ -15,13 +16,16 @@ const assetFilterTabs: AssetTab[] = ["All Assets", "Rental", "Construction"]
 export default function PortfolioPage() {
   const { rentals: featuredProperties } = useRentals()
   const { projects: constructionProjects } = useConstruction()
+  const { opportunities } = useOpportunities()
 
-  // Resolve any asset id (rental or construction) to display info
+  // Resolve any asset id (rental, construction, or opportunity) to display info
   const assetInfo = (id: string) => {
     const r = featuredProperties.find(f => f.id === id)
     if (r) return { name: r.name, location: r.location, image: r.image, price: r.pricePerShare, spark: r.chartData.slice(-20).map((d: { value: number }) => d.value), href: `/property/${r.id}`, kind: "Rental" as const }
     const c = constructionProjects.find(p => p.id === id)
     if (c) return { name: c.name, location: c.location, image: c.image, price: c.sharePrice, spark: [c.sharePriceStart, c.sharePrice], href: `/construction/${c.id}`, kind: "Construction" as const }
+    const o = opportunities.find(p => p.id === id)
+    if (o) return { name: o.title, location: o.location, image: o.image, price: o.unitPrice, spark: [o.unitPrice, o.unitPrice], href: `/opportunity/${o.id}`, kind: categoryMeta(o.category).label }
     return null
   }
 

@@ -5,8 +5,10 @@ import { useState, useEffect } from "react"
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ShieldCheckIcon, StarIcon } from "@heroicons/react/24/solid"
 import CountUp from "@/components/ui/CountUp"
-import { useLandingFeatured, usePlatformStats, useRentals, useConstruction } from "@/lib/hooks"
+import { useLandingFeatured, usePlatformStats, useOpportunities } from "@/lib/hooks"
 import { ComingSoonSection } from "@/components/comingsoon/ComingSoon"
+import OpportunityCard from "@/components/opportunities/OpportunityCard"
+import { CATEGORIES } from "@/lib/data/opportunities"
 
 /* ── Inline SVG icons (professional, no emoji) ── */
 const IconHome = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
@@ -17,36 +19,29 @@ const IconChart = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="no
 const IconUsers = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
 const IconBuilding = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg>
 const IconConstruction = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M2 20h20M4 20V10l8-6 8 6v10" /><path d="M9 20v-5h6v5" /></svg>
-const IconExchange = () => <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" /></svg>
 
 /* Featured hero cards + trust numbers are managed in Admin → Site Settings */
 
 const howSteps = [
   { num: "01", title: "Create your account", desc: "Sign up free. Complete KYC verification in minutes. No minimum experience required.", icon: IconUsers },
-  { num: "02", title: "Browse properties", desc: "Explore verified rental and construction properties with full financial data, yields, and projections.", icon: IconBuilding },
-  { num: "03", title: "Buy shares", desc: "Invest from as little as UGX 50,000. Instantly own a fraction of a premium property.", icon: IconBanknotes },
-  { num: "04", title: "Earn & trade", desc: "Receive monthly rental income. Watch your portfolio grow. Sell shares anytime on the Exchange.", icon: IconTrade },
-]
-
-const markets = [
-  { icon: IconHome,        title: "Rental Market",      desc: "Income-producing properties. Earn monthly rent from day one.", link: "/market",              color: "#2563eb", bg: "#eff6ff", badge: "Most Popular" },
-  { icon: IconConstruction,title: "Construction Market", desc: "Fund new buildings. Earn higher returns from the ground up.", link: "/construction-market", color: "#0d9488", bg: "#f0fdfa", badge: "High ROI" },
-  { icon: IconExchange,    title: "Exchange",            desc: "Trade property shares with other investors. Buy and sell anytime.", link: "/exchange",          color: "#7c3aed", bg: "#f5f3ff", badge: "Liquid" },
+  { num: "02", title: "Explore opportunities", desc: "Browse verified opportunities across contracts, trade, productive assets and real estate — each with its duration, target return and risks.", icon: IconBuilding },
+  { num: "03", title: "Invest from UGX 50,000", desc: "Choose an amount that suits you. Every opportunity shows exactly what your capital will finance.", icon: IconBanknotes },
+  { num: "04", title: "Track & receive proceeds", desc: "Follow progress in your portfolio. Receive proceeds as opportunities repay — and trade property shares anytime on the Exchange.", icon: IconTrade },
 ]
 
 const trustPoints = [
-  { icon: IconShield,  title: "Legally Verified",    desc: "Every property has verified title deeds, legal compliance, and independent valuation." },
-  { icon: IconChart,   title: "Full Transparency",   desc: "Real-time reporting, monthly income statements, and live construction updates." },
-  { icon: IconBanknotes,title: "Monthly Income",     desc: "Rental distributions paid directly to your wallet every month, automatically." },
+  { icon: IconShield,  title: "Verified Before Listing", desc: "Every opportunity goes through document, operator and financial verification before it appears on the marketplace." },
+  { icon: IconChart,   title: "Full Transparency",   desc: "You see what your capital finances, how it generates revenue, how long it is deployed, and what could go wrong." },
+  { icon: IconBanknotes,title: "Defined Exits",      desc: "Every opportunity states its duration and expected exit — contract payment, trade cycle, asset income or property sale." },
   { icon: IconUsers,   title: "14,250+ Investors",   desc: "A growing community of verified investors across Uganda and East Africa." },
 ]
 
 const faqs = [
-  { q: "How much do I need to start investing?", a: "You can start investing from as little as UGX 50,000 by buying one or more shares in a verified property." },
-  { q: "When do I receive rental income?", a: "Monthly rental income is distributed to your NestFund wallet within the first 5 business days of each month." },
-  { q: "Can I sell my shares whenever I want?", a: "Yes. You can list your shares on the Exchange where other investors can buy them. Average sell time is under 38 minutes." },
-  { q: "Are the properties legally secure?", a: "Absolutely. Every property undergoes independent legal verification, title deed checks, and annual independent valuation." },
-  { q: "What is the minimum investment period?", a: "There is no lock-in period. You can sell your shares on the Exchange at any time after purchase." },
+  { q: "What can I invest in on NestFund?", a: "Verified opportunities across five categories: Cashflow (contract and invoice financing), Growth (trade and working capital), Assets (income-producing equipment), Property (rental and construction), and Stable (lower-risk products, coming soon)." },
+  { q: "How much do I need to start investing?", a: "You can start from as little as UGX 50,000. Each opportunity shows its own minimum investment." },
+  { q: "Are returns guaranteed?", a: "No. Every figure you see is a target or projected return, not a promise. All investments carry risk, including possible loss of capital — each opportunity page explains its specific risks in plain language." },
+  { q: "How do I get my money back?", a: "Every opportunity has a defined duration and exit — a contract payment, the end of a trade cycle, asset income, or a property exit. Property shares can also be listed on the Exchange for other investors to buy." },
+  { q: "How are opportunities verified?", a: "Before listing, NestFund reviews the operator, the underlying contracts or assets, and the financials. Verification status is shown on each opportunity, and only completed checks are displayed." },
 ]
 
 export default function LandingPage() {
@@ -70,8 +65,11 @@ export default function LandingPage() {
       {/* ══ TRUST NUMBERS ══ */}
       <TrustNumbers />
 
-      {/* ══ MARKETS ══ */}
-      <MarketsSection />
+      {/* ══ WHAT CAN YOU INVEST IN — the five categories ══ */}
+      <CategoriesSection />
+
+      {/* ══ FEATURED OPPORTUNITIES ══ */}
+      <FeaturedOpportunities />
 
       {/* ══ COMING SOON — reserve before launch ══ */}
       <ComingSoonSection />
@@ -113,10 +111,9 @@ function LandingNav() {
         {/* Desktop links */}
         <div className="landing-nav-links" style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {[
-            { href: "/market", label: "Rental Market" },
-            { href: "/construction-market", label: "Construction" },
+            { href: "/opportunities", label: "Opportunities" },
             { href: "/exchange", label: "Exchange" },
-            { href: "/developers", label: "For Developers" },
+            { href: "/developers", label: "For Businesses" },
             { href: "/home", label: "Dashboard" },
           ].map(l => (
             <Link key={l.href} href={l.href} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 500, color: "#4b5563", textDecoration: "none" }}>{l.label}</Link>
@@ -165,7 +162,7 @@ function HeroSection({ ticker }: { ticker: number }) {
             letterSpacing: "-0.3px",
             margin: "0 0 4px 0",
           }}>
-            Invest in Property.
+            Your money
           </h1>
           <h1 style={{
             fontSize: "clamp(30px, 5vw, 58px)",
@@ -175,7 +172,7 @@ function HeroSection({ ticker }: { ticker: number }) {
             letterSpacing: "-0.3px",
             margin: "0 0 4px 0",
           }}>
-            Earn Monthly.
+            shouldn&apos;t sit idle.
           </h1>
           <h1 style={{
             fontSize: "clamp(30px, 5vw, 58px)",
@@ -185,25 +182,25 @@ function HeroSection({ ticker }: { ticker: number }) {
             letterSpacing: "-0.3px",
             margin: "0 0 22px 0",
           }}>
-            From UGX 50,000.
+            Put it to work.
           </h1>
           <p style={{
             fontSize: "clamp(14px, 1.7vw, 17px)",
             color: "rgba(255,255,255,0.58)",
-            maxWidth: 500,
+            maxWidth: 540,
             margin: "0 auto 34px",
             lineHeight: 1.7,
             fontWeight: 400,
           }}>
-            NestFund lets you own shares of verified rental properties across Uganda.
-            Receive rental income every month and trade your shares anytime.
+            Invest in verified opportunities across Africa&apos;s growing economy — from contracts
+            and businesses to productive assets and real estate. Start from UGX 50,000.
           </p>
         </div>
 
         {/* CTA buttons — Binaryx style */}
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginBottom: 56 }}>
           <Link
-            href="/home"
+            href="/opportunities"
             style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "13px 28px", borderRadius: 8,
@@ -213,9 +210,9 @@ function HeroSection({ ticker }: { ticker: number }) {
             }}
           >
             <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
+              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
             </svg>
-            Explore properties
+            Explore Opportunities
           </Link>
           <Link
             href="#how-it-works"
@@ -286,11 +283,10 @@ function HeroSection({ ticker }: { ticker: number }) {
 function TrustNumbers() {
   // Numbers come from Admin → Site Settings + live listing counts
   const platform = usePlatformStats()
-  const { rentals } = useRentals()
-  const { projects } = useConstruction()
+  const { opportunities } = useOpportunities()
   const stats = [
-    { value: platform.marketVolume, label: "invested in real estate" },
-    { value: `${rentals.filter(p => p.status === "Live").length + projects.length}+`, label: "verified properties" },
+    { value: platform.marketVolume, label: "invested through the platform" },
+    { value: `${opportunities.filter(o => o.status !== "Coming Soon").length}+`, label: "verified opportunities" },
     { value: platform.distributedToInvestors, label: "distributed to investors" },
     { value: `${platform.totalInvestors.toLocaleString()}+`, label: "investors on the platform" },
   ]
@@ -314,40 +310,98 @@ function TrustNumbers() {
 }
 
 /* ══════════════════════════════════
-   MARKETS SECTION
+   WHAT CAN YOU INVEST IN — 5 categories
 ══════════════════════════════════ */
-function MarketsSection() {
+const categoryIcons: Record<string, () => React.ReactElement> = {
+  cashflow: IconTrade,
+  growth: IconChart,
+  assets: IconConstruction,
+  property: IconHome,
+  stable: IconShield,
+}
+
+function CategoriesSection() {
   return (
     <section style={{ backgroundColor: "#fff", padding: "72px 24px" }}>
       <div style={{ maxWidth: 1140, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Our Markets</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>The Marketplace</p>
           <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 800, color: "#0f172a", letterSpacing: "-1px", margin: "0 0 14px 0" }}>
-            Three Ways to<br />Build Wealth in Real Estate
+            What Can You Invest In?
           </h2>
-          <p style={{ fontSize: 16, color: "#64748b", maxWidth: 520, margin: "0 auto" }}>
-            Rental income, construction ROI, or secondary trading — all on one platform.
+          <p style={{ fontSize: 16, color: "#64748b", maxWidth: 560, margin: "0 auto" }}>
+            Five categories with different durations, risk levels and income profiles — so your capital works the way you want it to.
           </p>
         </div>
 
-        <div className="markets-grid">
-          {markets.map((m, i) => (
-            <Link key={i} href={m.link} style={{ textDecoration: "none", display: "block" }}>
-              <div style={{ backgroundColor: "#fff", borderRadius: 18, padding: "28px 24px", border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 0.2s", cursor: "pointer", height: "100%" }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = `0 8px 28px ${m.color}18`; el.style.borderColor = `${m.color}40`; el.style.transform = "translateY(-3px)" }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; el.style.borderColor = "#f1f5f9"; el.style.transform = "translateY(0)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 13, backgroundColor: m.bg, display: "flex", alignItems: "center", justifyContent: "center", color: m.color }}><m.icon /></div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: m.color, backgroundColor: m.bg, padding: "4px 10px", borderRadius: 99 }}>{m.badge}</span>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(210px, 100%), 1fr))", gap: 16 }}>
+          {CATEGORIES.map(c => {
+            const Icon = categoryIcons[c.key]
+            return (
+              <Link key={c.key} href={`/opportunities?category=${c.key}`} style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ backgroundColor: "#fff", borderRadius: 18, padding: "24px 20px", border: "1.5px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 0.2s", cursor: "pointer", height: "100%", display: "flex", flexDirection: "column" }}
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = `0 8px 28px ${c.accent}20`; el.style.borderColor = `${c.accent}45`; el.style.transform = "translateY(-3px)" }}
+                  onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; el.style.borderColor = "#f1f5f9"; el.style.transform = "translateY(0)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: c.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: c.accent }}><Icon /></div>
+                    {c.comingSoon && <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", backgroundColor: "#f1f5f9", padding: "3px 9px", borderRadius: 99 }}>Coming Soon</span>}
+                  </div>
+                  <h3 style={{ fontSize: 18, fontWeight: 750, color: "#0f172a", margin: "0 0 4px 0" }}>{c.label}</h3>
+                  <p style={{ fontSize: 12.5, fontWeight: 650, color: c.accent, margin: "0 0 8px 0" }}>{c.tagline}</p>
+                  <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px 0", lineHeight: 1.6, flex: 1 }}>{c.description}</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 11, color: "#94a3b8" }}>Typical duration</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>{c.duration}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 11, color: "#94a3b8" }}>Risk</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>{c.risk}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 700, color: c.accent }}>
+                    Explore <ArrowRightIcon style={{ width: 14, height: 14 }} />
+                  </div>
                 </div>
-                <h3 style={{ fontSize: 19, fontWeight: 700, color: "#0f172a", margin: "0 0 10px 0" }}>{m.title}</h3>
-                <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px 0", lineHeight: 1.65 }}>{m.desc}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 700, color: m.color }}>
-                  Explore <ArrowRightIcon style={{ width: 14, height: 14 }} />
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ══════════════════════════════════
+   FEATURED OPPORTUNITIES
+══════════════════════════════════ */
+function FeaturedOpportunities() {
+  const { opportunities } = useOpportunities()
+  // One highlight per category so the diversity is visible at a glance
+  const featured = ["cashflow", "growth", "assets", "property"]
+    .map(cat => opportunities.find(o => o.category === cat && (o.status === "Open" || o.status === "Almost Funded")))
+    .filter((o): o is NonNullable<typeof o> => !!o)
+  if (featured.length === 0) return null
+  return (
+    <section style={{ backgroundColor: "#f8fafc", padding: "72px 24px" }}>
+      <div style={{ maxWidth: 1140, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 44 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Open Now</p>
+          <h2 style={{ fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.8px", margin: "0 0 12px 0" }}>
+            Featured Opportunities
+          </h2>
+          <p style={{ fontSize: 15, color: "#64748b", maxWidth: 520, margin: "0 auto" }}>
+            A contract, a trade, an asset and a property — capital at work in different ways.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(260px, 100%), 1fr))", gap: 18, marginBottom: 32 }}>
+          {featured.map(o => <OpportunityCard key={o.id} opportunity={o} />)}
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <Link href="/opportunities" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 30px", borderRadius: 11, backgroundColor: "#0f172a", color: "#fff", fontSize: 14.5, fontWeight: 700, textDecoration: "none" }}>
+            Explore All Opportunities
+            <ArrowRightIcon style={{ width: 16, height: 16 }} />
+          </Link>
         </div>
       </div>
     </section>
@@ -462,9 +516,9 @@ function WhySection() {
 ══════════════════════════════════ */
 function TestimonialsSection() {
   const testimonials = [
-    { name: "Sarah K.", role: "Teacher, Kampala", text: "I invested UGX 200,000 in my first property share and received my first rental payment 30 days later. NestFund made investing real and accessible.", rating: 5 },
-    { name: "David M.", role: "Engineer, Wakiso", text: "The transparency is what got me. I can see exactly where my money is, what it's earning, and the monthly reports give me confidence that everything is being managed properly.", rating: 5 },
-    { name: "Grace N.", role: "Business Owner, Entebbe", text: "I've now invested in 3 properties on NestFund. My portfolio generates UGX 450,000 every month in passive income. This is the future of investment.", rating: 5 },
+    { name: "Sarah K.", role: "Teacher, Kampala", text: "I started with UGX 200,000 in a short contract-financing opportunity. Seeing exactly what my money was financing — and when it would come back — made investing feel real and accessible.", rating: 5 },
+    { name: "David M.", role: "Engineer, Wakiso", text: "The transparency is what got me. Every opportunity shows what it finances, how it earns, how long my capital is deployed, and honestly what could go wrong. That's rare.", rating: 5 },
+    { name: "Grace N.", role: "Business Owner, Entebbe", text: "My portfolio now spreads across a trade deal, a truck, and two rental properties. Different durations, different income — all in one place I can actually track.", rating: 5 },
   ]
   return (
     <section style={{ backgroundColor: "#fff", padding: "72px 24px" }}>
@@ -543,22 +597,22 @@ function FinalCTA() {
     <section style={{ background: "linear-gradient(135deg, #0d9488 0%, #2563eb 60%, #4f46e5 100%)", padding: "80px 24px" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
         <h2 style={{ fontSize: "clamp(28px, 4vw, 46px)", fontWeight: 900, color: "#fff", letterSpacing: "-1px", margin: "0 0 14px 0", lineHeight: 1.1 }}>
-          Start Building Wealth
-          <br />Through Property Today
+          Put Your Money
+          <br />to Work Today
         </h2>
         <p style={{ fontSize: 17, color: "rgba(255,255,255,0.75)", margin: "0 0 36px 0", lineHeight: 1.65 }}>
-          More than 14,000 investors are already earning passive income from verified properties on NestFund. Join them.
+          More than 14,000 investors already fund verified opportunities across contracts, trade, productive assets and real estate on NestFund. Join them.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
           <Link href="/auth/register" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px", borderRadius: 12, backgroundColor: "#fff", color: "#1e3a8a", fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}>
             Create Free Account
             <ArrowRightIcon style={{ width: 18, height: 18 }} />
           </Link>
-          <Link href="/market" style={{ display: "inline-flex", alignItems: "center", padding: "14px 28px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.4)", backgroundColor: "transparent", color: "#fff", fontSize: 15, fontWeight: 600, textDecoration: "none" }}>
-            Browse Properties
+          <Link href="/opportunities" style={{ display: "inline-flex", alignItems: "center", padding: "14px 28px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.4)", backgroundColor: "transparent", color: "#fff", fontSize: 15, fontWeight: 600, textDecoration: "none" }}>
+            Explore Opportunities
           </Link>
         </div>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>No credit card required · Secure · Regulated</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>No credit card required · Investments carry risk</p>
       </div>
     </section>
   )
@@ -577,14 +631,14 @@ function LandingFooter() {
             <span style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>NestFund</span>
           </div>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-            {[["Rental Market","/market"],["Construction","/construction-market"],["Exchange","/exchange"],["For Developers","/developers"],["Portfolio","/portfolio"],["Terms","/terms"],["Privacy","/privacy"]].map(([label, href]) => (
+            {[["Opportunities","/opportunities"],["Rental Market","/market"],["Construction","/construction-market"],["Exchange","/exchange"],["For Businesses","/developers"],["Portfolio","/portfolio"],["Terms","/terms"],["Privacy","/privacy"]].map(([label, href]) => (
               <Link key={href} href={href} style={{ fontSize: 13, color: "#475569", textDecoration: "none" }}>{label}</Link>
             ))}
           </div>
         </div>
         <div style={{ borderTop: "1px solid #1e293b", paddingTop: 18, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-          <p style={{ fontSize: 12, color: "#334155", margin: 0 }}>© 2026 NestFund Limited. Regulated by the Capital Markets Authority of Uganda.</p>
-          <p style={{ fontSize: 12, color: "#334155", margin: 0 }}>Investments carry risk. Past performance is not indicative of future results.</p>
+          <p style={{ fontSize: 12, color: "#334155", margin: 0 }}>© 2026 NestFund Limited.</p>
+          <p style={{ fontSize: 12, color: "#334155", margin: 0 }}>Investments carry risk. Target returns are projections, not promises. Past performance is not indicative of future results.</p>
         </div>
       </div>
     </footer>

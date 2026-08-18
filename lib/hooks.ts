@@ -5,8 +5,12 @@ import type { User } from "@supabase/supabase-js"
 import {
   fetchRentalProperties, fetchIntelligence, fetchPlatformStats,
   fetchConstructionProjects, fetchExchangeListings, fetchSiteSetting,
-  fetchInterestStats, type PlatformStats, type InterestStats,
+  fetchInterestStats, fetchOpportunities, type PlatformStats, type InterestStats,
 } from "./api"
+import {
+  demoOpportunities, rentalToOpportunity, constructionToOpportunity,
+  type Opportunity,
+} from "./data/opportunities"
 import { getCurrentUser, onAuthChange } from "./auth"
 import {
   fetchWalletBalance, fetchLedgerTransactions, fetchHoldings,
@@ -129,6 +133,32 @@ export function useHomeHeroProperty(): RentalProperty {
   }, [])
   const liveOnes = rentals.filter(p => p.status === "Live")
   return liveOnes.find(p => p.id === heroId) ?? liveOnes[0] ?? mockRentals[0]
+}
+
+/* ── NestFund 2.0: the unified opportunity marketplace ────────── */
+
+/**
+ * Every investable record on the platform in one list:
+ * database opportunities (or the labelled demo set until the table
+ * has rows) + existing rental/construction records adapted into the
+ * same shape. Property pages keep their own richer detail views.
+ */
+export function useOpportunities(): { opportunities: Opportunity[]; live: boolean } {
+  const { rentals } = useRentals()
+  const { projects } = useConstruction()
+  const [nonProperty, setNonProperty] = useState<{ items: Opportunity[]; live: boolean }>({ items: demoOpportunities, live: false })
+  useEffect(() => {
+    let active = true
+    fetchOpportunities()
+      .then(d => { if (active && d) setNonProperty({ items: d, live: true }) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+  const propertyOpps = [
+    ...rentals.map(rentalToOpportunity),
+    ...projects.map(constructionToOpportunity),
+  ]
+  return { opportunities: [...nonProperty.items, ...propertyOpps], live: nonProperty.live }
 }
 
 /* ── Phase 1: session + ledger hooks ─────────────────────────── */

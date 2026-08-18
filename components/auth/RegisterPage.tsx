@@ -19,8 +19,8 @@ const labelStyle: React.CSSProperties = {
 
 const perks = [
   "Start investing from UGX 50,000",
-  "Monthly rental income to your wallet",
-  "Sell shares anytime on the Exchange",
+  "Contracts, trade, assets & property in one place",
+  "Sell property shares anytime on the Exchange",
 ]
 
 export default function RegisterPage() {

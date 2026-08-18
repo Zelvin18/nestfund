@@ -612,6 +612,54 @@ export async function updateSubmissionStatus(id: string, status: string): Promis
   if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
 }
 
+/* ── Opportunities (NestFund 2.0) ────────────────────────────── */
+
+import { demoOpportunities, type Opportunity } from "./data/opportunities"
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function mapOpportunity(row: any): Opportunity {
+  const mock = demoOpportunities.find(m => m.id === row.id)
+  return {
+    id: row.id,
+    title: row.title ?? mock?.title ?? "",
+    category: row.category ?? mock?.category ?? "cashflow",
+    subcategory: row.subcategory || (mock?.subcategory ?? ""),
+    description: row.description || (mock?.description ?? ""),
+    location: row.location || (mock?.location ?? ""),
+    operator: row.operator || (mock?.operator ?? ""),
+    image: row.image || (mock?.image ?? ""),
+    fundingRequired: Number(row.funding_required ?? mock?.fundingRequired ?? 0),
+    fundingReceived: Number(row.funding_received ?? mock?.fundingReceived ?? 0),
+    minInvestment: Number(row.min_investment ?? mock?.minInvestment ?? 0),
+    unitPrice: Number(row.unit_price ?? mock?.unitPrice ?? 10000),
+    durationLabel: row.duration_label || (mock?.durationLabel ?? ""),
+    durationMonths: Number(row.duration_months ?? mock?.durationMonths ?? 0),
+    targetReturnMin: Number(row.target_return_min ?? mock?.targetReturnMin ?? 0),
+    targetReturnMax: Number(row.target_return_max ?? mock?.targetReturnMax ?? 0),
+    returnPeriod: row.return_period === "p.a." ? "p.a." : "total",
+    riskLevel: row.risk_level ?? mock?.riskLevel ?? "Moderate",
+    status: row.status ?? mock?.status ?? "Open",
+    revenueModel: row.revenue_model || (mock?.revenueModel ?? ""),
+    security: Array.isArray(row.security) ? row.security : (mock?.security ?? []),
+    risks: Array.isArray(row.risks) ? row.risks : (mock?.risks ?? []),
+    expectedExit: row.expected_exit || (mock?.expectedExit ?? ""),
+  }
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+/** Non-property opportunities from the database; null keeps the demo records showing. */
+export async function fetchOpportunities(): Promise<Opportunity[] | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb
+    .from("opportunities")
+    .select("*")
+    .not("status", "in", '("Draft","Under Review","Cancelled")')
+    .order("created_at", { ascending: false })
+  if (error || !data || data.length === 0) return null
+  return data.map(mapOpportunity)
+}
+
 export async function saveSiteSetting(key: string, value: unknown): Promise<void> {
   const sb = getSupabase()
   if (!sb) throw new Error("Database not connected")

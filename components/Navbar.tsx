@@ -9,12 +9,12 @@ import { useSession, useWallet } from "@/lib/hooks"
 import { signOut } from "@/lib/auth"
 
 const navLinks = [
-  { href: "/market",              label: "Rental Market",  sub: "Income-producing properties" },
-  { href: "/construction-market", label: "Construction",   sub: "Fund new buildings" },
-  { href: "/exchange",            label: "Exchange",       sub: "Trade shares P2P" },
-  { href: "/portfolio",           label: "Portfolio",      sub: "Track investments" },
-  { href: "/wallet",              label: "Wallet",         sub: "Manage funds" },
-  { href: "/developers",          label: "For Developers", sub: "List your property" },
+  { href: "/opportunities", label: "Opportunities",  sub: "The investment marketplace" },
+  { href: "/market",        label: "Property",       sub: "Rental & construction" },
+  { href: "/exchange",      label: "Exchange",       sub: "Sell your shares P2P" },
+  { href: "/portfolio",     label: "Portfolio",      sub: "Track investments" },
+  { href: "/wallet",        label: "Wallet",         sub: "Manage funds" },
+  { href: "/developers",    label: "For Businesses", sub: "Apply for funding" },
 ]
 
 export default function Navbar() {
