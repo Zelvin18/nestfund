@@ -232,37 +232,44 @@ function HeroSection({ ticker }: { ticker: number }) {
           </Link>
         </div>
 
-        {/* Property cards strip — picked in Admin → Site Settings */}
+        {/* Featured opportunity strip — a mix of categories, picked in Admin → Site Settings */}
         <div className="hero-cards-strip">
           {featuredCards.map((c, i) => (
             <Link key={c.id} href={c.href} style={{ textDecoration: "none", flexShrink: 0 }}>
               <div style={{
-                backgroundColor: "rgba(255,255,255,0.08)",
+                backgroundColor: "rgba(255,255,255,0.09)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 14, overflow: "hidden",
-                minWidth: 210, maxWidth: 230,
-                transition: "transform 0.35s, border-color 0.35s",
+                border: "1px solid rgba(255,255,255,0.14)",
+                borderRadius: 16, overflow: "hidden",
+                minWidth: 228, maxWidth: 248,
+                boxShadow: i === ticker ? "0 18px 44px rgba(0,0,0,0.35)" : "0 8px 24px rgba(0,0,0,0.2)",
+                transition: "transform 0.35s, border-color 0.35s, box-shadow 0.35s",
                 transform: i === ticker ? "translateY(-10px)" : "translateY(0)",
-                borderColor: i === ticker ? "rgba(13,148,136,0.6)" : "rgba(255,255,255,0.12)",
+                borderColor: i === ticker ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.14)",
               }}>
-                <div style={{ height: 120, overflow: "hidden" }}>
+                {/* Image with category chip + gradient */}
+                <div style={{ position: "relative", height: 116, overflow: "hidden" }}>
                   <img src={c.img} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.45) 100%)" }} />
+                  <span style={{ position: "absolute", top: 9, left: 9, fontSize: 9, fontWeight: 800, color: "#fff", backgroundColor: c.accent, padding: "3px 9px", borderRadius: 99, textTransform: "uppercase" as const, letterSpacing: "0.05em", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>{c.kind}</span>
                 </div>
-                <div style={{ padding: "11px 13px 13px" }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: c.kind === "Rental" ? "#0d9488" : "#f59e0b", backgroundColor: c.kind === "Rental" ? "rgba(13,148,136,0.18)" : "rgba(245,158,11,0.18)", padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" as const, letterSpacing: "0.04em" }}>{c.kind}</span>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", margin: "6px 0 2px 0" }}>{c.name}</p>
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", margin: "0 0 9px 0" }}>{c.location}</p>
+                <div style={{ padding: "12px 14px 14px" }}>
+                  <p style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", margin: "0 0 2px 0", letterSpacing: "-0.1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.location}</p>
+
+                  {/* Funding progress */}
+                  <div style={{ height: 4, borderRadius: 99, backgroundColor: "rgba(255,255,255,0.14)", overflow: "hidden", marginBottom: 5 }}>
+                    <div style={{ height: "100%", width: `${c.progress}%`, borderRadius: 99, backgroundColor: c.accent }} />
+                  </div>
+                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>{c.progress}% funded</p>
+
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                     <div>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: "-0.2px" }}>UGX {c.price.toLocaleString()}</p>
-                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", margin: "1px 0 0 0" }}>per share</p>
+                      <p style={{ fontSize: 14, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.2px" }}>UGX {c.price.toLocaleString()}</p>
+                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.42)", margin: "1px 0 0 0" }}>{c.unitLabel}</p>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: c.changePct >= 0 ? "#10b981" : "#f87171", margin: 0 }}>{c.changePct >= 0 ? "+" : ""}{c.changePct}%</p>
-                      <p style={{ fontSize: 11, color: "#0d9488", margin: 0 }}>{c.apr}% APR</p>
-                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", backgroundColor: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 99, padding: "4px 10px", whiteSpace: "nowrap" }}>{c.returnTag}</span>
                   </div>
                 </div>
               </div>
@@ -343,7 +350,8 @@ function CategoriesSection() {
                   onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = `0 8px 28px ${c.accent}20`; el.style.borderColor = `${c.accent}45`; el.style.transform = "translateY(-3px)" }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; el.style.borderColor = "#f1f5f9"; el.style.transform = "translateY(0)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: c.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: c.accent }}><Icon /></div>
+                    {/* Uniform grey icon tiles — one calm color across all five cards */}
+                    <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}><Icon /></div>
                     {c.comingSoon && <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", backgroundColor: "#f1f5f9", padding: "3px 9px", borderRadius: 99 }}>Coming Soon</span>}
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 750, color: "#0f172a", margin: "0 0 4px 0" }}>{c.label}</h3>

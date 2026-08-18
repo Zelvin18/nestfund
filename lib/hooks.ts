@@ -9,6 +9,7 @@ import {
 } from "./api"
 import {
   demoOpportunities, rentalToOpportunity, constructionToOpportunity,
+  categoryMeta, returnLabel, fundingProgress,
   type Opportunity,
 } from "./data/opportunities"
 import { getCurrentUser, onAuthChange } from "./auth"
@@ -235,18 +236,20 @@ export interface FeaturedCard {
   name: string
   location: string
   price: number
-  changePct: number
-  apr: number
+  unitLabel: string
+  returnTag: string
+  progress: number
   img: string
-  kind: "Rental" | "Construction"
+  kind: string        // category label, e.g. "Property", "Growth"
+  accent: string      // category color
   href: string
 }
 
-/** The admin-selected property cards for the landing hero strip */
+/** Admin-selected cards for the landing hero strip — any opportunity, not just property */
 export function useLandingFeatured(): FeaturedCard[] {
-  const { rentals } = useRentals()
-  const { projects } = useConstruction()
-  const [ids, setIds] = useState<string[]>(["sunrise-apartments", "acacia-office-park", "ibis-residences-ii"])
+  const { opportunities } = useOpportunities()
+  // Default mix: one property, one trade, one asset — diversity visible up front
+  const [ids, setIds] = useState<string[]>(["sunrise-apartments", "maize-trade-mubende", "ten-ton-truck-gulu"])
   useEffect(() => {
     let active = true
     fetchSiteSetting<{ featuredPropertyIds: string[] }>("landing_hero")
@@ -256,11 +259,22 @@ export function useLandingFeatured(): FeaturedCard[] {
   }, [])
   return ids
     .map((id): FeaturedCard | null => {
-      const r = rentals.find(p => p.id === id)
-      if (r) return { id, name: r.name, location: r.location, price: r.pricePerShare, changePct: r.priceChangePercent, apr: r.rentalYield, img: r.image, kind: "Rental", href: `/property/${id}` }
-      const c = projects.find(p => p.id === id)
-      if (c) return { id, name: c.name, location: c.location, price: c.sharePrice, changePct: Math.round(((c.sharePrice - c.sharePriceStart) / c.sharePriceStart) * 1000) / 10, apr: c.projectedYield, img: c.image, kind: "Construction", href: `/construction/${id}` }
-      return null
+      const o = opportunities.find(x => x.id === id)
+      if (!o) return null
+      const cat = categoryMeta(o.category)
+      return {
+        id,
+        name: o.title,
+        location: o.location,
+        price: o.unitPrice,
+        unitLabel: o.category === "property" ? "per share" : "per unit",
+        returnTag: `${returnLabel(o)} target`,
+        progress: fundingProgress(o),
+        img: o.image,
+        kind: cat.label,
+        accent: cat.accent,
+        href: o.href ?? `/opportunity/${o.id}`,
+      }
     })
     .filter((c): c is FeaturedCard => c !== null)
 }

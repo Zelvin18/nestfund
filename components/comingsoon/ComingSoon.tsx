@@ -7,7 +7,8 @@ import { CheckCircleIcon, ShieldCheckIcon } from "@heroicons/react/24/solid"
 import { type RentalProperty } from "@/lib/data/rentals"
 import { type InterestStats } from "@/lib/api"
 import { submitInterest } from "@/lib/api"
-import { useComingSoon } from "@/lib/hooks"
+import { useComingSoon, useOpportunities } from "@/lib/hooks"
+import OpportunityCard from "@/components/opportunities/OpportunityCard"
 
 export type QueuedProperty = RentalProperty & { interest: InterestStats; progress: number }
 
@@ -229,11 +230,16 @@ export function ComingSoonCard({ property, rank, onReserve }: {
 /* ═══ Section for landing + home pages ═══ */
 export function ComingSoonSection() {
   const { queue } = useComingSoon()
+  const { opportunities } = useOpportunities()
   const [reserving, setReserving] = useState<QueuedProperty | null>(null)
   const [bump, setBump] = useState(0)
-  const top = queue.slice(0, 3)
+  const top = queue.slice(0, 2)
+  // Coming-soon opportunities from the other categories join the property queue
+  const comingOpps = opportunities
+    .filter(o => o.status === "Coming Soon" && o.category !== "property")
+    .slice(0, Math.max(1, 3 - top.length))
 
-  if (top.length === 0) return null
+  if (top.length === 0 && comingOpps.length === 0) return null
 
   return (
     <section style={{ backgroundColor: "#f8fafc", padding: "72px 0" }}>
@@ -247,7 +253,7 @@ export function ComingSoonSection() {
               Be First in Line
             </h2>
             <p style={{ fontSize: 16, color: "#64748b", margin: 0, maxWidth: 560 }}>
-              New properties open when enough investors reserve interest — the first to reach its target opens first. Reserve now, invest before everyone else.
+              New opportunities open when enough investors show interest — the first to reach its target opens first. Reserve now, invest before everyone else.
             </p>
           </div>
           <Link href="/coming-soon" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 14, fontWeight: 600, color: "#0d9488", textDecoration: "none" }}>
@@ -259,6 +265,9 @@ export function ComingSoonSection() {
         <div key={bump} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(300px, 100%), 1fr))", gap: 20 }}>
           {top.map((p, i) => (
             <ComingSoonCard key={p.id} property={p} rank={i + 1} onReserve={setReserving} />
+          ))}
+          {comingOpps.map(o => (
+            <OpportunityCard key={o.id} opportunity={o} />
           ))}
         </div>
       </div>

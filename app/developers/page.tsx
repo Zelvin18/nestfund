@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import DevelopersPage from "@/components/developers/DevelopersPage"
 
 export const metadata: Metadata = {
-  title: "For Developers — NestFund",
+  title: "For Businesses — NestFund",
   description:
-    "Turn your property into an investment opportunity. NestFund helps developers, landowners, and property owners prepare projects for investment and connect with thousands of investors.",
+    "Turn your business into an investment opportunity. Eligible businesses apply for contract, invoice, trade, asset and development financing — NestFund vets every application before it is listed for investors.",
 }
 
 export default function Developers() {

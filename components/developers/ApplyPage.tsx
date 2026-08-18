@@ -10,16 +10,20 @@ import { CheckCircleIcon, ShieldCheckIcon } from "@heroicons/react/24/solid"
 import { submitProject } from "@/lib/api"
 
 const submissionTypes = [
-  { key: "land", label: "Land" },
+  { key: "contract-financing", label: "Contract Financing" },
+  { key: "invoice-financing", label: "Invoice / PO Financing" },
+  { key: "trade-financing", label: "Trade / Commodity Financing" },
+  { key: "working-capital", label: "Business Working Capital" },
+  { key: "asset-financing", label: "Asset / Equipment Financing" },
   { key: "apartment-development", label: "Apartment Development" },
   { key: "commercial-property", label: "Commercial Property" },
   { key: "residential-property", label: "Residential Property" },
-  { key: "hotel", label: "Hotel" },
+  { key: "land", label: "Land" },
   { key: "construction-project", label: "Construction Project" },
   { key: "other", label: "Other" },
 ]
 
-const capitalUseOptions = ["Construction", "Land acquisition", "Renovation", "Infrastructure", "Expansion"]
+const capitalUseOptions = ["Contract execution", "Stock / inventory", "Equipment purchase", "Working capital", "Construction", "Land acquisition", "Expansion"]
 
 const documentOptions = [
   "Title / deed documents",
