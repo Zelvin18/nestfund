@@ -78,7 +78,7 @@ export default function PortfolioPage() {
                 My Portfolio
               </h1>
               <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>
-                Track your property investments and monthly income
+                Track your investments and income across every opportunity
               </p>
             </div>
             <Link
@@ -119,7 +119,7 @@ export default function PortfolioPage() {
 
             <div style={{ backgroundColor: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 9, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div>
-                <p style={{ fontSize: 11, color: "#0d9488", fontWeight: 600, margin: "0 0 2px 0" }}>Claimable rental income</p>
+                <p style={{ fontSize: 11, color: "#0d9488", fontWeight: 600, margin: "0 0 2px 0" }}>Claimable income</p>
                 <p style={{ fontSize: 16, fontWeight: 800, color: "#0d9488", margin: 0 }}>UGX 0</p>
               </div>
               <button style={{ padding: "7px 16px", borderRadius: 8, backgroundColor: "#0d9488", color: "#fff", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer" }}>
@@ -245,7 +245,7 @@ export default function PortfolioPage() {
                     <td colSpan={7} style={{ padding: "44px 24px", textAlign: "center" }}>
                       <p style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 5px 0" }}>You don&apos;t own any shares yet</p>
                       <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 18px 0", lineHeight: 1.6 }}>
-                        Top up your wallet with demo funds, then buy shares in any live property — your positions appear here.
+                        Top up your wallet with demo funds, then invest in any open opportunity — your positions appear here.
                       </p>
                       <Link href="/market" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 22px", borderRadius: 10, backgroundColor: "#2563eb", color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                         Browse the Rental Market

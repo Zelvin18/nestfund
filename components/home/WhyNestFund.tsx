@@ -13,7 +13,7 @@ const features = [
   {
     icon: CpuChipIcon,
     title: "AI-Powered Intelligence",
-    description: "Advanced algorithms predict property values, identify high-growth zones, and surface opportunities before they become mainstream.",
+    description: "Advanced algorithms track market signals, identify high-growth sectors, and surface the best opportunities before they become mainstream.",
     color: "#2563eb",
     bg: "#eff6ff",
     tag: "Smart",
@@ -29,7 +29,7 @@ const features = [
   {
     icon: ShieldCheckIcon,
     title: "Secure & Regulated",
-    description: "Every property is legally verified, title-checked, and insured. Your investment is protected by bank-grade security.",
+    description: "Every opportunity is legally verified and vetted — titles checked, contracts confirmed, operators screened. Bank-grade security throughout.",
     color: "#16a34a",
     bg: "#f0fdf4",
     tag: "Safe",
@@ -37,7 +37,7 @@ const features = [
   {
     icon: BoltIcon,
     title: "Instant Liquidity",
-    description: "Unlike traditional real estate, you can buy or sell shares in seconds on our secondary marketplace — no agents, no delays.",
+    description: "Sell property shares in seconds on our secondary marketplace, and exit other opportunities on their defined schedules — no agents, no delays.",
     color: "#ea580c",
     bg: "#fff7ed",
     tag: "Fast",
@@ -45,7 +45,7 @@ const features = [
   {
     icon: UserGroupIcon,
     title: "Fractional Ownership",
-    description: "Invest from UGX 50,000. Own a piece of premium properties across Kampala, Wakiso, and beyond.",
+    description: "Invest from UGX 50,000. Own a piece of contracts, trade deals, productive assets and premium property across Uganda.",
     color: "#0891b2",
     bg: "#ecfeff",
     tag: "Accessible",
@@ -53,7 +53,7 @@ const features = [
   {
     icon: LockClosedIcon,
     title: "Transparent Transactions",
-    description: "Full audit trail for every transaction. Real-time breakdown of rental income, expenses, and property performance.",
+    description: "Full audit trail for every transaction. Real-time breakdown of income, expenses, and performance for every position you hold.",
     color: "#d97706",
     bg: "#fffbeb",
     tag: "Clear",
@@ -73,7 +73,7 @@ export default function WhyNestFund() {
             Why NestFund Stands Apart
           </h2>
           <p style={{ fontSize: 17, color: "#64748b", maxWidth: 520, margin: "0 auto" }}>
-            Built like a financial exchange — not a property listing site
+            Built like a financial exchange — for every kind of opportunity
           </p>
         </div>
 

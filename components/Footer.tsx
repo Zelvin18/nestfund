@@ -2,10 +2,12 @@ import Link from "next/link"
 
 const footerLinks = {
   Platform: [
-    { label: "Browse Market", href: "/market" },
+    { label: "Opportunities", href: "/opportunities" },
+    { label: "Property Market", href: "/market" },
+    { label: "Exchange", href: "/exchange" },
     { label: "Coming Soon", href: "/coming-soon" },
     { label: "Portfolio", href: "/portfolio" },
-    { label: "For Developers", href: "/developers" },
+    { label: "For Businesses", href: "/developers" },
     { label: "Market Intelligence", href: "/intelligence" },
     { label: "Wallet", href: "/wallet" },
     { label: "Watchlist", href: "/watchlist" },
@@ -57,7 +59,7 @@ export default function Footer() {
             </div>
 
             <p style={{ fontSize: 14, lineHeight: 1.7, color: "#64748b", margin: "0 0 24px 0", maxWidth: 280 }}>
-              The real estate investment market. Buy shares in properties, earn rental income, and trade like stocks.
+              The investment marketplace for East Africa. Fund verified opportunities across contracts, trade, productive assets and property — and track every shilling as it works.
             </p>
 
             {/* Social icons */}

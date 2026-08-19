@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { MagnifyingGlassIcon, BellIcon, XMarkIcon, Bars3Icon, ArrowRightStartOnRectangleIcon, ChartPieIcon, Cog6ToothIcon } from "@heroicons/react/24/outline"
 import { WalletIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
-import { useSession, useWallet } from "@/lib/hooks"
+import { useSession, useWallet, useBalanceVisibility } from "@/lib/hooks"
 import { signOut } from "@/lib/auth"
 
 const publicLinks = [
@@ -29,6 +29,7 @@ export default function Navbar() {
   const userMenuRef = useRef<HTMLDivElement>(null)
   const { user } = useSession()
   const { balance, live: walletLive } = useWallet(user)
+  const { shown: balanceShown } = useBalanceVisibility()
 
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0] || "Investor"
@@ -138,8 +139,9 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Desktop right actions */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {/* Right actions — pinned to the far edge (marginLeft:auto keeps the
+              avatar + hamburger hard right once the links/search are hidden) */}
+          <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {/* Bell + wallet pill are personal — hidden until signed in */}
             {user && (
               <>
@@ -165,8 +167,10 @@ export default function Navbar() {
                   }}
                 >
                   <WalletIcon style={{ width: 15, height: 15, color: "#2563eb" }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>
-                    UGX {walletLive && balance !== null ? balance.toLocaleString() : "0"}
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#111827", fontVariantNumeric: "tabular-nums" }}>
+                    {balanceShown
+                      ? `UGX ${walletLive && balance !== null ? balance.toLocaleString() : "0"}`
+                      : "UGX ••••••"}
                   </span>
                 </Link>
               </>
@@ -292,7 +296,7 @@ export default function Navbar() {
                 }} />
                 <input
                   type="text"
-                  placeholder="Search properties..."
+                  placeholder="Search opportunities, locations..."
                   style={{
                     width: "100%", height: 42, paddingLeft: 40, paddingRight: 16,
                     fontSize: 14, border: "1.5px solid #e5e7eb", borderRadius: 10,

@@ -22,12 +22,12 @@ function formatPropertyValue(value: number): string {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type FilterKey = "All" | "Income Properties" | "Construction" | "Trending"
+type FilterKey = "All" | "Income" | "Growth" | "Trending"
 
 const filterTabs: { key: FilterKey; label: string }[] = [
-  { key: "All", label: "All" },
-  { key: "Income Properties", label: "Income Properties" },
-  { key: "Construction", label: "Construction" },
+  { key: "All", label: "All Listings" },
+  { key: "Income", label: "Income" },
+  { key: "Growth", label: "Growth & Construction" },
   { key: "Trending", label: "Trending" },
 ]
 
@@ -45,8 +45,8 @@ export default function ExchangePage() {
 
   const filtered = exchangeListings.filter(listing => {
     if (activeFilter === "All") return true
-    if (activeFilter === "Income Properties") return listing.marketType === "income"
-    if (activeFilter === "Construction") return listing.marketType === "construction"
+    if (activeFilter === "Income") return listing.marketType === "income"
+    if (activeFilter === "Growth") return listing.marketType === "construction"
     if (activeFilter === "Trending") return listing.priceChange >= 4
     return true
   })
@@ -62,45 +62,57 @@ export default function ExchangePage() {
         >
 
           {/* Breadcrumb */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 18 }}>
             <Link
-              href="/market"
+              href="/opportunities"
               style={{ fontSize: 13, color: "#64748b", textDecoration: "none", fontWeight: 500 }}
             >
-              Markets
+              Opportunities
             </Link>
             <span style={{ fontSize: 13, color: "#c4cad4" }}>/</span>
             <span style={{ fontSize: 13, color: "#2563eb", fontWeight: 600 }}>Exchange</span>
           </div>
 
-          {/* Title + subtitle + sell CTA */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
-            <div>
-              <h1
-                style={{
-                  fontSize: 30,
-                  fontWeight: 800,
-                  color: "#0f172a",
-                  margin: "0 0 6px 0",
-                  letterSpacing: "-0.6px",
-                }}
-              >
-                Exchange
-              </h1>
-              <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 24px 0" }}>
-                Trade shares with other investors in a live marketplace.
+          {/* Title + subtitle + sell CTA — the CTA holds its own line on
+              mobile (full width) instead of crowding the stat tiles */}
+          <div className="exchange-hero-row">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+                <h1
+                  style={{
+                    fontSize: 30,
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    margin: 0,
+                    letterSpacing: "-0.6px",
+                  }}
+                >
+                  Exchange
+                </h1>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, backgroundColor: "#f0fdf7", border: "1px solid #d1fae5", borderRadius: 99, padding: "4px 12px" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#10b981", display: "inline-block", animation: "pulse-dot 2s ease-in-out infinite" }} />
+                  <span style={{ fontSize: 11, color: "#059669", fontWeight: 700 }}>Live</span>
+                </span>
+              </div>
+              <p style={{ fontSize: 15, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                Buy and sell shares in listed opportunities with other investors — anytime.
               </p>
             </div>
             <button
+              className="exchange-sell-btn"
               onClick={() => setSellModal({ open: true })}
               style={{
-                padding: "11px 24px", borderRadius: 11, border: "none", cursor: "pointer",
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                padding: "12px 26px", borderRadius: 12, border: "none", cursor: "pointer",
                 background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff",
-                fontSize: 14, fontWeight: 750, boxShadow: "0 4px 14px rgba(37,99,235,0.3)",
-                flexShrink: 0,
+                fontSize: 14, fontWeight: 750, boxShadow: "0 6px 18px rgba(37,99,235,0.28)",
+                flexShrink: 0, whiteSpace: "nowrap",
               }}
             >
               {user ? "Sell Your Shares" : "Sign In to Sell"}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+              </svg>
             </button>
           </div>
 
@@ -149,7 +161,7 @@ export default function ExchangePage() {
         >
           <p style={{ fontSize: 12, color: "#94a3b8", margin: 0, fontWeight: 500, lineHeight: 1.5 }}>
             <span style={{ fontWeight: 700, color: "#64748b" }}>How it works: </span>
-            NestFund operates as the marketplace — connecting buyers and sellers. All share transfers are recorded on our ledger.
+            NestFund operates as the marketplace — connecting buyers and sellers across every opportunity type. All share transfers are recorded on our ledger.
           </p>
         </div>
       </div>
@@ -455,11 +467,11 @@ function ListingCard({ listing, canSell, signedIn, onSell }: {
               letterSpacing: "0.5px",
             }}
           >
-            {listing.marketType === "construction" ? "Construction" : "Income"}
+            {listing.marketType === "construction" ? "Growth" : "Income"}
           </span>
         </div>
 
-        {/* Property sub-type badge */}
+        {/* Asset sub-type badge */}
         <div style={{ position: "absolute", top: 12, left: 12 }}>
           <span
             style={{
@@ -482,7 +494,7 @@ function ListingCard({ listing, canSell, signedIn, onSell }: {
       {/* ── Right: content ─────────────────────────────────────────────── */}
       <div style={{ flex: 1, padding: "16px 18px 14px", display: "flex", flexDirection: "column", minWidth: 0 }}>
 
-        {/* Row 1: Name + Property value */}
+        {/* Row 1: Name + asset value */}
         <div
           style={{
             display: "flex",
@@ -506,7 +518,7 @@ function ListingCard({ listing, canSell, signedIn, onSell }: {
           </h3>
           <div style={{ display: "flex", alignItems: "baseline", gap: 4, flexShrink: 0 }}>
             <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, whiteSpace: "nowrap" }}>
-              Property price:
+              Asset value:
             </span>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#0d9488", whiteSpace: "nowrap" }}>
               {formatPropertyValue(listing.propertyValue)}

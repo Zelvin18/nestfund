@@ -12,7 +12,7 @@ export default function MarketOverview() {
   const stats = [
     { label: "Market Volume",      value: marketStats.marketVolume,                    change: marketStats.marketVolumeChange, sub: "Total 24H Trading"       },
     { label: "Total Investors",    value: marketStats.totalInvestors.toLocaleString(), change: marketStats.investorsChange,    sub: "Active Platform Users"   },
-    { label: "Active Listings",    value: String(marketStats.activeListings),          change: marketStats.listingsChange,     sub: "Available Properties"    },
+    { label: "Active Listings",    value: String(marketStats.activeListings),          change: marketStats.listingsChange,     sub: "Available Opportunities"    },
     { label: "Avg. Annual Return", value: `${marketStats.avgAnnualReturn}%`,           change: marketStats.returnChange,       sub: "Historical Performance"  },
   ]
   return (

@@ -61,7 +61,7 @@ export default function HeroSection() {
             textTransform: "uppercase",
             margin: "0 0 18px 0",
           }}>
-            The Real Estate Investment Market
+            The Investment Marketplace
           </p>
 
           {/* Headline — clean, landing-page style */}
@@ -75,10 +75,10 @@ export default function HeroSection() {
               margin: "0 0 22px 0",
             }}
           >
-            Own Real Estate.
+            Fund Real Opportunities.
             <br />
             <span style={{ fontWeight: 700, color: "#fff" }}>
-              Earn Every Month.
+              Earn Real Returns.
             </span>
           </h1>
 
@@ -93,8 +93,8 @@ export default function HeroSection() {
               maxWidth: 480,
             }}
           >
-            Buy shares of verified Ugandan properties from UGX 50,000, collect rental
-            income every month, and trade your shares on a live market — like stocks.
+            Invest from UGX 50,000 in verified opportunities — contracts, trade,
+            productive assets and property — and receive proceeds as each one pays out.
           </p>
 
           {/* CTA buttons */}

@@ -20,7 +20,7 @@ const labelStyle: React.CSSProperties = {
 const perks = [
   "Start investing from UGX 50,000",
   "Contracts, trade, assets & property in one place",
-  "Sell property shares anytime on the Exchange",
+  "Sell your shares anytime on the Exchange",
 ]
 
 export default function RegisterPage() {
@@ -99,7 +99,7 @@ export default function RegisterPage() {
               </div>
 
               <h1 style={{ fontSize: 27, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", margin: "0 0 8px 0" }}>
-                Start owning property
+                Start investing today
               </h1>
               <p style={{ fontSize: 14.5, color: "#64748b", margin: "0 0 18px 0", lineHeight: 1.6 }}>
                 Create your free account in under a minute.

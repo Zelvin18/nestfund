@@ -167,7 +167,6 @@ export default function OpportunitiesPage() {
           <>
             <p style={{ fontSize: 12.5, color: "#94a3b8", margin: "0 0 14px 0" }}>
               {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
-              {filtered.some(o => o.demo) && " · records marked SAMPLE are demonstration data, not live investments"}
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(300px, 100%), 1fr))", gap: 18 }}>
               {filtered.map(o => <OpportunityCard key={o.id} opportunity={o} />)}

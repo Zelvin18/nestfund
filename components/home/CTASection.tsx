@@ -54,7 +54,7 @@ export default function CTASection() {
         >
           Start Building Wealth
           <br />
-          <span style={{ color: "#93c5fd" }}>Through Real Estate</span>
+          <span style={{ color: "#93c5fd" }}>Through Real Opportunities</span>
         </h2>
 
         <p
@@ -68,8 +68,8 @@ export default function CTASection() {
             marginRight: "auto",
           }}
         >
-          Invest in verified properties from as little as <strong style={{ color: "#fff" }}>UGX 50,000</strong>.
-          Earn monthly rental income. Grow your portfolio like a pro.
+          Invest in verified opportunities — contracts, trade, assets and property —
+          from as little as <strong style={{ color: "#fff" }}>UGX 50,000</strong>. Grow your portfolio like a pro.
         </p>
 
         {/* Buttons */}
@@ -108,7 +108,7 @@ export default function CTASection() {
               textDecoration: "none",
             }}
           >
-            Browse Properties
+            Browse Opportunities
           </Link>
         </div>
 

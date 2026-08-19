@@ -29,7 +29,7 @@ export default function MarketIntelligenceSection() {
               What&apos;s Moving the Market
             </h2>
             <p style={{ fontSize: 16, color: "#64748b", margin: 0 }}>
-              Real-time events affecting property values across the region
+              Real-time events affecting opportunities and asset values across the region
             </p>
           </div>
           <Link

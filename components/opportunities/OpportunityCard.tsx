@@ -46,11 +46,6 @@ export default function OpportunityCard({ opportunity: o }: { opportunity: Oppor
               {status}
             </span>
           )}
-          {o.demo && (
-            <span style={{ position: "absolute", bottom: 10, left: 10, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.85)", backgroundColor: "rgba(15,23,42,0.6)", padding: "2px 8px", borderRadius: 99 }}>
-              SAMPLE
-            </span>
-          )}
         </div>
 
         <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>

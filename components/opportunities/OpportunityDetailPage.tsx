@@ -73,11 +73,6 @@ export default function OpportunityDetailPage({ id }: { id: string }) {
                 <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", backgroundColor: cat.accent, padding: "4px 12px", borderRadius: 99, textTransform: "uppercase", letterSpacing: "0.04em" }}>{cat.label}</span>
                 <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a", backgroundColor: "rgba(255,255,255,0.92)", padding: "4px 12px", borderRadius: 99 }}>{status}</span>
               </div>
-              {o.demo && (
-                <span style={{ position: "absolute", top: 14, right: 14, fontSize: 10, fontWeight: 700, color: "#fff", backgroundColor: "rgba(15,23,42,0.65)", padding: "3px 10px", borderRadius: 99 }}>
-                  SAMPLE OPPORTUNITY — DEMONSTRATION DATA
-                </span>
-              )}
               <div style={{ position: "absolute", left: 18, bottom: 16, right: 18 }}>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.75)", margin: "0 0 3px 0" }}>{o.subcategory} · {o.location}</p>
                 <h1 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.5px" }}>{o.title}</h1>

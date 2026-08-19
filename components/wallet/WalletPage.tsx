@@ -19,7 +19,6 @@ import {
   ChevronRightIcon,
 } from "@heroicons/react/24/outline"
 import {
-  ArrowTrendingUpIcon,
   CheckBadgeIcon,
   CheckCircleIcon,
   ShieldCheckIcon,
@@ -33,7 +32,7 @@ import {
   type MethodKind,
   type PayMethod,
 } from "@/lib/data/portfolio"
-import { useSession, useWallet, useLedgerHoldings } from "@/lib/hooks"
+import { useSession, useWallet, useLedgerHoldings, useBalanceVisibility } from "@/lib/hooks"
 import { demoTopUp, demoWithdraw } from "@/lib/ledger"
 
 /* Payment method branding — UI concern, stays with the component */
@@ -52,7 +51,9 @@ export default function WalletPage() {
   const [activeTab, setActiveTab] = useState<"all" | "income" | "buy" | "deposit" | "withdraw">("all")
   const [modal, setModal] = useState<"deposit" | "withdraw" | "add-method" | null>(null)
   const [methods, setMethods] = useState<PayMethod[]>(initialPayMethods)
-  const [balanceHidden, setBalanceHidden] = useState(false)
+
+  // Money on screen is opt-in — masked until the investor taps the eye
+  const { shown: balanceShown, toggle: toggleBalance } = useBalanceVisibility()
 
   // This page renders behind SignInGate — always the signed-in user's REAL
   // ledger figures (virtual beta money), never mock showcase data
@@ -62,13 +63,17 @@ export default function WalletPage() {
 
   const cash = balance ?? 0
   const invested = (holdings ?? []).reduce((sum, h) => sum + h.units * h.avgCost, 0)
-  const propertyCount = holdings?.length ?? 0
+  const positionCount = holdings?.length ?? 0
   const earnings = (liveTx ?? [])
     .filter(t => t.type === "income" && t.amount > 0)
     .reduce((s, t) => s + t.amount, 0)
   const transactions = liveTx ?? []
 
   const filtered = activeTab === "all" ? transactions : transactions.filter(t => t.type === activeTab)
+
+  /* One masking rule for every figure on the page */
+  const money = (n: number, compact = false) =>
+    balanceShown ? `UGX ${compact ? formatCurrency(n) : n.toLocaleString()}` : "UGX ••••••"
 
   const setDefault = (id: number) =>
     setMethods(prev => prev.map(m => ({ ...m, isDefault: m.id === id })))
@@ -83,121 +88,142 @@ export default function WalletPage() {
   const addMethod = (m: Omit<PayMethod, "id" | "isDefault">) =>
     setMethods(prev => [...prev, { ...m, id: Date.now(), isDefault: prev.length === 0 }])
 
+  const actions = [
+    { label: "Add Money", Icon: ArrowDownTrayIcon,   onClick: () => setModal("deposit"),  primary: true },
+    { label: "Withdraw",  Icon: ArrowUpTrayIcon,     onClick: () => setModal("withdraw"), primary: false },
+    { label: "Transfer",  Icon: ArrowsRightLeftIcon, onClick: () => {},                   primary: false },
+  ]
+
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f4f5f7" }}>
 
-      {/* ── Header / balance card ── */}
-      <div style={{ backgroundColor: "#0a1628", position: "relative", overflow: "hidden" }}>
-        {/* City skyline behind the balance */}
-        <div style={{ position: "absolute", inset: 0 }}>
-          <img
-            src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1800&q=80"
-            alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%" }}
-          />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(105deg, rgba(8,18,36,0.96) 0%, rgba(13,28,58,0.9) 50%, rgba(20,38,74,0.8) 100%)" }} />
-        </div>
-        <div style={{ position: "absolute", top: -140, right: "10%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "34px 24px 38px", position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
-                  Available Balance
-                </p>
-                <button
-                  onClick={() => setBalanceHidden(h => !h)}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: 2, display: "flex" }}
-                  aria-label={balanceHidden ? "Show balance" : "Hide balance"}
-                >
-                  {balanceHidden
-                    ? <EyeIcon style={{ width: 16, height: 16, color: "rgba(255,255,255,0.5)" }} />
-                    : <EyeSlashIcon style={{ width: 16, height: 16, color: "rgba(255,255,255,0.5)" }} />}
-                </button>
-              </div>
-              <p style={{ fontSize: "clamp(34px, 5vw, 46px)", fontWeight: 900, color: "#fff", margin: "0 0 8px 0", letterSpacing: "-1.5px", lineHeight: 1 }}>
-                {balanceHidden ? "UGX ••••••••" : `UGX ${cash.toLocaleString()}`}
-              </p>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, backgroundColor: "rgba(16,185,129,0.14)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 99, padding: "4px 12px" }}>
-                <ArrowTrendingUpIcon style={{ width: 13, height: 13, color: "#6ee7b7" }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#6ee7b7" }}>
-                  {earnings > 0 ? `+UGX ${earnings.toLocaleString()} income received` : "Simulated beta funds — every movement is on your ledger"}
-                </span>
-              </div>
-            </div>
+      {/* ══ Hero — the wallet pass ══════════════════════════════════ */}
+      <div style={{ backgroundColor: "#080b12", position: "relative", overflow: "hidden" }}>
+        {/* Ambient light instead of photography — the card is the subject */}
+        <div style={{ position: "absolute", top: -220, left: "-6%", width: 540, height: 540, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.30) 0%, transparent 68%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -280, right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 68%)", pointerEvents: "none" }} />
 
-            {/* Security note */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 16px" }}>
-              <ShieldCheckIcon style={{ width: 18, height: 18, color: "#34d399", flexShrink: 0 }} />
-              <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.9)", margin: 0 }}>Funds held in trust</p>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: 0 }}>Segregated client account · CMA regulated</p>
-              </div>
+        <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 32px", position: "relative" }}>
+
+          {/* Title row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.6px" }}>Wallet</h1>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.11)", borderRadius: 99, padding: "6px 13px" }}>
+              <ShieldCheckIcon style={{ width: 14, height: 14, color: "#34d399", flexShrink: 0 }} />
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: "rgba(255,255,255,0.78)" }}>Held in trust · CMA regulated</span>
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {[
-              { label: "Deposit", Icon: ArrowDownTrayIcon, action: () => setModal("deposit"), primary: true },
-              { label: "Withdraw", Icon: ArrowUpTrayIcon, action: () => setModal("withdraw"), primary: false },
-              { label: "Transfer", Icon: ArrowsRightLeftIcon, action: () => {}, primary: false },
-            ].map(btn => (
-              <button
-                key={btn.label}
-                onClick={btn.action}
-                style={{
-                  display: "flex", alignItems: "center", gap: 7,
-                  padding: "11px 24px", borderRadius: 11,
-                  background: btn.primary ? "#fff" : "rgba(255,255,255,0.08)",
-                  color: btn.primary ? "#0f172a" : "#fff",
-                  border: btn.primary ? "none" : "1.5px solid rgba(255,255,255,0.18)",
-                  fontSize: 14, fontWeight: 700, cursor: "pointer",
-                  boxShadow: btn.primary ? "0 6px 20px rgba(0,0,0,0.25)" : "none",
-                }}
-              >
-                <btn.Icon style={{ width: 16, height: 16 }} />
-                {btn.label}
-              </button>
-            ))}
+          <div style={{ maxWidth: 480 }}>
+
+            {/* ── The card ── */}
+            <div
+              style={{
+                position: "relative",
+                borderRadius: 22,
+                overflow: "hidden",
+                background: "linear-gradient(142deg, #1d4ed8 0%, #4338ca 48%, #6d28d9 100%)",
+                padding: "20px 22px 18px",
+                boxShadow: "0 24px 60px rgba(2,6,23,0.55), inset 0 1px 0 rgba(255,255,255,0.22)",
+              }}
+            >
+              {/* Sheen */}
+              <div style={{ position: "absolute", top: -110, right: -50, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.20) 0%, transparent 68%)", pointerEvents: "none" }} />
+
+              {/* Card head */}
+              <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 30 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                  <div style={{ width: 27, height: 27, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.95)", color: "#1d4ed8", fontSize: 13, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>N</div>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", letterSpacing: "-0.2px" }}>NestFund Cash</span>
+                </div>
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: "rgba(255,255,255,0.7)", letterSpacing: "0.14em" }}>UGX</span>
+              </div>
+
+              {/* Balance */}
+              <div style={{ position: "relative" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: "rgba(255,255,255,0.62)", textTransform: "uppercase", letterSpacing: "0.14em", margin: 0 }}>
+                    Available Balance
+                  </p>
+                  <button
+                    onClick={toggleBalance}
+                    aria-label={balanceShown ? "Hide balance" : "Show balance"}
+                    style={{ background: "rgba(255,255,255,0.14)", border: "none", borderRadius: 99, cursor: "pointer", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                  >
+                    {balanceShown
+                      ? <EyeSlashIcon style={{ width: 13, height: 13, color: "rgba(255,255,255,0.85)" }} />
+                      : <EyeIcon style={{ width: 13, height: 13, color: "rgba(255,255,255,0.85)" }} />}
+                  </button>
+                </div>
+                <p style={{ fontSize: "clamp(32px, 8vw, 42px)", fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-1.6px", lineHeight: 1.05, fontVariantNumeric: "tabular-nums" }}>
+                  {balanceShown ? `UGX ${cash.toLocaleString()}` : "UGX ••••••••"}
+                </p>
+              </div>
+
+              {/* Card foot — the two figures that matter next to cash */}
+              <div style={{ position: "relative", display: "flex", marginTop: 22, paddingTop: 15, borderTop: "1px solid rgba(255,255,255,0.16)" }}>
+                {[
+                  { label: "Invested", value: invested, note: `${positionCount} ${positionCount === 1 ? "position" : "positions"}` },
+                  { label: "Income Received", value: earnings, note: "All time" },
+                ].map((f, i) => (
+                  <div key={f.label} style={{ flex: 1, paddingLeft: i === 0 ? 0 : 18, borderLeft: i === 0 ? "none" : "1px solid rgba(255,255,255,0.16)", minWidth: 0 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.58)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px 0" }}>{f.label}</p>
+                    <p style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.4px", fontVariantNumeric: "tabular-nums", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {money(f.value, true)}
+                    </p>
+                    <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.5)", margin: "2px 0 0 0" }}>{f.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Actions — three equal tiles under the card ── */}
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              {actions.map(a => (
+                <button
+                  key={a.label}
+                  onClick={a.onClick}
+                  style={{
+                    flex: 1, minWidth: 0,
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                    padding: "14px 4px 12px", borderRadius: 17, cursor: "pointer",
+                    backgroundColor: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.13)",
+                    backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+                    transition: "background 0.15s",
+                  }}
+                >
+                  <span style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    backgroundColor: a.primary ? "#fff" : "rgba(255,255,255,0.14)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <a.Icon style={{ width: 17, height: 17, color: a.primary ? "#1d4ed8" : "#fff" }} />
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 650, color: "#fff", whiteSpace: "nowrap" }}>{a.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 56px" }}>
+      <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 56px" }}>
         <div className="wallet-grid">
 
           {/* ── Left column ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
-            {/* Account breakdown tiles */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))", gap: 14 }}>
-              {[
-                { label: "Cash Wallet",    value: cash,     note: "Available to invest",     color: "#2563eb" },
-                { label: "Invested Value", value: invested, note: `Across ${propertyCount} ${propertyCount === 1 ? "property" : "properties"}`, color: "#7c3aed" },
-                { label: "Total Earnings", value: earnings, note: "All-time rental income",  color: "#10b981" },
-              ].map(a => (
-                <div key={a.label} style={{ backgroundColor: "#fff", borderRadius: 14, padding: "16px 18px", border: "1px solid #e8ecf0" }}>
-                  <div style={{ width: 34, height: 4, borderRadius: 99, backgroundColor: a.color, marginBottom: 12 }} />
-                  <p style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, margin: "0 0 4px 0" }}>{a.label}</p>
-                  <p style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.4px" }}>
-                    {balanceHidden ? "UGX ••••••" : `UGX ${formatCurrency(a.value)}`}
-                  </p>
-                  <p style={{ fontSize: 11, color: "#cbd5e1", margin: 0 }}>{a.note}</p>
-                </div>
-              ))}
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
             {/* Income chart — real distributions only */}
-            <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "22px 20px", border: "1px solid #e8ecf0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 18, padding: "20px 20px 18px", border: "1px solid #e9edf2", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18, flexWrap: "wrap", gap: 8 }}>
                 <div>
-                  <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>Income Received</h2>
+                  <h2 style={{ fontSize: 16, fontWeight: 750, color: "#0f172a", margin: "0 0 3px 0", letterSpacing: "-0.2px" }}>Income Received</h2>
                   <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>Distributions from your investments</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px 0" }}>All Time</p>
-                  <p style={{ fontSize: 18, fontWeight: 800, color: "#10b981", margin: 0 }}>UGX {formatCurrency(earnings)}</p>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: "#10b981", margin: 0, fontVariantNumeric: "tabular-nums" }}>{money(earnings, true)}</p>
                 </div>
               </div>
               {earnings > 0 ? (
@@ -216,28 +242,28 @@ export default function WalletPage() {
                   )}
                 </ChartBox>
               ) : (
-                <div style={{ height: 120, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "#f8fafc", borderRadius: 12 }}>
+                <div style={{ height: 124, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "#f7f9fc", borderRadius: 14 }}>
                   <p style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>No income received yet</p>
                   <p style={{ fontSize: 12, color: "#94a3b8", margin: 0, textAlign: "center", padding: "0 16px", lineHeight: 1.6 }}>
-                    Distributions from your investments will chart here as they arrive.
+                    Distributions from your opportunities will chart here as they arrive.
                   </p>
                 </div>
               )}
             </div>
 
             {/* Transactions */}
-            <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden" }}>
-              <div style={{ padding: "18px 20px", borderBottom: "1px solid #f4f6f9" }}>
-                <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 14px 0" }}>Transaction History</h2>
-                <div className="filter-tabs" style={{ display: "flex", gap: 4, overflowX: "auto" }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 18, border: "1px solid #e9edf2", overflow: "hidden", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}>
+              <div style={{ padding: "18px 20px 14px" }}>
+                <h2 style={{ fontSize: 16, fontWeight: 750, color: "#0f172a", margin: "0 0 13px 0", letterSpacing: "-0.2px" }}>Transaction History</h2>
+                <div className="filter-tabs" style={{ display: "flex", gap: 5, overflowX: "auto" }}>
                   {(["all","income","buy","deposit","withdraw"] as const).map(t => (
                     <button
                       key={t}
                       onClick={() => setActiveTab(t)}
                       style={{
-                        padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
-                        fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
-                        backgroundColor: activeTab === t ? "#0f172a" : "#f4f6f9",
+                        padding: "6px 14px", borderRadius: 99, border: "none", cursor: "pointer",
+                        fontSize: 12, fontWeight: 650, whiteSpace: "nowrap",
+                        backgroundColor: activeTab === t ? "#0f172a" : "#f2f5f9",
                         color: activeTab === t ? "#fff" : "#64748b",
                         transition: "all 0.15s",
                       }}
@@ -248,12 +274,12 @@ export default function WalletPage() {
                 </div>
               </div>
 
-              <div style={{ padding: "8px 0" }}>
+              <div>
                 {filtered.length === 0 && (
-                  <div style={{ padding: "36px 20px", textAlign: "center" }}>
+                  <div style={{ padding: "34px 20px 40px", textAlign: "center" }}>
                     <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 4px 0" }}>No transactions yet</p>
                     <p style={{ fontSize: 12.5, color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>
-                      Deposit demo funds to start investing — every movement lands here.
+                      Add money to start investing — every movement lands here.
                     </p>
                   </div>
                 )}
@@ -269,14 +295,14 @@ export default function WalletPage() {
                   return (
                     <div
                       key={tx.id}
-                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "13px 20px", borderTop: i === 0 ? "none" : "1px solid #f7f9fb" }}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "13px 20px", borderTop: i === 0 ? "1px solid #f4f7fa" : "1px solid #f7f9fb" }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           <cfg.Icon style={{ width: 18, height: 18, color: cfg.color }} />
                         </div>
                         <div style={{ minWidth: 0 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", margin: "0 0 3px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.label}</p>
+                          <p style={{ fontSize: 13, fontWeight: 650, color: "#0f172a", margin: "0 0 3px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.label}</p>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <span style={{ fontSize: 10, fontWeight: 700, color: cfg.color, backgroundColor: cfg.bg, padding: "1px 7px", borderRadius: 99 }}>{cfg.label}</span>
                             <span style={{ fontSize: 11, color: "#94a3b8" }}>{tx.date}</span>
@@ -284,8 +310,10 @@ export default function WalletPage() {
                         </div>
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: positive ? "#10b981" : "#0f172a", margin: "0 0 2px 0" }}>
-                          {positive ? "+" : "−"}UGX {formatCurrency(Math.abs(tx.amount))}
+                        <p style={{ fontSize: 14, fontWeight: 700, color: positive ? "#10b981" : "#0f172a", margin: "0 0 2px 0", fontVariantNumeric: "tabular-nums" }}>
+                          {balanceShown
+                            ? `${positive ? "+" : "−"}UGX ${formatCurrency(Math.abs(tx.amount))}`
+                            : "UGX ••••••"}
                         </p>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3 }}>
                           <CheckBadgeIcon style={{ width: 11, height: 11, color: "#10b981" }} />
@@ -299,67 +327,79 @@ export default function WalletPage() {
             </div>
           </div>
 
-          {/* ── Right column: linked accounts ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* ── Right column: cards & accounts ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-            <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "20px", border: "1px solid #e8ecf0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>Linked Accounts</h3>
+            <div style={{ backgroundColor: "#fff", borderRadius: 18, padding: "20px", border: "1px solid #e9edf2", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                <h3 style={{ fontSize: 15.5, fontWeight: 750, color: "#0f172a", margin: 0, letterSpacing: "-0.2px" }}>Cards &amp; Accounts</h3>
                 <span style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8" }}>{methods.length} linked</span>
               </div>
               <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 16px 0", lineHeight: 1.5 }}>
-                Deposit and withdraw using mobile money, bank accounts, or cards.
+                Move money with mobile money, a bank account, or a card.
               </p>
 
-              {methods.map(pm => {
-                const brand = methodBrand[pm.kind]
-                return (
-                  <div key={pm.id} style={{ border: "1.5px solid #eef1f5", borderRadius: 13, padding: "13px 14px", marginBottom: 10 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      {/* Brand tile */}
-                      <div style={{ width: 42, height: 42, borderRadius: 11, background: brand.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
-                        <brand.icon style={{ width: 20, height: 20, color: brand.text }} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                          <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pm.label}</p>
+              {/* Each method rendered as its own branded pass */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+                {methods.map(pm => {
+                  const brand = methodBrand[pm.kind]
+                  return (
+                    <div key={pm.id}>
+                      <div
+                        style={{
+                          position: "relative", overflow: "hidden",
+                          background: brand.bg, borderRadius: 15,
+                          padding: "14px 16px 13px",
+                          boxShadow: "0 6px 18px rgba(15,23,42,0.16)",
+                        }}
+                      >
+                        <div style={{ position: "absolute", top: -60, right: -30, width: 150, height: 150, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.22) 0%, transparent 70%)", pointerEvents: "none" }} />
+                        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                          <brand.icon style={{ width: 17, height: 17, color: brand.text, flexShrink: 0 }} />
+                          <span style={{ fontSize: 12.5, fontWeight: 750, color: brand.text, letterSpacing: "-0.1px", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {pm.label}
+                          </span>
                           {pm.isDefault && (
-                            <span style={{ fontSize: 9.5, fontWeight: 700, color: "#2563eb", backgroundColor: "#eff6ff", padding: "1px 7px", borderRadius: 99, flexShrink: 0 }}>DEFAULT</span>
+                            <span style={{ fontSize: 9, fontWeight: 800, color: brand.text, backgroundColor: "rgba(255,255,255,0.22)", padding: "2px 8px", borderRadius: 99, letterSpacing: "0.06em", flexShrink: 0 }}>DEFAULT</span>
                           )}
                         </div>
-                        <p style={{ fontSize: 11.5, color: "#94a3b8", margin: 0, fontVariantNumeric: "tabular-nums" }}>{pm.detail}</p>
+                        <div style={{ position: "relative", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: brand.text, fontVariantNumeric: "tabular-nums", letterSpacing: "0.02em", opacity: 0.95 }}>
+                            {pm.detail}
+                          </span>
+                          <CheckBadgeIcon style={{ width: 16, height: 16, color: brand.text, opacity: 0.85, flexShrink: 0 }} />
+                        </div>
                       </div>
-                      <CheckBadgeIcon style={{ width: 17, height: 17, color: "#10b981", flexShrink: 0 }} />
-                    </div>
-                    {/* Row actions */}
-                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                      {!pm.isDefault && (
-                        <button onClick={() => setDefault(pm.id)} style={{ fontSize: 11, fontWeight: 600, color: "#2563eb", background: "#f6f9ff", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
-                          Set as default
+                      {/* Row actions sit outside the pass so the card stays clean */}
+                      <div style={{ display: "flex", gap: 8, marginTop: 7, paddingLeft: 2 }}>
+                        {!pm.isDefault && (
+                          <button onClick={() => setDefault(pm.id)} style={{ fontSize: 11, fontWeight: 650, color: "#2563eb", background: "none", border: "none", padding: "2px 0", cursor: "pointer" }}>
+                            Set as default
+                          </button>
+                        )}
+                        <button onClick={() => removeMethod(pm.id)} style={{ fontSize: 11, fontWeight: 650, color: "#94a3b8", background: "none", border: "none", padding: "2px 0", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                          <TrashIcon style={{ width: 12, height: 12 }} />
+                          Remove
                         </button>
-                      )}
-                      <button onClick={() => removeMethod(pm.id)} style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", background: "#f8fafc", border: "none", borderRadius: 7, padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                        <TrashIcon style={{ width: 12, height: 12 }} />
-                        Remove
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
 
-              {/* Add account button */}
+              {/* Add account */}
               <button
                 onClick={() => setModal("add-method")}
                 style={{
                   width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-                  padding: "12px 0", borderRadius: 12,
+                  padding: "13px 0", borderRadius: 15,
                   border: "1.5px dashed #cbd5e1", backgroundColor: "#fafbfd",
                   color: "#2563eb", fontSize: 13, fontWeight: 700, cursor: "pointer",
-                  marginTop: 4,
+                  marginTop: 14,
                 }}
               >
                 <PlusIcon style={{ width: 16, height: 16 }} />
-                Add Account
+                Add Card or Account
               </button>
 
               {/* Supported strip */}
@@ -372,26 +412,26 @@ export default function WalletPage() {
             </div>
 
             {/* Next payout card — only meaningful once the investor holds positions */}
-            {propertyCount > 0 ? (
-              <div style={{ background: "linear-gradient(135deg, #0d9488, #0f766e)", borderRadius: 16, padding: "20px", color: "#fff" }}>
-                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
+            {positionCount > 0 ? (
+              <div style={{ background: "linear-gradient(140deg, #0f766e, #115e59)", borderRadius: 18, padding: "20px", color: "#fff", boxShadow: "0 8px 24px rgba(15,118,110,0.28)" }}>
+                <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
                   Distributions
                 </p>
-                <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 4px 0", letterSpacing: "-0.5px" }}>{propertyCount} active {propertyCount === 1 ? "position" : "positions"}</p>
+                <p style={{ fontSize: 22, fontWeight: 850, margin: "0 0 4px 0", letterSpacing: "-0.5px" }}>{positionCount} active {positionCount === 1 ? "position" : "positions"}</p>
                 <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", margin: 0, lineHeight: 1.6 }}>
                   Proceeds are paid to your wallet as your opportunities generate income or repay at exit.
                 </p>
               </div>
             ) : (
-              <div style={{ background: "linear-gradient(135deg, #0d9488, #0f766e)", borderRadius: 16, padding: "20px", color: "#fff" }}>
-                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
+              <div style={{ background: "linear-gradient(140deg, #0f766e, #115e59)", borderRadius: 18, padding: "20px", color: "#fff", boxShadow: "0 8px 24px rgba(15,118,110,0.28)" }}>
+                <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.65)", margin: "0 0 10px 0" }}>
                   Start Earning
                 </p>
-                <p style={{ fontSize: 20, fontWeight: 900, margin: "0 0 4px 0", letterSpacing: "-0.4px" }}>Put your balance to work</p>
+                <p style={{ fontSize: 20, fontWeight: 850, margin: "0 0 4px 0", letterSpacing: "-0.4px" }}>Put your balance to work</p>
                 <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", margin: "0 0 14px 0", lineHeight: 1.6 }}>
-                  Deposit demo funds, then invest in any open opportunity — income lands right here.
+                  Add money, then invest in any open opportunity — contracts, trade, assets or property. Income lands right here.
                 </p>
-                <Link href="/opportunities" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, backgroundColor: "#fff", color: "#0f766e", fontSize: 13, fontWeight: 750, textDecoration: "none" }}>
+                <Link href="/opportunities" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 11, backgroundColor: "#fff", color: "#0f766e", fontSize: 13, fontWeight: 750, textDecoration: "none" }}>
                   Explore Opportunities
                 </Link>
               </div>

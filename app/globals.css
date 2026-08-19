@@ -76,6 +76,10 @@ div, section, header, footer, nav, main, article, aside {
   .nav-wallet    { display: none !important; }
   .nav-sign-in   { display: none !important; }
   .nav-hamburger { display: flex !important; }
+  /* .nav-links carries the margin-left:auto that pushes everything right, but
+     display:none drops it out of the flex line — so the actions group takes
+     over pushing itself (avatar + hamburger) to the far edge on mobile. */
+  .nav-actions   { margin-left: auto; }
 }
 
 /* ══════════════════════════════════════
@@ -304,6 +308,19 @@ div, section, header, footer, nav, main, article, aside {
 @media (max-width: 700px) {
   .exchange-card-row { flex-direction: column; }
   .exchange-card-img { width: 100%; min-width: unset; height: 180px; }
+}
+
+/* Exchange hero — title left, CTA right; stacks with the CTA full-width on mobile */
+.exchange-hero-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+@media (max-width: 640px) {
+  .exchange-hero-row { flex-direction: column; align-items: stretch; gap: 18px; }
+  .exchange-sell-btn { width: 100%; }
 }
 
 /* Exchange layout */

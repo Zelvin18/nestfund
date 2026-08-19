@@ -85,7 +85,7 @@ export default function IntelligencePage() {
                 Market Intelligence
               </h1>
               <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>
-                Real-time events, policy changes, and developments affecting property values
+                Real-time events, policy changes, and developments affecting your investments
               </p>
             </div>
             <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9, border: "1.5px solid #e2e8f0", backgroundColor: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#374151" }}>

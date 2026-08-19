@@ -234,7 +234,7 @@ function InvestStep() {
   const picks = rentals.filter(p => p.status === "Live").slice(0, 3)
 
   return (
-    <StepCard title="You're all set — pick your first property" subtitle="These verified properties are popular with first-time investors. One share is all it takes to start earning.">
+    <StepCard title="You're all set — pick your first opportunity" subtitle="These verified opportunities are popular with first-time investors. One share is all it takes to start earning.">
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
         {picks.map(p => (
           <Link key={p.id} href={`/property/${p.id}`} style={{ textDecoration: "none" }}>

@@ -297,3 +297,41 @@ export function useLandingFeatured(): FeaturedCard[] {
     })
     .filter((c): c is FeaturedCard => c !== null)
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   BALANCE PRIVACY
+
+   Money on screen is opt-in: the balance starts masked on every
+   page that shows it, and the eye toggle is the only way to
+   reveal it. The choice is shared across the navbar pill, the
+   wallet and the portfolio via a window event so all three flip
+   together, and it is deliberately NOT persisted — closing the
+   tab re-masks the balance.
+═══════════════════════════════════════════════════════════════ */
+
+const BALANCE_VISIBILITY_EVENT = "nestfund:balance-visibility"
+
+/** In-memory so a full reload always returns to hidden */
+let balanceShownGlobal = false
+
+export function useBalanceVisibility(): { shown: boolean; toggle: () => void } {
+  const [shown, setShown] = useState(balanceShownGlobal)
+
+  useEffect(() => {
+    const onChange = () => setShown(balanceShownGlobal)
+    window.addEventListener(BALANCE_VISIBILITY_EVENT, onChange)
+    // Another component may have flipped it before this one mounted
+    onChange()
+    return () => window.removeEventListener(BALANCE_VISIBILITY_EVENT, onChange)
+  }, [])
+
+  const toggle = useCallback(() => {
+    balanceShownGlobal = !balanceShownGlobal
+    window.dispatchEvent(new Event(BALANCE_VISIBILITY_EVENT))
+  }, [])
+
+  return { shown, toggle }
+}
+
+/** Mask helper — keeps the dot count stable so layout never jumps */
+export const maskAmount = (formatted: string) => "•".repeat(Math.max(4, Math.min(formatted.replace(/\D/g, "").length, 9)))

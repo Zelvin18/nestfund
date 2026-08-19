@@ -13,24 +13,24 @@ const steps = [
   {
     icon: MagnifyingGlassCircleIcon,
     color: "#2563eb", bg: "#eff6ff", step: "01",
-    title: "Discover Properties",
-    description: "Browse AI-curated opportunities with full market intelligence — area scores, growth projections, and rental yield data.",
-    stat: { label: "Properties Listed", value: "312+" },
+    title: "Discover Opportunities",
+    description: "Browse verified opportunities across contracts, trade, productive assets and property — each with its duration, target return and risks.",
+    stat: { label: "Opportunities Listed", value: "312+" },
     sparkData: [10,14,12,16,15,19,18,22,20,25,23,28,26,30,28,32,30,34,32,36,34,38,36,40,38,42],
   },
   {
     icon: ChartPieIcon,
     color: "#7c3aed", bg: "#f5f3ff", step: "02",
-    title: "Buy Shares",
-    description: "Invest from as little as UGX 50,000. Own a fractional share of premium real estate instantly.",
+    title: "Invest Any Amount",
+    description: "Invest from as little as UGX 50,000. Own a fractional stake in any opportunity instantly.",
     stat: { label: "Min. Investment", value: "UGX 50K" },
     sparkData: [5,8,7,11,10,14,13,17,16,20,19,23,22,26,25,29,28,32,31,35,34,38,37,41,40,44],
   },
   {
     icon: BanknotesIcon,
     color: "#16a34a", bg: "#f0fdf4", step: "03",
-    title: "Earn Monthly Income",
-    description: "Receive your share of rental income every month, automatically deposited to your NestFund wallet.",
+    title: "Earn As It Pays Out",
+    description: "Receive your share of the proceeds — rental income, contract payments or trade profits — straight to your NestFund wallet.",
     stat: { label: "Avg. Yield", value: "8.6%" },
     sparkData: [30,32,31,34,33,36,35,38,37,40,39,42,41,44,43,46,45,48,47,50,49,52,51,54,53,56],
   },
@@ -38,7 +38,7 @@ const steps = [
     icon: ArrowsRightLeftIcon,
     color: "#ea580c", bg: "#fff7ed", step: "04",
     title: "Trade & Grow",
-    description: "Sell shares on our live marketplace at any time. Benefit as property values appreciate over time.",
+    description: "Sell property shares on our live Exchange at any time, and reinvest proceeds into new opportunities as they open.",
     stat: { label: "Avg. Growth", value: "+18%" },
     sparkData: [20,22,21,25,24,28,27,31,30,34,33,37,36,40,39,43,42,46,45,49,48,52,51,55,54,58],
   },
@@ -57,7 +57,7 @@ export default function HowItWorks() {
             How NestFund Works
           </h2>
           <p style={{ fontSize: 16, color: "#64748b", maxWidth: 480, margin: "0 auto" }}>
-            Start earning from real estate in 4 simple steps
+            Start earning from real opportunities in 4 simple steps
           </p>
         </div>
 
