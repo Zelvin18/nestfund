@@ -98,10 +98,20 @@ export default function WalletPage() {
     <div style={{ minHeight: "100vh", backgroundColor: "#f4f5f7" }}>
 
       {/* ══ Hero — the wallet pass ══════════════════════════════════ */}
-      <div style={{ backgroundColor: "#080b12", position: "relative", overflow: "hidden" }}>
-        {/* Ambient light instead of photography — the card is the subject */}
-        <div style={{ position: "absolute", top: -220, left: "-6%", width: 540, height: 540, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.30) 0%, transparent 68%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -280, right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 68%)", pointerEvents: "none" }} />
+      <div style={{ backgroundColor: "#07131a", position: "relative", overflow: "hidden" }}>
+        {/* Blurred city photo gives the dark hero depth; the card stays the subject */}
+        <div style={{ position: "absolute", inset: -24 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=1600&q=70"
+            alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "blur(10px) saturate(1.1)", transform: "scale(1.06)" }}
+          />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, rgba(4,15,20,0.94) 0%, rgba(6,26,32,0.88) 45%, rgba(8,40,44,0.8) 100%)" }} />
+        </div>
+        {/* Soft teal ambience */}
+        <div style={{ position: "absolute", top: -220, left: "-6%", width: 540, height: 540, borderRadius: "50%", background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 68%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -280, right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.16) 0%, transparent 68%)", pointerEvents: "none" }} />
 
         <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 32px", position: "relative" }}>
 
@@ -110,30 +120,40 @@ export default function WalletPage() {
             <h1 style={{ fontSize: 24, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.6px" }}>Wallet</h1>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.11)", borderRadius: 99, padding: "6px 13px" }}>
               <ShieldCheckIcon style={{ width: 14, height: 14, color: "#34d399", flexShrink: 0 }} />
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: "rgba(255,255,255,0.78)" }}>Held in trust · CMA regulated</span>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: "rgba(255,255,255,0.78)" }}>Funds held in trust · Every movement on your ledger</span>
             </div>
           </div>
 
           <div style={{ maxWidth: 480 }}>
 
-            {/* ── The card ── */}
+            {/* ── The card — deep teal over a faint architectural texture ── */}
             <div
               style={{
                 position: "relative",
                 borderRadius: 22,
                 overflow: "hidden",
-                background: "linear-gradient(142deg, #1d4ed8 0%, #4338ca 48%, #6d28d9 100%)",
                 padding: "20px 22px 18px",
                 boxShadow: "0 24px 60px rgba(2,6,23,0.55), inset 0 1px 0 rgba(255,255,255,0.22)",
               }}
             >
+              {/* Texture photo under the teal wash */}
+              <div style={{ position: "absolute", inset: 0 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=70"
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%" }}
+                />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(142deg, rgba(12,74,66,0.97) 0%, rgba(15,95,84,0.93) 48%, rgba(17,124,109,0.86) 100%)" }} />
+              </div>
+
               {/* Sheen */}
-              <div style={{ position: "absolute", top: -110, right: -50, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.20) 0%, transparent 68%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: -110, right: -50, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 68%)", pointerEvents: "none" }} />
 
               {/* Card head */}
               <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 30 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                  <div style={{ width: 27, height: 27, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.95)", color: "#1d4ed8", fontSize: 13, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>N</div>
+                  <div style={{ width: 27, height: 27, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.95)", color: "#0f6b5c", fontSize: 13, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>N</div>
                   <span style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", letterSpacing: "-0.2px" }}>NestFund Cash</span>
                 </div>
                 <span style={{ fontSize: 10.5, fontWeight: 800, color: "rgba(255,255,255,0.7)", letterSpacing: "0.14em" }}>UGX</span>
@@ -198,7 +218,7 @@ export default function WalletPage() {
                     backgroundColor: a.primary ? "#fff" : "rgba(255,255,255,0.14)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <a.Icon style={{ width: 17, height: 17, color: a.primary ? "#1d4ed8" : "#fff" }} />
+                    <a.Icon style={{ width: 17, height: 17, color: a.primary ? "#0f6b5c" : "#fff" }} />
                   </span>
                   <span style={{ fontSize: 12, fontWeight: 650, color: "#fff", whiteSpace: "nowrap" }}>{a.label}</span>
                 </button>

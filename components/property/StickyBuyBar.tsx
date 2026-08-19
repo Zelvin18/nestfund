@@ -8,12 +8,14 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline"
  * Appears only after the investor scrolls past the buy/reserve widget,
  * so the primary action is always one tap away.
  */
-export default function StickyBuyBar({ targetRef, price, sub, cta, tone = "blue", onClick }: {
+export default function StickyBuyBar({ targetRef, price, sub, cta, tone = "blue", accent, onClick }: {
   targetRef: RefObject<HTMLDivElement | null>
   price: string
   sub: string
   cta: string
   tone?: "blue" | "teal" | "amber"
+  /** Custom brand color (e.g. an opportunity category accent) — overrides tone */
+  accent?: string
   onClick: () => void
 }) {
   const [visible, setVisible] = useState(false)
@@ -33,9 +35,11 @@ export default function StickyBuyBar({ targetRef, price, sub, cta, tone = "blue"
     return () => io.disconnect()
   }, [targetRef])
 
-  // Same gradient family as the widget's SHARE PRICE header, per market tone
-  const palette =
-    tone === "teal"
+  // Same gradient family as the widget's SHARE PRICE header, per market tone.
+  // A custom accent builds its own gradient (dark → base → lighter sheen).
+  const palette = accent
+    ? { grad: `linear-gradient(120deg, ${accent} 0%, ${accent}ee 55%, ${accent}cc 100%)`, btnText: accent, glow: `${accent}66` }
+    : tone === "teal"
       ? { grad: "linear-gradient(120deg, #0f766e 0%, #0d9488 55%, #14b8a6 100%)", btnText: "#0f766e", glow: "rgba(13,148,136,0.45)" }
       : tone === "amber"
       ? { grad: "linear-gradient(120deg, #b45309 0%, #d97706 55%, #f59e0b 100%)", btnText: "#b45309", glow: "rgba(217,119,6,0.45)" }

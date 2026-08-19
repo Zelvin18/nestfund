@@ -108,8 +108,12 @@ div, section, header, footer, nav, main, article, aside {
   .stats-grid-3 > :last-child { grid-column: 1 / -1; }
 }
 
-/* Filter tabs + sort dropdown row — let sort wrap below tabs on mobile */
-.filter-sort-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+/* Filter tabs + sort control on ONE row at every size; tabs scroll, sort stays */
+.filter-sort-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 10px; }
+@media (max-width: 640px) {
+  .sort-select-wrap { display: none !important; }
+  .sort-icon-btn { display: flex !important; }
+}
 
 /* Property cards */
 .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }

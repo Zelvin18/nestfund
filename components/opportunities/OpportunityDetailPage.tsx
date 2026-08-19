@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -16,6 +16,7 @@ import {
   type Opportunity,
 } from "@/lib/data/opportunities"
 import OpportunityCard from "@/components/opportunities/OpportunityCard"
+import StickyBuyBar from "@/components/property/StickyBuyBar"
 
 const fmtUGX = (n: number) => `UGX ${n.toLocaleString()}`
 
@@ -32,6 +33,7 @@ export default function OpportunityDetailPage({ id }: { id: string }) {
   const { opportunities } = useOpportunities()
   const opportunity = opportunities.find(o => o.id === id)
   const [investOpen, setInvestOpen] = useState(false)
+  const widgetRef = useRef<HTMLDivElement>(null)
 
   if (!opportunity) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
@@ -164,7 +166,7 @@ export default function OpportunityDetailPage({ id }: { id: string }) {
           </div>
 
           {/* ── Invest widget ── */}
-          <div className="buy-widget-col" style={{ minWidth: 0 }}>
+          <div className="buy-widget-col" style={{ minWidth: 0 }} ref={widgetRef}>
             <div className="buy-widget-sticky">
               <div style={{ backgroundColor: "#fff", borderRadius: 16, border: "1px solid #e8ecf0", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
                 {/* Header */}
@@ -231,6 +233,18 @@ export default function OpportunityDetailPage({ id }: { id: string }) {
             </div>
           </div>
         </div>
+
+        {/* Sticky mini invest-bar (mobile) — appears after scrolling past the widget */}
+        {investable && (
+          <StickyBuyBar
+            targetRef={widgetRef}
+            price={`${returnLabel(o)} target`}
+            sub={`min ${fmtUGX(o.minInvestment)} · ${o.durationLabel}`}
+            cta="Invest Now"
+            accent={cat.accent}
+            onClick={() => setInvestOpen(true)}
+          />
+        )}
 
         {/* Related */}
         {related.length > 0 && (
