@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { MagnifyingGlassIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { MagnifyingGlassIcon, ShieldCheckIcon, AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { useOpportunities } from "@/lib/hooks"
 import {
   CATEGORIES, fundingProgress, displayStatus,
@@ -14,13 +14,15 @@ type RiskFilter = "any" | "Lower" | "Moderate" | "Higher"
 type StatusFilter = "any" | "Open" | "Almost Funded" | "Fully Funded" | "Active" | "Completed"
 
 const durations: { key: DurationFilter; label: string }[] = [
-  { key: "any", label: "Any duration" },
   { key: "under3", label: "Under 3 months" },
   { key: "3to6", label: "3–6 months" },
   { key: "6to12", label: "6–12 months" },
   { key: "1to3y", label: "1–3 years" },
   { key: "3yplus", label: "3+ years" },
 ]
+
+const riskOptions: RiskFilter[] = ["Lower", "Moderate", "Higher"]
+const statusOptions: StatusFilter[] = ["Open", "Almost Funded", "Active", "Completed"]
 
 const matchesDuration = (months: number, f: DurationFilter) =>
   f === "any" ||
@@ -30,11 +32,22 @@ const matchesDuration = (months: number, f: DurationFilter) =>
   (f === "1to3y" && months > 12 && months <= 36) ||
   (f === "3yplus" && months > 36)
 
-const chip = (active: boolean, accent = "#2563eb"): React.CSSProperties => ({
-  padding: "7px 15px", borderRadius: 99, fontSize: 12.5, fontWeight: 650, cursor: "pointer",
-  whiteSpace: "nowrap", transition: "all 0.15s",
-  border: active ? `1.5px solid ${accent}` : "1.5px solid #e2e8f0",
+/* Category chips — the one always-visible filter row */
+const categoryChip = (active: boolean, accent: string): React.CSSProperties => ({
+  padding: "8px 17px", borderRadius: 99, fontSize: 13, fontWeight: 700, cursor: "pointer",
+  whiteSpace: "nowrap", transition: "all 0.18s",
+  border: active ? `1.5px solid ${accent}` : "1.5px solid #e5e9f0",
   backgroundColor: active ? accent : "#fff",
+  color: active ? "#fff" : "#4b5563",
+  boxShadow: active ? `0 5px 16px ${accent}45` : "0 1px 2px rgba(15,23,42,0.04)",
+})
+
+/* Panel option chips — quiet until chosen */
+const optionChip = (active: boolean): React.CSSProperties => ({
+  padding: "7px 14px", borderRadius: 99, fontSize: 12.5, fontWeight: 650, cursor: "pointer",
+  whiteSpace: "nowrap", transition: "all 0.15s",
+  border: active ? "1.5px solid #0f172a" : "1.5px solid #e5e9f0",
+  backgroundColor: active ? "#0f172a" : "#fff",
   color: active ? "#fff" : "#4b5563",
 })
 
@@ -45,6 +58,21 @@ export default function OpportunitiesPage() {
   const [risk, setRisk] = useState<RiskFilter>("any")
   const [status, setStatus] = useState<StatusFilter>("any")
   const [query, setQuery] = useState("")
+  const [panelOpen, setPanelOpen] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // Desktop: close the filter panel on outside click (mobile uses the backdrop)
+  useEffect(() => {
+    if (!panelOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) setPanelOpen(false)
+    }
+    document.addEventListener("mousedown", onDown)
+    return () => document.removeEventListener("mousedown", onDown)
+  }, [panelOpen])
+
+  const activeFilterCount = (duration !== "any" ? 1 : 0) + (risk !== "any" ? 1 : 0) + (status !== "any" ? 1 : 0)
+  const clearFilters = () => { setDuration("any"); setRisk("any"); setStatus("any") }
 
   // Category links (?category=cashflow) — read via window to avoid the
   // useSearchParams Suspense hydration stall seen on ApplyPage; deferred
@@ -103,30 +131,96 @@ export default function OpportunitiesPage() {
 
       <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "22px 24px 56px" }}>
 
-        {/* ── Category chips ── */}
-        <div className="filter-tabs" style={{ display: "flex", gap: 8, marginBottom: 14, paddingBottom: 4 }}>
-          <button onClick={() => setCategory("all")} style={chip(category === "all", "#0f172a")}>All</button>
-          {CATEGORIES.map(c => (
-            <button key={c.key} onClick={() => setCategory(c.key)} style={chip(category === c.key, c.accent)}>
-              {c.label}
-            </button>
-          ))}
-        </div>
+        {/* ── ONE filter row: category chips + filter button ── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+          <div className="filter-tabs" style={{ display: "flex", gap: 8, paddingBottom: 2, flex: 1, minWidth: 0 }}>
+            <button onClick={() => setCategory("all")} style={categoryChip(category === "all", "#0f172a")}>All</button>
+            {CATEGORIES.map(c => (
+              <button key={c.key} onClick={() => setCategory(c.key)} style={categoryChip(category === c.key, c.accent)}>
+                {c.label}
+              </button>
+            ))}
+          </div>
 
-        {/* ── Secondary filters ── */}
-        <div className="filter-tabs" style={{ display: "flex", gap: 8, marginBottom: 10, paddingBottom: 4 }}>
-          {durations.map(d => (
-            <button key={d.key} onClick={() => setDuration(d.key)} style={chip(duration === d.key, "#475569")}>{d.label}</button>
-          ))}
-        </div>
-        <div className="filter-tabs" style={{ display: "flex", gap: 8, marginBottom: 22, paddingBottom: 4 }}>
-          {(["any", "Lower", "Moderate", "Higher"] as RiskFilter[]).map(r => (
-            <button key={r} onClick={() => setRisk(r)} style={chip(risk === r, "#475569")}>{r === "any" ? "Any risk" : `${r} risk`}</button>
-          ))}
-          <div style={{ width: 1, backgroundColor: "#e2e8f0", margin: "4px 2px", flexShrink: 0 }} />
-          {(["any", "Open", "Almost Funded", "Active", "Completed"] as StatusFilter[]).map(s => (
-            <button key={s} onClick={() => setStatus(s)} style={chip(status === s, "#475569")}>{s === "any" ? "Any status" : s}</button>
-          ))}
+          {/* Filter button + panel */}
+          <div ref={panelRef} style={{ position: "relative", flexShrink: 0 }}>
+            <button
+              onClick={() => setPanelOpen(o => !o)}
+              aria-label="Filters"
+              style={{
+                position: "relative",
+                display: "flex", alignItems: "center", gap: 7,
+                height: 38, padding: "0 14px", borderRadius: 99, cursor: "pointer",
+                border: panelOpen || activeFilterCount > 0 ? "1.5px solid #0f172a" : "1.5px solid #e5e9f0",
+                backgroundColor: panelOpen ? "#0f172a" : "#fff",
+                color: panelOpen ? "#fff" : "#0f172a",
+                fontSize: 13, fontWeight: 700,
+                boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+                transition: "all 0.18s",
+              }}
+            >
+              <AdjustmentsHorizontalIcon style={{ width: 16, height: 16 }} />
+              <span className="filter-btn-label">Filters</span>
+              {activeFilterCount > 0 && (
+                <span style={{ minWidth: 18, height: 18, borderRadius: 99, backgroundColor: panelOpen ? "#fff" : "#2563eb", color: panelOpen ? "#0f172a" : "#fff", fontSize: 10.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 5px" }}>
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            {panelOpen && (
+              <>
+                <div className="opp-filter-backdrop" onClick={() => setPanelOpen(false)} />
+                <div className="opp-filter-panel">
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.2px" }}>Refine</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      {activeFilterCount > 0 && (
+                        <button onClick={clearFilters} style={{ fontSize: 12.5, fontWeight: 700, color: "#2563eb", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                          Clear all
+                        </button>
+                      )}
+                      <button onClick={() => setPanelOpen(false)} style={{ background: "#f2f5f9", border: "none", borderRadius: 9, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                        <XMarkIcon style={{ width: 16, height: 16, color: "#64748b" }} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <FilterGroup label="Duration">
+                    {durations.map(d => (
+                      <button key={d.key} onClick={() => setDuration(duration === d.key ? "any" : d.key)} style={optionChip(duration === d.key)}>
+                        {d.label}
+                      </button>
+                    ))}
+                  </FilterGroup>
+
+                  <FilterGroup label="Risk level">
+                    {riskOptions.map(r => (
+                      <button key={r} onClick={() => setRisk(risk === r ? "any" : r)} style={optionChip(risk === r)}>
+                        {r}
+                      </button>
+                    ))}
+                  </FilterGroup>
+
+                  <FilterGroup label="Status">
+                    {statusOptions.map(s => (
+                      <button key={s} onClick={() => setStatus(status === s ? "any" : s)} style={optionChip(status === s)}>
+                        {s}
+                      </button>
+                    ))}
+                  </FilterGroup>
+
+                  <button
+                    onClick={() => setPanelOpen(false)}
+                    style={{ width: "100%", marginTop: 6, padding: "12px 0", borderRadius: 12, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 750 }}
+                  >
+                    Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
+                  </button>
+                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "9px 0 0 0", textAlign: "center" }}>Tap a selected option again to remove it</p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* ── Active category banner ── */}
@@ -174,6 +268,16 @@ export default function OpportunitiesPage() {
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+/* One labelled group inside the filter panel */
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <p style={{ fontSize: 11, fontWeight: 750, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px 0" }}>{label}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{children}</div>
     </div>
   )
 }

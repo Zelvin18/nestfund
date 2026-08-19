@@ -115,6 +115,52 @@ div, section, header, footer, nav, main, article, aside {
   .sort-icon-btn { display: flex !important; }
 }
 
+/* ══ Opportunities filter panel — dropdown on desktop, bottom sheet on mobile ══ */
+.opp-filter-panel {
+  position: absolute;
+  right: 0;
+  top: 46px;
+  width: 340px;
+  background: #fff;
+  border: 1px solid #e8ecf0;
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  padding: 18px 20px 20px;
+  z-index: 70;
+  animation: fade-up 0.18s ease-out;
+}
+.opp-filter-backdrop { display: none; }
+@media (max-width: 640px) {
+  .filter-btn-label { display: none; }             /* icon-only button on phones */
+  .opp-filter-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 22, 40, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 80;
+  }
+  .opp-filter-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-height: 78vh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
+    padding: 20px 22px calc(24px + env(safe-area-inset-bottom, 0px));
+    z-index: 90;
+    animation: sheet-up 0.25s ease-out;
+  }
+}
+@keyframes sheet-up {
+  from { transform: translateY(40px); opacity: 0.5; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
 /* Property cards */
 .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
 @media (max-width: 640px)  { .property-grid { grid-template-columns: 1fr; } }
