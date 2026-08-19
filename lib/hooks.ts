@@ -5,7 +5,8 @@ import type { User } from "@supabase/supabase-js"
 import {
   fetchRentalProperties, fetchIntelligence, fetchPlatformStats,
   fetchConstructionProjects, fetchExchangeListings, fetchSiteSetting,
-  fetchInterestStats, fetchOpportunities, type PlatformStats, type InterestStats,
+  fetchInterestStats, fetchOpportunities, mergeOpportunities,
+  type PlatformStats, type InterestStats,
 } from "./api"
 import {
   demoOpportunities, rentalToOpportunity, constructionToOpportunity,
@@ -145,6 +146,8 @@ export function useHomeHeroProperty(): RentalProperty {
  * has rows) + existing rental/construction records adapted into the
  * same shape. Property pages keep their own richer detail views.
  */
+const PUBLIC_STATUSES = ["Coming Soon", "Open", "Almost Funded", "Fully Funded", "Active", "Repayment", "Completed"]
+
 export function useOpportunities(): { opportunities: Opportunity[]; live: boolean } {
   const { rentals } = useRentals()
   const { projects } = useConstruction()
@@ -152,7 +155,7 @@ export function useOpportunities(): { opportunities: Opportunity[]; live: boolea
   useEffect(() => {
     let active = true
     fetchOpportunities()
-      .then(d => { if (active && d) setNonProperty({ items: d, live: true }) })
+      .then(d => { if (active && d) setNonProperty({ items: mergeOpportunities(d), live: true }) })
       .catch(() => {})
     return () => { active = false }
   }, [])
@@ -160,7 +163,21 @@ export function useOpportunities(): { opportunities: Opportunity[]; live: boolea
     ...rentals.map(rentalToOpportunity),
     ...projects.map(constructionToOpportunity),
   ]
-  return { opportunities: [...nonProperty.items, ...propertyOpps], live: nonProperty.live }
+  // Only publicly-visible statuses reach the marketplace (admin sees everything)
+  const visible = nonProperty.items.filter(o => PUBLIC_STATUSES.includes(o.status))
+  return { opportunities: [...visible, ...propertyOpps], live: nonProperty.live }
+}
+
+/** Admin view: every non-property opportunity in every status, DB merged over demo. */
+export function useAllOpportunities(): { opportunities: Opportunity[]; live: boolean; refresh: () => void } {
+  const [state, setState] = useState<{ opportunities: Opportunity[]; live: boolean }>({ opportunities: demoOpportunities, live: false })
+  const refresh = useCallback(() => {
+    fetchOpportunities()
+      .then(d => { if (d) setState({ opportunities: mergeOpportunities(d), live: true }) })
+      .catch(() => {})
+  }, [])
+  useEffect(() => { refresh() }, [refresh])
+  return { ...state, refresh }
 }
 
 /* ── Exchange: P2P sell offers (demo order book + real listings) ── */

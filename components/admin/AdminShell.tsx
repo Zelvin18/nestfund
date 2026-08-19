@@ -15,6 +15,7 @@ import {
   InboxArrowDownIcon,
   BriefcaseIcon,
   RocketLaunchIcon,
+  RectangleStackIcon,
 } from "@heroicons/react/24/outline"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
@@ -26,13 +27,14 @@ const navSections: Array<{ label: string; items: Array<{ href: string; label: st
     ],
   },
   {
-    label: "Markets",
+    label: "Marketplace",
     items: [
+      { href: "/admin/opportunities", label: "Opportunities", icon: RectangleStackIcon },
       { href: "/admin/properties", label: "Properties", icon: BuildingOffice2Icon },
       { href: "/admin/coming-soon", label: "Coming Soon", icon: RocketLaunchIcon },
       { href: "/admin/construction", label: "Construction", icon: WrenchScrewdriverIcon },
       { href: "/admin/exchange", label: "Exchange", icon: ArrowsRightLeftIcon },
-      { href: "/admin/submissions", label: "Submissions", icon: InboxArrowDownIcon },
+      { href: "/admin/submissions", label: "Applications", icon: InboxArrowDownIcon },
     ],
   },
   {
@@ -45,7 +47,7 @@ const navSections: Array<{ label: string; items: Array<{ href: string; label: st
   {
     label: "Platform",
     items: [
-      { href: "/admin/developers", label: "Developers", icon: BriefcaseIcon },
+      { href: "/admin/developers", label: "Businesses", icon: BriefcaseIcon },
       { href: "/admin/managers", label: "Managers", icon: UserGroupIcon },
       { href: "/admin/investors", label: "Investors", icon: UsersIcon },
     ],

@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowsRightLeftIcon, CheckIcon } from "@heroicons/react/24/outline"
+import { ArrowsRightLeftIcon, CheckIcon, UserCircleIcon } from "@heroicons/react/24/outline"
 import { PageHeader, Card, fieldInput } from "@/components/admin/AdminShell"
-import { useExchange } from "@/lib/hooks"
-import { saveExchangeListing } from "@/lib/api"
+import { useExchange, useShareOffers } from "@/lib/hooks"
+import { saveExchangeListing, cancelShareListing } from "@/lib/api"
 import { type ExchangeListing } from "@/lib/data/exchange"
 
 type EditableListing = ExchangeListing & { dbId?: string }
@@ -164,8 +164,77 @@ export default function AdminExchange() {
       </Card>
 
       <p style={{ fontSize: 12, color: "#a6b2c3", marginTop: 16, lineHeight: 1.6 }}>
-        Base price comes from the property/project record. Premium is calculated automatically. Adding and pausing listings arrives with the trading engine phase.
+        Base price comes from the property/project record. Premium is calculated automatically.
       </p>
+
+      <div style={{ marginTop: 18 }}>
+        <P2PListingsPanel />
+      </div>
     </>
+  )
+}
+
+/* ── Investor sell offers (share_listings) — monitor + moderate ── */
+
+function P2PListingsPanel() {
+  const { offers, refresh } = useShareOffers()
+  const [error, setError] = useState<string | null>(null)
+  const [busyId, setBusyId] = useState<string | null>(null)
+
+  const cancel = async (id: string) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await cancelShareListing(id)
+      refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Cancel failed")
+    }
+    setBusyId(null)
+  }
+
+  return (
+    <Card title="Investor Sell Offers" subtitle="P2P listings published by investors — offers marked SAMPLE are built-in order-book depth" icon={UserCircleIcon} style={{ padding: 0 }}>
+      {error && (
+        <p style={{ fontSize: 12.5, fontWeight: 600, color: "#dc2626", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", margin: "0 18px 12px" }}>{error}</p>
+      )}
+      <div className="responsive-table" style={{ marginTop: -6 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ borderBottom: "1.5px solid #f0f2f6" }}>
+              {["Seller", "Asset", "Units", "Asking Price", "Listed", ""].map(h => (
+                <th key={h} style={{ padding: "11px 18px", textAlign: h === "Seller" ? "left" : "right", fontSize: 10.5, fontWeight: 750, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {offers.map(o => (
+              <tr key={o.id} className="admin-table-row" style={{ borderBottom: "1px solid #f6f8fa" }}>
+                <td style={{ padding: "12px 18px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#0b1220", whiteSpace: "nowrap" }}>{o.sellerName}</span>
+                    {o.demo && <span style={{ fontSize: 9, fontWeight: 750, color: "#94a3b8", backgroundColor: "#f1f5f9", padding: "1px 7px", borderRadius: 99 }}>SAMPLE</span>}
+                  </div>
+                </td>
+                <td style={{ padding: "12px 18px", textAlign: "right", fontSize: 12.5, color: "#46536b", whiteSpace: "nowrap" }}>{o.assetId}</td>
+                <td style={{ padding: "12px 18px", textAlign: "right", fontSize: 12.5, fontWeight: 700, color: "#0b1220", whiteSpace: "nowrap" }}>{o.units.toLocaleString()}</td>
+                <td style={{ padding: "12px 18px", textAlign: "right", fontSize: 12.5, fontWeight: 700, color: "#0b1220", whiteSpace: "nowrap" }}>UGX {o.pricePerShare.toLocaleString()}</td>
+                <td style={{ padding: "12px 18px", textAlign: "right", fontSize: 12, color: "#a6b2c3", whiteSpace: "nowrap" }}>{o.listedAgo}</td>
+                <td style={{ padding: "12px 18px", textAlign: "right" }}>
+                  {o.demo ? (
+                    <span style={{ fontSize: 11, color: "#cbd5e1" }}>built-in</span>
+                  ) : (
+                    <button onClick={() => cancel(o.id)} disabled={busyId === o.id}
+                      style={{ padding: "6px 14px", borderRadius: 8, border: "1.5px solid #fecaca", cursor: "pointer", backgroundColor: "#fff", color: "#dc2626", fontSize: 11.5, fontWeight: 700 }}>
+                      {busyId === o.id ? "..." : "Cancel"}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   )
 }

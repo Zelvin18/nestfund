@@ -647,17 +647,80 @@ function mapOpportunity(row: any): Opportunity {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-/** Non-property opportunities from the database; null keeps the demo records showing. */
+/**
+ * ALL opportunity rows from the database (every status — callers filter).
+ * Null when the table is missing/unreachable so demo records keep showing.
+ */
 export async function fetchOpportunities(): Promise<Opportunity[] | null> {
   const sb = getSupabase()
   if (!sb) return null
   const { data, error } = await sb
     .from("opportunities")
     .select("*")
-    .not("status", "in", '("Draft","Under Review","Cancelled")')
     .order("created_at", { ascending: false })
-  if (error || !data || data.length === 0) return null
+  if (error || !data) return null
   return data.map(mapOpportunity)
+}
+
+/** Merge DB rows over the demo set: a DB row with a demo id overrides it (admin control). */
+export function mergeOpportunities(dbRows: Opportunity[] | null): Opportunity[] {
+  if (!dbRows) return demoOpportunities
+  const byId = new Map(dbRows.map(o => [o.id, o]))
+  const merged = demoOpportunities.map(d => byId.get(d.id) ?? d)
+  const extras = dbRows.filter(o => !demoOpportunities.some(d => d.id === o.id))
+  return [...extras, ...merged]
+}
+
+/** Create or update an opportunity — the admin's write path. */
+export async function saveOpportunity(o: Opportunity): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb.from("opportunities").upsert({
+    id: o.id,
+    title: o.title,
+    category: o.category,
+    subcategory: o.subcategory,
+    description: o.description,
+    location: o.location,
+    operator: o.operator,
+    image: o.image,
+    funding_required: o.fundingRequired,
+    funding_received: o.fundingReceived,
+    min_investment: o.minInvestment,
+    unit_price: o.unitPrice,
+    duration_label: o.durationLabel,
+    duration_months: o.durationMonths,
+    target_return_min: o.targetReturnMin,
+    target_return_max: o.targetReturnMax,
+    return_period: o.returnPeriod,
+    risk_level: o.riskLevel,
+    status: o.status,
+    revenue_model: o.revenueModel,
+    security: o.security,
+    risks: o.risks,
+    expected_exit: o.expectedExit,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "id" }).select("id")
+  if (error) {
+    if (error.message.includes("does not exist") || error.message.includes("schema cache")) {
+      throw new Error("The opportunities table isn't set up yet — run supabase/opportunities.sql in the Supabase SQL editor.")
+    }
+    throw new Error(error.message)
+  }
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
+}
+
+/** Admin: cancel a P2P share listing on the Exchange. */
+export async function cancelShareListing(id: string): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) throw new Error("Database not connected")
+  const { data, error } = await sb
+    .from("share_listings")
+    .update({ status: "Cancelled", updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id")
+  if (error) throw new Error(error.message)
+  if (!data || data.length === 0) throw new Error(WRITE_BLOCKED)
 }
 
 export async function saveSiteSetting(key: string, value: unknown): Promise<void> {

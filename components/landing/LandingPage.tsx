@@ -437,7 +437,7 @@ function HowItWorksSection() {
           {howSteps.map((step, i) => (
             <div key={i} style={{ backgroundColor: "rgba(255,255,255,0.06)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "24px 20px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: "rgba(16,185,129,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10b981" }}><step.icon /></div>
+                <div style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#cbd5e1" }}><step.icon /></div>
                 <span style={{ fontSize: 24, fontWeight: 900, color: "rgba(255,255,255,0.12)", letterSpacing: "-0.5px" }}>{step.num}</span>
               </div>
               <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", margin: "0 0 8px 0" }}>{step.title}</h3>
@@ -477,7 +477,7 @@ function WhySection() {
         <div className="trust-features-grid">
           {trustPoints.map((t, i) => (
             <div key={i} style={{ backgroundColor: "#fff", borderRadius: 16, padding: "24px 20px", border: "1px solid #e8ecf0" }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb", marginBottom: 16 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", marginBottom: 16 }}>
                 <t.icon />
               </div>
               <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 8px 0" }}>{t.title}</h3>

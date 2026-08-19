@@ -67,10 +67,13 @@ export default function OpportunitiesPage() {
   // useSearchParams Suspense hydration stall seen on ApplyPage; deferred
   // so the effect never sets state synchronously
   useEffect(() => {
-    const c = new URLSearchParams(window.location.search).get("category")
-    if (c && CATEGORIES.some(x => x.key === c)) {
-      Promise.resolve().then(() => setCategory(c as OpportunityCategory))
-    }
+    const params = new URLSearchParams(window.location.search)
+    const c = params.get("category")
+    const q = params.get("q")
+    Promise.resolve().then(() => {
+      if (c && CATEGORIES.some(x => x.key === c)) setCategory(c as OpportunityCategory)
+      if (q) setQuery(q)
+    })
   }, [])
 
   const filtered = useMemo(() => {

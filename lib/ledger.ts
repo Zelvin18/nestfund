@@ -58,11 +58,13 @@ export async function fetchLedgerTransactions(userId: string): Promise<WalletTra
     type: r.type === "DEPOSIT" ? "deposit"
         : r.type === "WITHDRAWAL" ? "withdraw"
         : r.type === "INVESTMENT" ? "buy"
+        : r.type === "TRADE_SETTLEMENT" && Number(r.amount) < 0 ? "buy"
         : "income",
     label: r.memo ?? r.type,
     amount: Number(r.amount),
     date: new Date(r.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
     status: r.status === "completed" ? "completed" : "pending",
+    at: r.created_at,
   }))
 }
 

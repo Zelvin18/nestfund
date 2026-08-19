@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { MagnifyingGlassIcon, BellIcon, XMarkIcon, Bars3Icon, ArrowRightStartOnRectangleIcon, ChartPieIcon, Cog6ToothIcon } from "@heroicons/react/24/outline"
+import { XMarkIcon, Bars3Icon, ArrowRightStartOnRectangleIcon, ChartPieIcon, Cog6ToothIcon } from "@heroicons/react/24/outline"
+import NavSearch from "@/components/NavSearch"
+import NotificationBell from "@/components/NotificationBell"
 import { WalletIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
 import { useSession, useWallet, useBalanceVisibility } from "@/lib/hooks"
 import { signOut } from "@/lib/auth"
@@ -120,23 +122,9 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Desktop search — fixed width, clustered with the links beside Sign In */}
+          {/* Desktop search — live results from the marketplace feed */}
           <div className="nav-search" style={{ width: 260, flexShrink: 0 }}>
-            <div style={{ position: "relative" }}>
-              <MagnifyingGlassIcon style={{
-                position: "absolute", left: 12, top: "50%",
-                transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af",
-              }} />
-              <input
-                type="text"
-                placeholder="Search opportunities, locations..."
-                style={{
-                  width: "100%", height: 38, paddingLeft: 38, paddingRight: 16,
-                  fontSize: 13, border: "1.5px solid #e5e7eb", borderRadius: 9,
-                  backgroundColor: "#f9fafb", color: "#111827", outline: "none",
-                }}
-              />
-            </div>
+            <NavSearch />
           </div>
 
           {/* Right actions — pinned to the far edge (marginLeft:auto keeps the
@@ -145,16 +133,7 @@ export default function Navbar() {
             {/* Bell + wallet pill are personal — hidden until signed in */}
             {user && (
               <>
-                <button
-                  className="nav-bell"
-                  style={{
-                    width: 36, height: 36, borderRadius: 8,
-                    border: "1.5px solid #e5e7eb", background: "#fff",
-                    display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-                  }}
-                >
-                  <BellIcon style={{ width: 18, height: 18, color: "#4b5563" }} />
-                </button>
+                <NotificationBell user={user} />
 
                 <Link
                   href="/wallet"
@@ -287,22 +266,10 @@ export default function Navbar() {
               overflow: "hidden",
             }}
           >
-            {/* Search on mobile */}
+            {/* Search on mobile — same live results */}
             <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f5f9" }}>
-              <div style={{ position: "relative" }}>
-                <MagnifyingGlassIcon style={{
-                  position: "absolute", left: 12, top: "50%",
-                  transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af",
-                }} />
-                <input
-                  type="text"
-                  placeholder="Search opportunities, locations..."
-                  style={{
-                    width: "100%", height: 42, paddingLeft: 40, paddingRight: 16,
-                    fontSize: 14, border: "1.5px solid #e5e7eb", borderRadius: 10,
-                    backgroundColor: "#f9fafb", color: "#111827", outline: "none",
-                  }}
-                />
+              <div onClick={() => setMenuOpen(true)}>
+                <NavSearch compact />
               </div>
             </div>
 

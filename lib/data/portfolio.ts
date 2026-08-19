@@ -28,6 +28,8 @@ export interface WalletTransaction {
   amount: number
   date: string
   status: "completed" | "pending"
+  /** ISO timestamp of the ledger entry — powers notifications */
+  at?: string
 }
 
 export const walletTransactions: WalletTransaction[] = [
