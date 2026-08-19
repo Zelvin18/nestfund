@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { MagnifyingGlassIcon, ShieldCheckIcon, AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { useOpportunities } from "@/lib/hooks"
 import {
@@ -59,17 +59,6 @@ export default function OpportunitiesPage() {
   const [status, setStatus] = useState<StatusFilter>("any")
   const [query, setQuery] = useState("")
   const [panelOpen, setPanelOpen] = useState(false)
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  // Desktop: close the filter panel on outside click (mobile uses the backdrop)
-  useEffect(() => {
-    if (!panelOpen) return
-    const onDown = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) setPanelOpen(false)
-    }
-    document.addEventListener("mousedown", onDown)
-    return () => document.removeEventListener("mousedown", onDown)
-  }, [panelOpen])
 
   const activeFilterCount = (duration !== "any" ? 1 : 0) + (risk !== "any" ? 1 : 0) + (status !== "any" ? 1 : 0)
   const clearFilters = () => { setDuration("any"); setRisk("any"); setStatus("any") }
@@ -142,86 +131,98 @@ export default function OpportunitiesPage() {
             ))}
           </div>
 
-          {/* Filter button + panel */}
-          <div ref={panelRef} style={{ position: "relative", flexShrink: 0 }}>
-            <button
-              onClick={() => setPanelOpen(o => !o)}
-              aria-label="Filters"
-              style={{
-                position: "relative",
-                display: "flex", alignItems: "center", gap: 7,
-                height: 38, padding: "0 14px", borderRadius: 99, cursor: "pointer",
-                border: panelOpen || activeFilterCount > 0 ? "1.5px solid #0f172a" : "1.5px solid #e5e9f0",
-                backgroundColor: panelOpen ? "#0f172a" : "#fff",
-                color: panelOpen ? "#fff" : "#0f172a",
-                fontSize: 13, fontWeight: 700,
-                boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
-                transition: "all 0.18s",
-              }}
+          {/* Filter button */}
+          <button
+            onClick={() => setPanelOpen(true)}
+            aria-label="Filters"
+            style={{
+              position: "relative", flexShrink: 0,
+              display: "flex", alignItems: "center", gap: 7,
+              height: 38, padding: "0 14px", borderRadius: 99, cursor: "pointer",
+              border: activeFilterCount > 0 ? "1.5px solid #0f172a" : "1.5px solid #e5e9f0",
+              backgroundColor: activeFilterCount > 0 ? "#0f172a" : "#fff",
+              color: activeFilterCount > 0 ? "#fff" : "#0f172a",
+              fontSize: 13, fontWeight: 700,
+              boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+              transition: "all 0.18s",
+            }}
+          >
+            <AdjustmentsHorizontalIcon style={{ width: 16, height: 16 }} />
+            <span className="filter-btn-label">Filters</span>
+            {activeFilterCount > 0 && (
+              <span style={{ minWidth: 18, height: 18, borderRadius: 99, backgroundColor: "#2563eb", color: "#fff", fontSize: 10.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 5px" }}>
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* ── Filter card — a centered modal on every screen ── */}
+        {panelOpen && (
+          <div
+            onClick={() => setPanelOpen(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 100, backgroundColor: "rgba(10,22,40,0.55)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          >
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{ backgroundColor: "#fff", borderRadius: 22, width: "100%", maxWidth: 440, maxHeight: "86vh", overflowY: "auto", boxShadow: "0 32px 80px rgba(0,0,0,0.35)", animation: "modal-in 0.25s ease-out" }}
             >
-              <AdjustmentsHorizontalIcon style={{ width: 16, height: 16 }} />
-              <span className="filter-btn-label">Filters</span>
-              {activeFilterCount > 0 && (
-                <span style={{ minWidth: 18, height: 18, borderRadius: 99, backgroundColor: panelOpen ? "#fff" : "#2563eb", color: panelOpen ? "#0f172a" : "#fff", fontSize: 10.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 5px" }}>
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "22px 24px 0" }}>
+                <div>
+                  <h2 style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", margin: "0 0 3px 0", letterSpacing: "-0.3px" }}>Filter Opportunities</h2>
+                  <p style={{ fontSize: 12.5, color: "#94a3b8", margin: 0 }}>Pick what fits — tap a selection again to remove it</p>
+                </div>
+                <button onClick={() => setPanelOpen(false)} style={{ background: "#f2f5f9", border: "none", borderRadius: 9, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
+                  <XMarkIcon style={{ width: 17, height: 17, color: "#64748b" }} />
+                </button>
+              </div>
 
-            {panelOpen && (
-              <>
-                <div className="opp-filter-backdrop" onClick={() => setPanelOpen(false)} />
-                <div className="opp-filter-panel">
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.2px" }}>Refine</p>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      {activeFilterCount > 0 && (
-                        <button onClick={clearFilters} style={{ fontSize: 12.5, fontWeight: 700, color: "#2563eb", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                          Clear all
-                        </button>
-                      )}
-                      <button onClick={() => setPanelOpen(false)} style={{ background: "#f2f5f9", border: "none", borderRadius: 9, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                        <XMarkIcon style={{ width: 16, height: 16, color: "#64748b" }} />
-                      </button>
-                    </div>
-                  </div>
+              <div style={{ padding: "20px 24px 22px" }}>
+                <FilterGroup label="Duration">
+                  {durations.map(d => (
+                    <button key={d.key} onClick={() => setDuration(duration === d.key ? "any" : d.key)} style={optionChip(duration === d.key)}>
+                      {d.label}
+                    </button>
+                  ))}
+                </FilterGroup>
 
-                  <FilterGroup label="Duration">
-                    {durations.map(d => (
-                      <button key={d.key} onClick={() => setDuration(duration === d.key ? "any" : d.key)} style={optionChip(duration === d.key)}>
-                        {d.label}
-                      </button>
-                    ))}
-                  </FilterGroup>
+                <FilterGroup label="Risk level">
+                  {riskOptions.map(r => (
+                    <button key={r} onClick={() => setRisk(risk === r ? "any" : r)} style={optionChip(risk === r)}>
+                      {r}
+                    </button>
+                  ))}
+                </FilterGroup>
 
-                  <FilterGroup label="Risk level">
-                    {riskOptions.map(r => (
-                      <button key={r} onClick={() => setRisk(risk === r ? "any" : r)} style={optionChip(risk === r)}>
-                        {r}
-                      </button>
-                    ))}
-                  </FilterGroup>
+                <FilterGroup label="Status">
+                  {statusOptions.map(s => (
+                    <button key={s} onClick={() => setStatus(status === s ? "any" : s)} style={optionChip(status === s)}>
+                      {s}
+                    </button>
+                  ))}
+                </FilterGroup>
 
-                  <FilterGroup label="Status">
-                    {statusOptions.map(s => (
-                      <button key={s} onClick={() => setStatus(status === s ? "any" : s)} style={optionChip(status === s)}>
-                        {s}
-                      </button>
-                    ))}
-                  </FilterGroup>
-
+                {/* Footer: clear + OK */}
+                <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+                  <button
+                    onClick={clearFilters}
+                    disabled={activeFilterCount === 0}
+                    style={{ flex: 1, padding: "12px 0", borderRadius: 12, cursor: activeFilterCount > 0 ? "pointer" : "not-allowed", border: "1.5px solid #e2e8f0", backgroundColor: "#fff", color: activeFilterCount > 0 ? "#374151" : "#b6c1cf", fontSize: 13.5, fontWeight: 700 }}
+                  >
+                    Clear All
+                  </button>
                   <button
                     onClick={() => setPanelOpen(false)}
-                    style={{ width: "100%", marginTop: 6, padding: "12px 0", borderRadius: 12, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 750 }}
+                    style={{ flex: 2, padding: "12px 0", borderRadius: 12, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #2563eb, #4f46e5)", color: "#fff", fontSize: 14, fontWeight: 750, boxShadow: "0 4px 14px rgba(37,99,235,0.3)" }}
                   >
-                    Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
+                    OK — Show {filtered.length} {filtered.length === 1 ? "Opportunity" : "Opportunities"}
                   </button>
-                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "9px 0 0 0", textAlign: "center" }}>Tap a selected option again to remove it</p>
                 </div>
-              </>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Active category banner ── */}
         {activeCat && (
