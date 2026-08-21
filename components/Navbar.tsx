@@ -82,9 +82,9 @@ export default function Navbar() {
             gap: 24,
           }}
         >
-          {/* Logo */}
+          {/* Logo — home for members, landing for guests */}
           <Link
-            href="/"
+            href={user ? "/home" : "/"}
             onClick={() => setMenuOpen(false)}
             style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}
           >

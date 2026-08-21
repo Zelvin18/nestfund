@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { ArrowTrendingUpIcon, ShieldCheckIcon, StarIcon } from "@heroicons/react/24/solid"
-import CountUp from "@/components/ui/CountUp"
-import { useLandingFeatured, usePlatformStats, useOpportunities } from "@/lib/hooks"
+import { useOpportunities, useSession } from "@/lib/hooks"
 import { ComingSoonSection } from "@/components/comingsoon/ComingSoon"
+import MarketOverview from "@/components/home/MarketOverview"
 import OpportunityCard from "@/components/opportunities/OpportunityCard"
 import { CATEGORIES } from "@/lib/data/opportunities"
 
@@ -46,12 +47,13 @@ const faqs = [
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [ticker, setTicker] = useState(0)
+  const router = useRouter()
+  const { user } = useSession()
 
+  // Signed-in visitors belong on their app home, not the marketing page
   useEffect(() => {
-    const t = setInterval(() => setTicker(p => (p + 1) % 3), 3000)
-    return () => clearInterval(t)
-  }, [])
+    if (user) router.replace("/home")
+  }, [user, router])
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#fff", overflowX: "hidden" }}>
@@ -60,10 +62,10 @@ export default function LandingPage() {
       <LandingNav />
 
       {/* ══ HERO ══ */}
-      <HeroSection ticker={ticker} />
+      <HeroSection />
 
-      {/* ══ TRUST NUMBERS ══ */}
-      <TrustNumbers />
+      {/* ══ LIVE MARKET OVERVIEW — real platform statistics ══ */}
+      <MarketOverview />
 
       {/* ══ WHAT CAN YOU INVEST IN — the five categories ══ */}
       <CategoriesSection />
@@ -133,10 +135,9 @@ function LandingNav() {
 /* ══════════════════════════════════
    HERO SECTION
 ══════════════════════════════════ */
-function HeroSection({ ticker }: { ticker: number }) {
-  const featuredCards = useLandingFeatured()
+function HeroSection() {
   return (
-    <section style={{ position: "relative", overflow: "hidden", minHeight: "88vh", display: "flex", flexDirection: "column" }}>
+    <section style={{ position: "relative", overflow: "hidden", minHeight: "68vh", display: "flex", flexDirection: "column" }}>
 
       {/* Full-bleed background photo */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -150,7 +151,7 @@ function HeroSection({ ticker }: { ticker: number }) {
       </div>
 
       {/* Content */}
-      <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px 24px 0", maxWidth: 1140, margin: "0 auto", width: "100%" }}>
+      <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "72px 24px 40px", maxWidth: 1140, margin: "0 auto", width: "100%" }}>
 
         {/* Headline — clean, moderate weight */}
         <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -232,85 +233,8 @@ function HeroSection({ ticker }: { ticker: number }) {
           </Link>
         </div>
 
-        {/* Featured opportunity strip — a mix of categories, picked in Admin → Site Settings */}
-        <div className="hero-cards-strip">
-          {featuredCards.map((c, i) => (
-            <Link key={c.id} href={c.href} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{
-                backgroundColor: "rgba(255,255,255,0.09)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                borderRadius: 16, overflow: "hidden",
-                minWidth: 228, maxWidth: 248,
-                boxShadow: i === ticker ? "0 18px 44px rgba(0,0,0,0.35)" : "0 8px 24px rgba(0,0,0,0.2)",
-                transition: "transform 0.35s, border-color 0.35s, box-shadow 0.35s",
-                transform: i === ticker ? "translateY(-10px)" : "translateY(0)",
-                borderColor: i === ticker ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.14)",
-              }}>
-                {/* Image with category chip + gradient */}
-                <div style={{ position: "relative", height: 116, overflow: "hidden" }}>
-                  <img src={c.img} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.45) 100%)" }} />
-                  <span style={{ position: "absolute", top: 9, left: 9, fontSize: 9, fontWeight: 800, color: "#fff", backgroundColor: c.accent, padding: "3px 9px", borderRadius: 99, textTransform: "uppercase" as const, letterSpacing: "0.05em", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>{c.kind}</span>
-                </div>
-                <div style={{ padding: "12px 14px 14px" }}>
-                  <p style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", margin: "0 0 2px 0", letterSpacing: "-0.1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</p>
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.location}</p>
-
-                  {/* Funding progress */}
-                  <div style={{ height: 4, borderRadius: 99, backgroundColor: "rgba(255,255,255,0.14)", overflow: "hidden", marginBottom: 5 }}>
-                    <div style={{ height: "100%", width: `${c.progress}%`, borderRadius: 99, backgroundColor: c.accent }} />
-                  </div>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>{c.progress}% funded</p>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.2px" }}>UGX {c.price.toLocaleString()}</p>
-                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.42)", margin: "1px 0 0 0" }}>{c.unitLabel}</p>
-                    </div>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", backgroundColor: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 99, padding: "4px 10px", whiteSpace: "nowrap" }}>{c.returnTag}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
         {/* Bottom fade into next section */}
         <div style={{ height: 48, background: "linear-gradient(to bottom, transparent, rgba(248,250,252,0.15))" }} />
-      </div>
-    </section>
-  )
-}
-
-/* ══════════════════════════════════
-   TRUST NUMBERS
-══════════════════════════════════ */
-function TrustNumbers() {
-  // Numbers come from Admin → Site Settings + live listing counts
-  const platform = usePlatformStats()
-  const { opportunities } = useOpportunities()
-  const stats = [
-    { value: platform.marketVolume, label: "invested through the platform" },
-    { value: `${opportunities.filter(o => o.status !== "Coming Soon").length}+`, label: "verified opportunities" },
-    { value: platform.distributedToInvestors, label: "distributed to investors" },
-    { value: `${platform.totalInvestors.toLocaleString()}+`, label: "investors on the platform" },
-  ]
-  return (
-    <section style={{ backgroundColor: "#f8fafc", padding: "56px 24px" }}>
-      <div style={{ maxWidth: 1140, margin: "0 auto" }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", textAlign: "center", marginBottom: 32 }}>
-          Results, Not Promises
-        </p>
-        <div className="trust-grid">
-          {stats.map((s, i) => (
-            <div key={i} style={{ backgroundColor: "#fff", borderRadius: 16, padding: "24px 20px", border: "1px solid #e8ecf0", textAlign: "center" }}>
-              <p style={{ fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 900, color: "#0f172a", letterSpacing: "-1px", margin: "0 0 6px 0" }}><CountUp value={s.value} /></p>
-              <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   )
