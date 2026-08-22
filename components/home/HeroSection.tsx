@@ -1,16 +1,25 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
 import { ArrowRightIcon, ShieldCheckIcon, PlayCircleIcon } from "@heroicons/react/24/outline"
-import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, CheckBadgeIcon, BoltIcon } from "@heroicons/react/24/solid"
-import Sparkline from "@/components/ui/Sparkline"
-import { useHomeHeroProperty } from "@/lib/hooks"
+import { ArrowTrendingUpIcon, CheckBadgeIcon, BoltIcon } from "@heroicons/react/24/solid"
+import { useLandingFeatured } from "@/lib/hooks"
 
 export default function HeroSection() {
-  // The featured property is chosen in Admin → Site Settings
-  const hero = useHomeHeroProperty()
-  const heroUp = hero.priceChangePercent >= 0
-  const heroSparkData = hero.chartData.slice(-15).map(d => d.value)
+  // The rotating cards are the featured opportunities from Admin → Site Settings
+  const featured = useLandingFeatured()
+  const [slide, setSlide] = useState(0)
+  const hovering = useRef(false)
+
+  useEffect(() => {
+    if (featured.length < 2) return
+    const t = setInterval(() => {
+      if (!hovering.current) setSlide(s => (s + 1) % featured.length)
+    }, 5000)
+    return () => clearInterval(t)
+  }, [featured.length])
+
   return (
     <section
       className="hero-section"
@@ -206,144 +215,131 @@ export default function HeroSection() {
             <p style={{ fontSize: 11, color: "#10b981", fontWeight: 600, margin: 0 }}>Paid on the 5th, automatically</p>
           </div>
 
-          {/* Main property card */}
+          {/* Rotating opportunity carousel — one slide per featured record */}
           <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: 20,
-              boxShadow: "0 32px 80px rgba(0,0,0,0.45)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              overflow: "hidden",
-              maxWidth: 420,
-              marginLeft: "auto",
-            }}
+            onMouseEnter={() => { hovering.current = true }}
+            onMouseLeave={() => { hovering.current = false }}
+            style={{ position: "relative", maxWidth: 420, marginLeft: "auto", minHeight: 442 }}
           >
-            {/* Property image */}
-            <div style={{ position: "relative", height: 210, overflow: "hidden" }}>
-              <img
-                src={hero.image}
-                alt={hero.name}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  background: "linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%)",
-                }}
-              />
-              <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 6 }}>
-                <span
+            {featured.map((c, i) => {
+              const active = i === slide
+              return (
+                <div
+                  key={c.id}
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 4,
-                    backgroundColor: "rgba(255,255,255,0.94)",
-                    borderRadius: 99,
-                    padding: "4px 10px",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "#16a34a",
-                    backdropFilter: "blur(4px)",
+                    position: i === 0 ? "relative" : "absolute",
+                    inset: i === 0 ? undefined : 0,
+                    opacity: active ? 1 : 0,
+                    transform: active ? "translateX(0) scale(1)" : "translateX(28px) scale(0.98)",
+                    transition: "opacity 0.65s ease, transform 0.65s ease",
+                    pointerEvents: active ? "auto" : "none",
+                    zIndex: active ? 2 : 1,
                   }}
                 >
-                  <CheckBadgeIcon style={{ width: 13, height: 13 }} />
-                  Verified
-                </span>
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    backgroundColor: "rgba(13,148,136,0.92)",
-                    borderRadius: 99,
-                    padding: "4px 10px",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "#fff",
-                  }}
-                >
-                  {hero.occupancy}% Occupied
-                </span>
-              </div>
-            </div>
+                  <div
+                    style={{
+                      backgroundColor: "#fff",
+                      borderRadius: 20,
+                      boxShadow: "0 32px 80px rgba(0,0,0,0.45)",
+                      border: "1px solid rgba(255,255,255,0.14)",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "100%",
+                    }}
+                  >
+                    {/* Image */}
+                    <div style={{ position: "relative", height: 200, overflow: "hidden", flexShrink: 0 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={c.img} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%)" }} />
+                      <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 6 }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, backgroundColor: "rgba(255,255,255,0.94)", borderRadius: 99, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: "#16a34a", backdropFilter: "blur(4px)" }}>
+                          <CheckBadgeIcon style={{ width: 13, height: 13 }} />
+                          Verified
+                        </span>
+                        <span style={{ display: "inline-flex", alignItems: "center", backgroundColor: c.accent, borderRadius: 99, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                          {c.kind}
+                        </span>
+                      </div>
+                    </div>
 
-            {/* Card content */}
-            <div style={{ padding: "16px 18px 20px" }}>
-              {/* Name + price */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-                <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0" }}>
-                    {hero.name}
-                  </h3>
-                  <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>{hero.location}</p>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.5px" }}>
-                    UGX {hero.pricePerShare.toLocaleString()}
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3, fontSize: 12, fontWeight: 700, color: heroUp ? "#10b981" : "#ef4444" }}>
-                    {heroUp ? <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} /> : <ArrowTrendingDownIcon style={{ width: 13, height: 13 }} />}
-                    {heroUp ? "+" : ""}{hero.priceChangePercent}% Today
+                    {/* Content */}
+                    <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12, gap: 10 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 3px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {c.name}
+                          </h3>
+                          <p style={{ fontSize: 12, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.location}</p>
+                        </div>
+                        <div style={{ textAlign: "right", flexShrink: 0 }}>
+                          <p style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", margin: "0 0 2px 0", letterSpacing: "-0.5px" }}>
+                            UGX {c.price.toLocaleString()}
+                          </p>
+                          <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{c.unitLabel}</p>
+                        </div>
+                      </div>
+
+                      {/* Funding progress */}
+                      <div style={{ backgroundColor: "#f8fafc", borderRadius: 10, padding: "10px 14px", marginBottom: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                          <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Funding progress</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: "#0f172a" }}>{c.progress}%</span>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 99, backgroundColor: "#eef1f5", overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${c.progress}%`, borderRadius: 99, backgroundColor: c.accent, transition: "width 0.6s ease" }} />
+                        </div>
+                      </div>
+
+                      {/* Stat tiles */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+                        <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                          <p style={{ fontSize: 10, color: "#94a3b8", margin: "0 0 3px 0", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.03em" }}>Target Return</p>
+                          <p style={{ fontSize: 13.5, fontWeight: 750, color: "#10b981", margin: 0, whiteSpace: "nowrap" }}>{c.returnTag}</p>
+                        </div>
+                        <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                          <p style={{ fontSize: 10, color: "#94a3b8", margin: "0 0 3px 0", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.03em" }}>Category</p>
+                          <p style={{ fontSize: 13.5, fontWeight: 750, color: c.accent, margin: 0 }}>{c.kind}</p>
+                        </div>
+                      </div>
+
+                      {/* CTA */}
+                      <Link
+                        href={c.href}
+                        style={{
+                          display: "block", width: "100%", marginTop: "auto",
+                          padding: "12px 0", borderRadius: 10,
+                          background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                          color: "#fff", fontSize: 13, fontWeight: 700,
+                          textAlign: "center", textDecoration: "none", boxSizing: "border-box",
+                        }}
+                      >
+                        View Opportunity — UGX {c.price.toLocaleString()}/{c.unitLabel.replace("per ", "")}
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
+            })}
 
-              {/* Sparkline chart */}
-              <div
-                style={{
-                  backgroundColor: "#f8fafc",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  marginBottom: 14,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                }}
-              >
-                <div>
-                  <p style={{ fontSize: 10, color: "#94a3b8", marginBottom: 1, fontWeight: 500 }}>30-day chart</p>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: heroUp ? "#10b981" : "#ef4444", margin: 0 }}>{heroUp ? "↑ Trending up" : "↓ Cooling off"}</p>
-                </div>
-                <Sparkline data={heroSparkData} width={160} height={48} positive={heroUp} strokeWidth={2.2} />
-              </div>
-
-              {/* Stats */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
-                {[
-                  { label: "Yield (Annual)", value: `${hero.rentalYield}%`, green: true },
-                  { label: "Area Score", value: `${hero.areaScore}/100` },
-                  { label: "Growth", value: hero.futureGrowth, green: hero.futureGrowth === "High" },
-                ].map(s => (
-                  <div key={s.label} style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "8px 6px", textAlign: "center" }}>
-                    <p style={{ fontSize: 10, color: "#94a3b8", margin: "0 0 3px 0", fontWeight: 500 }}>{s.label}</p>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: s.green ? "#10b981" : "#0f172a", margin: 0 }}>{s.value}</p>
-                  </div>
+            {/* Slide dots */}
+            {featured.length > 1 && (
+              <div style={{ position: "absolute", bottom: -26, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 7, zIndex: 3 }}>
+                {featured.map((c, i) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSlide(i)}
+                    aria-label={`Show ${c.name}`}
+                    style={{
+                      width: i === slide ? 22 : 8, height: 8, borderRadius: 99, border: "none", cursor: "pointer",
+                      backgroundColor: i === slide ? "#fff" : "rgba(255,255,255,0.35)",
+                      transition: "all 0.3s ease", padding: 0,
+                    }}
+                  />
                 ))}
               </div>
-
-              {/* CTA */}
-              <Link
-                href={`/property/${hero.id}`}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "12px 0",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
-                  color: "#fff",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "center",
-                  textDecoration: "none",
-                  boxSizing: "border-box",
-                }}
-              >
-                Buy Shares — UGX {hero.pricePerShare.toLocaleString()}/share
-              </Link>
-            </div>
+            )}
           </div>
         </div>
       </div>
