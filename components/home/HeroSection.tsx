@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { ArrowRightIcon, ShieldCheckIcon, PlayCircleIcon } from "@heroicons/react/24/outline"
-import { ArrowTrendingUpIcon, CheckBadgeIcon, BoltIcon } from "@heroicons/react/24/solid"
+import { ArrowRightIcon, PlayCircleIcon } from "@heroicons/react/24/outline"
+import { ArrowTrendingUpIcon, CheckBadgeIcon } from "@heroicons/react/24/solid"
 import { useLandingFeatured } from "@/lib/hooks"
 
 export default function HeroSection() {
@@ -107,9 +107,9 @@ export default function HeroSection() {
           </p>
 
           {/* CTA buttons */}
-          <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 38 }}>
+          <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Link
-              href="/market"
+              href="/opportunities"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -149,24 +149,6 @@ export default function HeroSection() {
             </Link>
           </div>
 
-          {/* Trust row */}
-          <div className="hero-trust" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {[
-              { icon: <ShieldCheckIcon style={{ width: 15, height: 15, color: "#34d399" }} />, text: "CMA Regulated" },
-              { icon: <BoltIcon style={{ width: 15, height: 15, color: "#60a5fa" }} />, text: "Avg. 10.4% Annual Yield" },
-              { icon: <CheckBadgeIcon style={{ width: 15, height: 15, color: "#a78bfa" }} />, text: "14,250+ Investors" },
-            ].map((item, i) => (
-              <div key={i} style={{
-                display: "flex", alignItems: "center", gap: 7,
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.09)",
-                borderRadius: 99, padding: "7px 14px",
-              }}>
-                {item.icon}
-                <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>{item.text}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Right — live property card */}

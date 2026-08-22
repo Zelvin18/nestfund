@@ -91,8 +91,8 @@ export default function WhyNestFund() {
               }}
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLDivElement
-                el.style.boxShadow = `0 8px 28px ${f.color}18`
-                el.style.borderColor = `${f.color}30`
+                el.style.boxShadow = "0 8px 28px rgba(15,23,42,0.1)"
+                el.style.borderColor = "#cbd5e1"
                 el.style.transform = "translateY(-2px)"
               }}
               onMouseLeave={e => {
@@ -102,26 +102,28 @@ export default function WhyNestFund() {
                 el.style.transform = "translateY(0)"
               }}
             >
+              {/* Uniform grey icon tiles — one calm style across the grid */}
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
                 <div
                   style={{
                     width: 48,
                     height: 48,
                     borderRadius: 13,
-                    backgroundColor: f.bg,
+                    backgroundColor: "#f1f5f9",
+                    border: "1px solid #e8edf4",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <f.icon style={{ width: 24, height: 24, color: f.color }} />
+                  <f.icon style={{ width: 24, height: 24, color: "#64748b" }} />
                 </div>
                 <span
                   style={{
                     fontSize: 10,
                     fontWeight: 700,
-                    color: f.color,
-                    backgroundColor: f.bg,
+                    color: "#64748b",
+                    backgroundColor: "#f1f5f9",
                     padding: "3px 9px",
                     borderRadius: 99,
                     textTransform: "uppercase",

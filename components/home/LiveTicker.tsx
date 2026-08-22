@@ -86,7 +86,7 @@ export default function LiveTicker() {
           height: "100%",
           paddingLeft: 80,
           whiteSpace: "nowrap",
-          animation: "ticker 50s linear infinite",
+          animation: "ticker 26s linear infinite",
           willChange: "transform",
         }}
       >

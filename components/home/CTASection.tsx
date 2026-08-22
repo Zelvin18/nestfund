@@ -21,26 +21,10 @@ export default function CTASection() {
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
 
-        {/* Top badge */}
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            backgroundColor: "rgba(255,255,255,0.12)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            borderRadius: 99,
-            padding: "6px 16px",
-            fontSize: 12,
-            fontWeight: 600,
-            color: "#bfdbfe",
-            marginBottom: 28,
-            backdropFilter: "blur(8px)",
-          }}
-        >
-          <ArrowTrendingUpIcon style={{ width: 13, height: 13 }} />
+        {/* Top line — plain words, no pill */}
+        <p style={{ fontSize: 13.5, fontWeight: 600, color: "#bfdbfe", letterSpacing: "0.03em", margin: "0 0 24px 0" }}>
           Join 14,250+ investors already earning
-        </div>
+        </p>
 
         <h2
           style={{
@@ -94,7 +78,7 @@ export default function CTASection() {
             <ArrowRightIcon style={{ width: 18, height: 18 }} />
           </Link>
           <Link
-            href="/market"
+            href="/opportunities"
             style={{
               display: "inline-flex",
               alignItems: "center",

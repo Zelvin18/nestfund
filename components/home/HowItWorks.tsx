@@ -88,18 +88,18 @@ export default function HowItWorks() {
                 gap: 12,
               }}
             >
-              {/* Icon + step number */}
+              {/* Icon + step number — uniform grey, one calm style */}
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div style={{
                   width: 52, height: 52, borderRadius: 14,
-                  backgroundColor: step.bg,
+                  backgroundColor: "#f1f5f9", border: "1px solid #e8edf4",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <step.icon style={{ width: 26, height: 26, color: step.color }} />
+                  <step.icon style={{ width: 26, height: 26, color: "#64748b" }} />
                 </div>
                 <span style={{
-                  fontSize: 11, fontWeight: 800, color: step.color,
-                  backgroundColor: step.bg, padding: "4px 10px",
+                  fontSize: 11, fontWeight: 800, color: "#64748b",
+                  backgroundColor: "#f1f5f9", padding: "4px 10px",
                   borderRadius: 99, letterSpacing: "0.05em",
                 }}>
                   {step.step}
@@ -130,8 +130,8 @@ export default function HowItWorks() {
                     {step.stat.label}
                   </p>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <ArrowTrendingUpIcon style={{ width: 12, height: 12, color: step.color }} />
-                    <p style={{ fontSize: 14, fontWeight: 800, color: step.color, margin: 0 }}>
+                    <ArrowTrendingUpIcon style={{ width: 12, height: 12, color: "#10b981" }} />
+                    <p style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", margin: 0 }}>
                       {step.stat.value}
                     </p>
                   </div>
